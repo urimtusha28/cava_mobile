@@ -7,20 +7,23 @@ import '../../../../core/widgets/search_bar.dart';
 import '../../../../core/widgets/category_chip_bar.dart';
 import '../../../../core/widgets/visit_store_banner.dart';
 import '../../../../core/widgets/product_section.dart';
-import '../../../categories/data/repositories/catalog_repository.dart';
-import '../../../products/presentation/home_products_query.dart';
+import '../../../categories/presentation/categories_query.dart';
+import '../../domain/entities/home_section_entity.dart';
+import '../home_sections_query.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  static final _catalog = CatalogFacade();
-
   @override
   Widget build(BuildContext context) {
-    final categories = _catalog.categories.getAll();
-    final recommended = HomeProductsQuery.recommended();
-    final bestSellers = HomeProductsQuery.bestSellers();
-    final offers = HomeProductsQuery.offers();
+    final categories = CategoriesQuery.getAll();
+    final sections = HomeSectionsQuery.getSections();
+    final recommended =
+        sections.firstWhere((s) => s.type == HomeSectionType.recommended);
+    final bestSellers =
+        sections.firstWhere((s) => s.type == HomeSectionType.bestSellers);
+    final offers =
+        sections.firstWhere((s) => s.type == HomeSectionType.offers);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -50,25 +53,25 @@ class HomeScreen extends StatelessWidget {
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
             SliverToBoxAdapter(
               child: ProductSection(
-                title: 'Të rekomanduara',
-                products: recommended,
-                seeAllRoute: '/category/wines',
+                title: recommended.title,
+                products: recommended.products,
+                seeAllRoute: recommended.seeAllRoute,
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
             SliverToBoxAdapter(
               child: ProductSection(
-                title: 'Më të shiturat',
-                products: bestSellers,
-                seeAllRoute: '/category/spirits',
+                title: bestSellers.title,
+                products: bestSellers.products,
+                seeAllRoute: bestSellers.seeAllRoute,
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
             SliverToBoxAdapter(
               child: ProductSection(
-                title: 'Oferta',
-                products: offers,
-                seeAllRoute: '/category/wines',
+                title: offers.title,
+                products: offers.products,
+                seeAllRoute: offers.seeAllRoute,
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxxl)),

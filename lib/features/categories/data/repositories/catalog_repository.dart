@@ -2,10 +2,12 @@ import '../../../../core/di/injection.dart';
 import '../../../products/domain/entities/product_entity.dart';
 import '../../../products/domain/repositories/product_repository.dart';
 import '../../../products/presentation/products_module.dart';
-import '../../domain/entities/category_entity.dart';
-import '../mock/mock_categories.dart';
 
-/// Backward-compatible adapter for screens still using [CatalogFacade].
+/// Deprecated backward-compatible adapter.
+///
+/// Prefer [ProductRepository] via DI or presentation query helpers.
+/// Kept for any legacy imports outside Phase 3 scope.
+@Deprecated('Use ProductRepository via DI or CategoryProductsQuery')
 class CatalogProductRepository {
   CatalogProductRepository() {
     ProductsModule.ensureInitialized();
@@ -29,23 +31,10 @@ class CatalogProductRepository {
   ProductEntity? getById(String id) => _repository.getById(id);
 }
 
-class CategoryRepository {
-  List<CategoryEntity> getAll() => MockCategories.categories;
-
-  CategoryEntity? getById(String id) {
-    try {
-      return MockCategories.categories.firstWhere((c) => c.id == id);
-    } catch (_) {
-      return null;
-    }
-  }
-}
-
+/// Deprecated facade — no longer used by Home or Categories screens.
+@Deprecated('Use domain repositories and query helpers via DI')
 class CatalogFacade {
-  CatalogFacade()
-      : categories = CategoryRepository(),
-        products = CatalogProductRepository();
+  CatalogFacade() : products = CatalogProductRepository();
 
-  final CategoryRepository categories;
   final CatalogProductRepository products;
 }

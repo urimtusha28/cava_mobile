@@ -8,20 +8,18 @@ import '../../../../core/widgets/subcategory_chip_bar.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/widgets/category_card.dart';
 import '../../../../core/widgets/product_grid_card.dart';
-import '../../data/mock/mock_subcategories.dart';
 import '../../domain/entities/subcategory_entity.dart';
 import '../../domain/subcategory_filter.dart';
-import '../../data/repositories/catalog_repository.dart';
 import '../../../products/domain/entities/product_entity.dart';
+import '../categories_query.dart';
+import '../category_products_query.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
 
-  static final _repo = CategoryRepository();
-
   @override
   Widget build(BuildContext context) {
-    final categories = _repo.getAll();
+    final categories = CategoriesQuery.getAll();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -51,8 +49,6 @@ class CategoryProductsScreen extends StatefulWidget {
 }
 
 class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
-  static final _catalog = CatalogFacade();
-
   final _searchController = TextEditingController();
   String _selectedSubId = 'all';
   String _searchQuery = '';
@@ -76,13 +72,10 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
   @override
   Widget build(BuildContext context) {
     final isAllProducts = widget.categoryId == 'all';
-    final category = isAllProducts ? null : _catalog.categories.getById(widget.categoryId);
-    final products = isAllProducts
-        ? _catalog.products.getAll()
-        : _catalog.products.getProductsByCategory(widget.categoryId);
-    final subcategories = isAllProducts
-        ? const [SubcategoryEntity(id: 'all', label: 'All Products')]
-        : MockSubcategories.forCategory(widget.categoryId);
+    final category = CategoryProductsQuery.categoryById(widget.categoryId);
+    final products = CategoryProductsQuery.productsFor(widget.categoryId);
+    final subcategories =
+        CategoryProductsQuery.subcategoriesFor(widget.categoryId);
     final selectedSub = subcategories.firstWhere(
       (sub) => sub.id == _selectedSubId,
       orElse: () => subcategories.first,
