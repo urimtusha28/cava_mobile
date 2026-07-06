@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "583962742465",
+    "project_id": "cavapremium-31036",
+    "storage_bucket": "cavapremium-31036.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:583962742465:android:9b34fad85e8c3cc1f38e40",
+        "android_client_info": {
+          "package_name": "com.example.cava"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAl0tHQTVvg2StcNSKyK4xRraCvhyqfTeY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:583962742465:android:ad194ce8f73edcf8f38e40",
+        "android_client_info": {
+          "package_name": "com.example.cava_ecommerce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAl0tHQTVvg2StcNSKyK4xRraCvhyqfTeY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
