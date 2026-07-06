@@ -1,35 +1,32 @@
-import '../../../products/data/mock/mock_products.dart';
-import '../../domain/entities/category_entity.dart';
+import '../../../../core/di/injection.dart';
 import '../../../products/domain/entities/product_entity.dart';
+import '../../../products/domain/repositories/product_repository.dart';
+import '../../../products/presentation/products_module.dart';
+import '../../domain/entities/category_entity.dart';
 import '../mock/mock_categories.dart';
 
-class ProductRepository {
-  List<ProductEntity> getFeaturedProducts() =>
-      MockProducts.products.where((p) => p.isFeatured).toList();
-
-  List<ProductEntity> getRecommended() => getFeaturedProducts();
-
-  List<ProductEntity> getBestSellers() {
-    final list = List<ProductEntity>.from(MockProducts.products);
-    list.sort((a, b) => b.reviewCount.compareTo(a.reviewCount));
-    return list.take(8).toList();
+/// Backward-compatible adapter for screens still using [CatalogFacade].
+class CatalogProductRepository {
+  CatalogProductRepository() {
+    ProductsModule.ensureInitialized();
   }
 
-  List<ProductEntity> getOffers() =>
-      MockProducts.products.where((p) => p.oldPrice != null).toList();
+  ProductRepository get _repository => sl<ProductRepository>();
+
+  List<ProductEntity> getFeaturedProducts() => _repository.getRecommended();
+
+  List<ProductEntity> getRecommended() => _repository.getRecommended();
+
+  List<ProductEntity> getBestSellers() => _repository.getBestSellers();
+
+  List<ProductEntity> getOffers() => _repository.getOffers();
 
   List<ProductEntity> getProductsByCategory(String categoryId) =>
-      MockProducts.products.where((p) => p.categoryId == categoryId).toList();
+      _repository.getProductsByCategory(categoryId);
 
-  List<ProductEntity> getAll() => List<ProductEntity>.from(MockProducts.products);
+  List<ProductEntity> getAll() => _repository.getAll();
 
-  ProductEntity? getById(String id) {
-    try {
-      return MockProducts.products.firstWhere((p) => p.id == id);
-    } catch (_) {
-      return null;
-    }
-  }
+  ProductEntity? getById(String id) => _repository.getById(id);
 }
 
 class CategoryRepository {
@@ -47,8 +44,8 @@ class CategoryRepository {
 class CatalogFacade {
   CatalogFacade()
       : categories = CategoryRepository(),
-        products = ProductRepository();
+        products = CatalogProductRepository();
 
   final CategoryRepository categories;
-  final ProductRepository products;
+  final CatalogProductRepository products;
 }

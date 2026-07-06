@@ -1,30 +1,48 @@
 import 'package:get_it/get_it.dart';
 
+import '../../features/products/data/datasources/product_data_source.dart';
+import '../../features/products/data/datasources/product_mock_datasource.dart';
+import '../../features/products/data/repositories/product_repository_impl.dart';
+import '../../features/products/domain/repositories/product_repository.dart';
+import '../../features/products/domain/usecases/get_best_seller_products.dart';
+import '../../features/products/domain/usecases/get_offer_products.dart';
+import '../../features/products/domain/usecases/get_product_by_id.dart';
+import '../../features/products/domain/usecases/get_recommended_products.dart';
+
 /// Global service locator.
-///
-/// Phase 2 will register repositories, datasources, and use cases here.
-/// Not wired to [main] yet — existing UI continues using mock data directly.
 final GetIt sl = GetIt.instance;
 
 bool _dependenciesConfigured = false;
 
 /// Registers application dependencies.
-///
-/// Call from `main()` only after Firebase and local storage are ready.
-/// Intentionally not invoked in Phase 1 to avoid changing runtime behavior.
-Future<void> configureDependencies() async {
+void configureDependencies() {
   if (_dependenciesConfigured) {
     return;
   }
 
-  // Phase 2 examples:
-  // sl.registerLazySingleton<ProductRemoteDataSource>(...);
-  // sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(...));
-  // sl.registerFactory(() => GetProductByIdUseCase(sl()));
+  _registerProducts();
   _dependenciesConfigured = true;
 }
 
-/// Resets registrations — useful for tests in Phase 2+.
+void _registerProducts() {
+  if (sl.isRegistered<ProductRepository>()) {
+    return;
+  }
+
+  sl.registerLazySingleton<ProductDataSource>(
+    () => const ProductMockDataSource(),
+  );
+  sl.registerLazySingleton<ProductRepository>(
+    () => ProductRepositoryImpl(sl<ProductDataSource>()),
+  );
+  sl.registerLazySingleton(() => GetRecommendedProducts(sl<ProductRepository>()));
+  sl.registerLazySingleton(() => GetBestSellerProducts(sl<ProductRepository>()));
+  sl.registerLazySingleton(() => GetOfferProducts(sl<ProductRepository>()));
+  sl.registerLazySingleton(() => GetProductById(sl<ProductRepository>()));
+}
+
+/// Resets registrations — useful for tests.
 Future<void> resetDependencies() async {
   await sl.reset();
+  _dependenciesConfigured = false;
 }

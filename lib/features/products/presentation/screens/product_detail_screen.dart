@@ -8,7 +8,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
-import '../../../categories/data/repositories/catalog_repository.dart';
+import '../../presentation/product_detail_query.dart';
 import '../../domain/entities/product_entity.dart';
 
 class ProductDetailScreen extends StatefulWidget {
@@ -22,8 +22,6 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen>
     with SingleTickerProviderStateMixin {
-  static final _catalog = CatalogFacade();
-
   int _quantity = 1;
   late final TabController _tabController;
 
@@ -42,7 +40,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final product = _catalog.products.getById(widget.productId);
+    final product = ProductDetailQuery.byId(widget.productId);
 
     if (product == null) {
       return Scaffold(

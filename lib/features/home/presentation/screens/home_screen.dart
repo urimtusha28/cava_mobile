@@ -8,6 +8,7 @@ import '../../../../core/widgets/category_chip_bar.dart';
 import '../../../../core/widgets/visit_store_banner.dart';
 import '../../../../core/widgets/product_section.dart';
 import '../../../categories/data/repositories/catalog_repository.dart';
+import '../../../products/presentation/home_products_query.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -17,9 +18,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categories = _catalog.categories.getAll();
-    final recommended = _catalog.products.getRecommended();
-    final bestSellers = _catalog.products.getBestSellers();
-    final offers = _catalog.products.getOffers();
+    final recommended = HomeProductsQuery.recommended();
+    final bestSellers = HomeProductsQuery.bestSellers();
+    final offers = HomeProductsQuery.offers();
 
     return Scaffold(
       backgroundColor: AppColors.background,
