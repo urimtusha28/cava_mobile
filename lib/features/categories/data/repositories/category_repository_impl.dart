@@ -11,20 +11,21 @@ class CategoryRepositoryImpl implements CategoryRepository {
   final CategoryDataSource _dataSource;
 
   @override
-  List<CategoryEntity> getAll() {
-    return CategoryMapper.toEntityList(_dataSource.getAllCategories());
-  }
+  Future<List<CategoryEntity>> getAll() => Future.sync(() {
+        return CategoryMapper.toEntityList(_dataSource.getAllCategories());
+      });
 
   @override
-  CategoryEntity? getById(String id) {
-    final model = _dataSource.getCategoryById(id);
-    return model == null ? null : CategoryMapper.toEntity(model);
-  }
+  Future<CategoryEntity?> getById(String id) => Future.sync(() {
+        final model = _dataSource.getCategoryById(id);
+        return model == null ? null : CategoryMapper.toEntity(model);
+      });
 
   @override
-  List<SubcategoryEntity> getSubcategories(String categoryId) {
-    return SubcategoryMapper.toEntityList(
-      _dataSource.getSubcategories(categoryId),
-    );
-  }
+  Future<List<SubcategoryEntity>> getSubcategories(String categoryId) =>
+      Future.sync(() {
+        return SubcategoryMapper.toEntityList(
+          _dataSource.getSubcategories(categoryId),
+        );
+      });
 }

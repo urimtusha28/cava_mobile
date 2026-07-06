@@ -15,6 +15,7 @@ import '../../features/cart/domain/usecases/add_to_cart.dart';
 import '../../features/cart/domain/usecases/clear_cart.dart';
 import '../../features/cart/domain/usecases/get_cart_count.dart';
 import '../../features/cart/domain/usecases/get_cart_items.dart';
+import '../../features/cart/domain/usecases/get_cart_summary.dart';
 import '../../features/cart/domain/usecases/remove_from_cart.dart';
 import '../../features/cart/domain/usecases/update_cart_quantity.dart';
 import '../../features/categories/data/datasources/category_data_source.dart';
@@ -136,6 +137,7 @@ void _registerCart() {
     () => CartRepositoryImpl(sl<CartDataSource>()),
   );
   sl.registerLazySingleton(() => GetCartItemsUseCase(sl<CartRepository>()));
+  sl.registerLazySingleton(() => GetCartSummaryUseCase(sl<CartRepository>()));
   sl.registerLazySingleton(() => AddToCartUseCase(sl<CartRepository>()));
   sl.registerLazySingleton(() => RemoveFromCartUseCase(sl<CartRepository>()));
   sl.registerLazySingleton(

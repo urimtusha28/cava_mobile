@@ -2,13 +2,13 @@ import '../../../../core/result/result.dart';
 import '../../../../core/usecase/base_usecase.dart';
 import '../repositories/cart_repository.dart';
 
-class ClearCartUseCase extends SyncUseCaseNoParams<void> {
+class ClearCartUseCase extends BaseUseCaseNoParams<void> {
   ClearCartUseCase(this._repository);
 
   final CartRepository _repository;
 
   @override
-  Result<void> call() {
-    return guardSync(_repository.clear);
+  Future<Result<void>> call() {
+    return guard(_repository.clear);
   }
 }

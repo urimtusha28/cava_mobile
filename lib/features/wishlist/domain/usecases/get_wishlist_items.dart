@@ -3,13 +3,13 @@ import '../../../../core/usecase/base_usecase.dart';
 import '../../../products/domain/entities/product_entity.dart';
 import '../repositories/wishlist_repository.dart';
 
-class GetWishlistItemsUseCase extends SyncUseCaseNoParams<List<ProductEntity>> {
+class GetWishlistItemsUseCase extends BaseUseCaseNoParams<List<ProductEntity>> {
   GetWishlistItemsUseCase(this._repository);
 
   final WishlistRepository _repository;
 
   @override
-  Result<List<ProductEntity>> call() {
-    return guardSync(_repository.getItems);
+  Future<Result<List<ProductEntity>>> call() {
+    return guard(_repository.getItems);
   }
 }

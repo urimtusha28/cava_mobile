@@ -1,26 +1,29 @@
 import '../../../products/domain/entities/product_entity.dart';
 import '../entities/cart_item_entity.dart';
+import '../entities/cart_summary_entity.dart';
 
 abstract class CartRepository {
-  List<CartItemEntity> getItems();
+  Future<CartSummaryEntity> getSummary();
 
-  int getItemCount();
+  Future<List<CartItemEntity>> getItems();
 
-  double getSubtotal();
+  Future<int> getItemCount();
 
-  double getDiscount();
+  Future<double> getSubtotal();
 
-  double getVat();
+  Future<double> getDiscount();
 
-  double getShipping();
+  Future<double> getVat();
 
-  double getTotal();
+  Future<double> getShipping();
 
-  void addProduct(ProductEntity product);
+  Future<double> getTotal();
 
-  void updateQuantity(int index, int quantity);
+  Future<void> addProduct(ProductEntity product);
 
-  void removeAt(int index);
+  Future<void> updateQuantity(int index, int quantity);
 
-  void clear();
+  Future<void> removeAt(int index);
+
+  Future<void> clear();
 }

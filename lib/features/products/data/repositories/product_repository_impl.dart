@@ -9,41 +9,42 @@ class ProductRepositoryImpl implements ProductRepository {
   final ProductDataSource _dataSource;
 
   @override
-  List<ProductEntity> getRecommended() {
-    return ProductMapper.toEntityList(_dataSource.getFeaturedProducts());
-  }
+  Future<List<ProductEntity>> getRecommended() => Future.sync(() {
+        return ProductMapper.toEntityList(_dataSource.getFeaturedProducts());
+      });
 
   @override
-  List<ProductEntity> getBestSellers() {
-    final models = List.of(_dataSource.getAllProducts());
-    models.sort((a, b) => b.reviewCount.compareTo(a.reviewCount));
-    return ProductMapper.toEntityList(models.take(8).toList(growable: false));
-  }
+  Future<List<ProductEntity>> getBestSellers() => Future.sync(() {
+        final models = List.of(_dataSource.getAllProducts());
+        models.sort((a, b) => b.reviewCount.compareTo(a.reviewCount));
+        return ProductMapper.toEntityList(models.take(8).toList(growable: false));
+      });
 
   @override
-  List<ProductEntity> getOffers() {
-    final models = _dataSource
-        .getAllProducts()
-        .where((model) => model.oldPrice != null)
-        .toList(growable: false);
-    return ProductMapper.toEntityList(models);
-  }
+  Future<List<ProductEntity>> getOffers() => Future.sync(() {
+        final models = _dataSource
+            .getAllProducts()
+            .where((model) => model.oldPrice != null)
+            .toList(growable: false);
+        return ProductMapper.toEntityList(models);
+      });
 
   @override
-  List<ProductEntity> getAll() {
-    return ProductMapper.toEntityList(_dataSource.getAllProducts());
-  }
+  Future<List<ProductEntity>> getAll() => Future.sync(() {
+        return ProductMapper.toEntityList(_dataSource.getAllProducts());
+      });
 
   @override
-  List<ProductEntity> getProductsByCategory(String categoryId) {
-    return ProductMapper.toEntityList(
-      _dataSource.getProductsByCategory(categoryId),
-    );
-  }
+  Future<List<ProductEntity>> getProductsByCategory(String categoryId) =>
+      Future.sync(() {
+        return ProductMapper.toEntityList(
+          _dataSource.getProductsByCategory(categoryId),
+        );
+      });
 
   @override
-  ProductEntity? getById(String id) {
-    final model = _dataSource.getProductById(id);
-    return model == null ? null : ProductMapper.toEntity(model);
-  }
+  Future<ProductEntity?> getById(String id) => Future.sync(() {
+        final model = _dataSource.getProductById(id);
+        return model == null ? null : ProductMapper.toEntity(model);
+      });
 }

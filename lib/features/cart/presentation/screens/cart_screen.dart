@@ -8,7 +8,8 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
-import '../cart_query.dart';
+import '../../../../core/state/cart_state_notifier.dart';
+import '../controllers/cart_controller.dart';
 import '../../domain/entities/cart_item_entity.dart';
 
 class CartScreen extends StatefulWidget {
@@ -19,22 +20,38 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  late final CartController _controller;
+  late final Future<void> _loadFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = createCartController();
+    _loadFuture = _controller.load();
+  }
+
   void _updateQuantity(int index, int quantity) {
-    setState(() => CartQuery.updateQuantity(index, quantity));
+    _controller.updateQuantity(index, quantity);
   }
 
   void _removeItem(int index) {
-    setState(() => CartQuery.removeAt(index));
+    _controller.removeAt(index);
   }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<int>(
-      valueListenable: CartQuery.revision,
-      builder: (context, _, child) {
-        final items = CartQuery.getItems();
+    return FutureBuilder<void>(
+      future: _loadFuture,
+      builder: (context, snapshot) {
+        return ValueListenableBuilder<int>(
+          valueListenable: CartStateNotifier.revision,
+          builder: (context, _, child) {
+            return ListenableBuilder(
+              listenable: _controller,
+              builder: (context, _) {
+                final items = _controller.items;
 
-        return Scaffold(
+                return Scaffold(
           backgroundColor: AppColors.background,
           body: SafeArea(
             child: items.isEmpty
@@ -89,17 +106,21 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                               ),
                             const SizedBox(height: AppSpacing.lg),
-                            const _OrderSummaryCard(),
+                            _OrderSummaryCard(controller: _controller),
                           ],
                         ),
                       ),
                       _CartFooter(
-                        total: CartQuery.total,
+                        total: _controller.total,
                         onContinue: () => context.push(AppRoutes.checkout),
                       ),
                     ],
                   ),
           ),
+                );
+              },
+            );
+          },
         );
       },
     );
@@ -231,7 +252,9 @@ class _QtyButton extends StatelessWidget {
 }
 
 class _OrderSummaryCard extends StatelessWidget {
-  const _OrderSummaryCard();
+  const _OrderSummaryCard({required this.controller});
+
+  final CartController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -246,18 +269,22 @@ class _OrderSummaryCard extends StatelessWidget {
         children: [
           Text('Totali i porosisë', style: AppTextStyles.h3),
           const SizedBox(height: AppSpacing.lg),
-          _SummaryRow('Çmimi', Formatters.currency(CartQuery.subtotal)),
+          _SummaryRow('Çmimi', Formatters.currency(controller.subtotal)),
           const SizedBox(height: AppSpacing.sm),
-          _SummaryRow('TVSH', Formatters.currency(CartQuery.vat)),
+          _SummaryRow('TVSH', Formatters.currency(controller.vat)),
           const SizedBox(height: AppSpacing.sm),
-          _SummaryRow('Transporti', Formatters.currency(CartQuery.shipping)),
+          _SummaryRow('Transporti', Formatters.currency(controller.shipping)),
           const SizedBox(height: AppSpacing.sm),
-          _SummaryRow('Zbritja', Formatters.currency(CartQuery.discount)),
+          _SummaryRow('Zbritja', Formatters.currency(controller.discount)),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
             child: Divider(height: 1, color: AppColors.border),
           ),
-          _SummaryRow('Totali:', Formatters.currency(CartQuery.total), emphasized: true),
+          _SummaryRow(
+            'Totali:',
+            Formatters.currency(controller.total),
+            emphasized: true,
+          ),
         ],
       ),
     );

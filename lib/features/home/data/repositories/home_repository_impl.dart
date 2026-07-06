@@ -13,16 +13,21 @@ class HomeRepositoryImpl implements HomeRepository {
   final ProductRepository _productRepository;
 
   @override
-  List<HomeSectionEntity> getSections() {
-    return _dataSource.getSectionConfigs().map(_resolveSection).toList();
+  Future<List<HomeSectionEntity>> getSections() async {
+    final configs = _dataSource.getSectionConfigs();
+    final sections = <HomeSectionEntity>[];
+    for (final model in configs) {
+      sections.add(await _resolveSection(model));
+    }
+    return sections;
   }
 
-  HomeSectionEntity _resolveSection(HomeSectionModel model) {
-    final products = _productsForType(model.type);
+  Future<HomeSectionEntity> _resolveSection(HomeSectionModel model) async {
+    final products = await _productsForType(model.type);
     return HomeSectionMapper.toEntity(model, products: products);
   }
 
-  List<ProductEntity> _productsForType(HomeSectionTypeModel type) {
+  Future<List<ProductEntity>> _productsForType(HomeSectionTypeModel type) {
     return switch (type) {
       HomeSectionTypeModel.recommended => _productRepository.getRecommended(),
       HomeSectionTypeModel.bestSellers => _productRepository.getBestSellers(),

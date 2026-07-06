@@ -6,10 +6,9 @@ import '../constants/app_assets.dart';
 import '../constants/app_spacing.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import '../presentation/navigation_badge_controller.dart';
 import '../state/cart_state_notifier.dart';
 import '../state/wishlist_state_notifier.dart';
-import '../../features/cart/presentation/cart_query.dart';
-import '../../features/wishlist/presentation/wishlist_query.dart';
 import '../router/app_routes.dart';
 
 class BottomNavigation extends StatefulWidget {
@@ -64,8 +63,9 @@ class _BottomNavigationState extends State<BottomNavigation> {
         return ValueListenableBuilder<int>(
           valueListenable: WishlistStateNotifier.revision,
           builder: (context, _, child) {
-            final wishlistCount = WishlistQuery.count;
-            final cartCount = CartQuery.itemCount;
+            NavigationBadgeController.ensureInitialized();
+            final wishlistCount = NavigationBadgeController.wishlistCount;
+            final cartCount = NavigationBadgeController.cartCount;
 
             return SafeArea(
               minimum: const EdgeInsets.fromLTRB(

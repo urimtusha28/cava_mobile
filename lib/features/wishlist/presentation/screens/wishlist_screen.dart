@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/state/wishlist_state_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
@@ -8,43 +9,72 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
-import '../../../cart/presentation/cart_query.dart';
 import '../../../products/domain/entities/product_entity.dart';
-import '../wishlist_query.dart';
+import '../controllers/wishlist_controller.dart';
 
-class WishlistScreen extends StatelessWidget {
+class WishlistScreen extends StatefulWidget {
   const WishlistScreen({super.key});
 
-  void _removeProduct(String productId) => WishlistQuery.remove(productId);
+  @override
+  State<WishlistScreen> createState() => _WishlistScreenState();
+}
+
+class _WishlistScreenState extends State<WishlistScreen> {
+  late final WishlistController _controller;
+  late final Future<void> _loadFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = createWishlistController();
+    _loadFuture = _controller.load();
+  }
+
+  void _removeProduct(String productId) => _controller.remove(productId);
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<int>(
-      valueListenable: WishlistQuery.revision,
-      builder: (context, _, child) {
-        final products = WishlistQuery.getItems();
+    return FutureBuilder<void>(
+      future: _loadFuture,
+      builder: (context, snapshot) {
+        return ValueListenableBuilder<int>(
+          valueListenable: WishlistStateNotifier.revision,
+          builder: (context, _, child) {
+            return ListenableBuilder(
+              listenable: _controller,
+              builder: (context, _) {
+                final products = _controller.items;
 
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          appBar: const CavaAppBar(title: 'Wishlist'),
-          body: products.isEmpty
-              ? Center(
-                  child: Text('Wishlist është bosh', style: AppTextStyles.bodySmall),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.all(AppSpacing.screen),
-                  itemCount: products.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-                  itemBuilder: (_, index) {
-                    final product = products[index];
-                    return _WishlistItemCard(
-                      product: product,
-                      onRemove: () => _removeProduct(product.id),
-                      onAddToCart: () => CartQuery.addProduct(product),
-                      onTap: () => context.push(AppRoutes.product(product.id)),
-                    );
-                  },
-                ),
+                return Scaffold(
+                  backgroundColor: AppColors.background,
+                  appBar: const CavaAppBar(title: 'Wishlist'),
+                  body: products.isEmpty
+                      ? Center(
+                          child: Text(
+                            'Wishlist është bosh',
+                            style: AppTextStyles.bodySmall,
+                          ),
+                        )
+                      : ListView.separated(
+                          padding: const EdgeInsets.all(AppSpacing.screen),
+                          itemCount: products.length,
+                          separatorBuilder: (_, _) =>
+                              const SizedBox(height: AppSpacing.md),
+                          itemBuilder: (_, index) {
+                            final product = products[index];
+                            return _WishlistItemCard(
+                              product: product,
+                              onRemove: () => _removeProduct(product.id),
+                              onAddToCart: () => _controller.addToCart(product),
+                              onTap: () =>
+                                  context.push(AppRoutes.product(product.id)),
+                            );
+                          },
+                        ),
+                );
+              },
+            );
+          },
         );
       },
     );

@@ -7,76 +7,131 @@ import '../../../../core/widgets/search_bar.dart';
 import '../../../../core/widgets/category_chip_bar.dart';
 import '../../../../core/widgets/visit_store_banner.dart';
 import '../../../../core/widgets/product_section.dart';
-import '../../../categories/presentation/categories_query.dart';
 import '../../domain/entities/home_section_entity.dart';
-import '../home_sections_query.dart';
+import '../controllers/home_controller.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final categories = CategoriesQuery.getAll();
-    final sections = HomeSectionsQuery.getSections();
-    final recommended =
-        sections.firstWhere((s) => s.type == HomeSectionType.recommended);
-    final bestSellers =
-        sections.firstWhere((s) => s.type == HomeSectionType.bestSellers);
-    final offers =
-        sections.firstWhere((s) => s.type == HomeSectionType.offers);
+  State<HomeScreen> createState() => _HomeScreenState();
+}
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: const CavaAppBar(isLogo: true),
-      body: CustomScrollView(
-        slivers: [
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                AppSpacing.screen,
-                AppSpacing.md,
-                AppSpacing.screen,
-                0,
+class _HomeScreenState extends State<HomeScreen> {
+  late final HomeController _controller;
+  late final Future<void> _loadFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = createHomeController();
+    _loadFuture = _controller.load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+      future: _loadFuture,
+      builder: (context, snapshot) {
+        return ListenableBuilder(
+          listenable: _controller,
+          builder: (context, _) {
+            final categories = _controller.categories;
+            final recommended = _controller.sectionByType(
+                  HomeSectionType.recommended,
+                ) ??
+                _fallbackSection(
+                  title: 'Të rekomanduara',
+                  type: HomeSectionType.recommended,
+                  seeAllRoute: '/category/wines',
+                );
+            final bestSellers = _controller.sectionByType(
+                  HomeSectionType.bestSellers,
+                ) ??
+                _fallbackSection(
+                  title: 'Më të shiturat',
+                  type: HomeSectionType.bestSellers,
+                  seeAllRoute: '/category/spirits',
+                );
+            final offers = _controller.sectionByType(HomeSectionType.offers) ??
+                _fallbackSection(
+                  title: 'Oferta',
+                  type: HomeSectionType.offers,
+                  seeAllRoute: '/category/wines',
+                );
+
+            return Scaffold(
+              backgroundColor: AppColors.background,
+              appBar: const CavaAppBar(isLogo: true),
+              body: CustomScrollView(
+                slivers: [
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        AppSpacing.screen,
+                        AppSpacing.md,
+                        AppSpacing.screen,
+                        0,
+                      ),
+                      child: CavaSearchBar(),
+                    ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+                  SliverToBoxAdapter(
+                    child: CategoryChipBar(
+                      categories: categories,
+                      showAllProducts: true,
+                    ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
+                  const SliverToBoxAdapter(child: VisitStoreBanner()),
+                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
+                  SliverToBoxAdapter(
+                    child: ProductSection(
+                      title: recommended.title,
+                      products: recommended.products,
+                      seeAllRoute: recommended.seeAllRoute,
+                    ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
+                  SliverToBoxAdapter(
+                    child: ProductSection(
+                      title: bestSellers.title,
+                      products: bestSellers.products,
+                      seeAllRoute: bestSellers.seeAllRoute,
+                    ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
+                  SliverToBoxAdapter(
+                    child: ProductSection(
+                      title: offers.title,
+                      products: offers.products,
+                      seeAllRoute: offers.seeAllRoute,
+                    ),
+                  ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: AppSpacing.xxxl),
+                  ),
+                ],
               ),
-              child: CavaSearchBar(),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
-          SliverToBoxAdapter(
-            child: CategoryChipBar(
-              categories: categories,
-              showAllProducts: true,
-            ),
-          ),
-            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
-            const SliverToBoxAdapter(child: VisitStoreBanner()),
-            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
-            SliverToBoxAdapter(
-              child: ProductSection(
-                title: recommended.title,
-                products: recommended.products,
-                seeAllRoute: recommended.seeAllRoute,
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
-            SliverToBoxAdapter(
-              child: ProductSection(
-                title: bestSellers.title,
-                products: bestSellers.products,
-                seeAllRoute: bestSellers.seeAllRoute,
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
-            SliverToBoxAdapter(
-              child: ProductSection(
-                title: offers.title,
-                products: offers.products,
-                seeAllRoute: offers.seeAllRoute,
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxxl)),
-        ],
-      ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  HomeSectionEntity _fallbackSection({
+    required String title,
+    required HomeSectionType type,
+    required String seeAllRoute,
+  }) {
+    return HomeSectionEntity(
+      id: type.name,
+      title: title,
+      type: type,
+      seeAllRoute: seeAllRoute,
+      products: const [],
     );
   }
 }

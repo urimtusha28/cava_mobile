@@ -8,8 +8,8 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
-import '../../presentation/product_detail_query.dart';
 import '../../domain/entities/product_entity.dart';
+import '../controllers/product_detail_controller.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key, required this.productId});
@@ -22,12 +22,17 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen>
     with SingleTickerProviderStateMixin {
+  late final ProductDetailController _controller;
+  late final Future<void> _loadFuture;
+
   int _quantity = 1;
   late final TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _controller = createProductDetailController();
+    _loadFuture = _controller.load(widget.productId);
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() => setState(() {}));
   }
@@ -40,20 +45,34 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final product = ProductDetailQuery.byId(widget.productId);
+    return FutureBuilder<void>(
+      future: _loadFuture,
+      builder: (context, snapshot) {
+        return ListenableBuilder(
+          listenable: _controller,
+          builder: (context, _) {
+            final product = _controller.product;
 
-    if (product == null) {
-      return Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: const CavaAppBar(
-          title: 'Produkti',
-          showBack: true,
-          backgroundColor: AppColors.background,
-        ),
-        body: const Center(child: Text('Produkti nuk u gjet')),
-      );
-    }
+            if (product == null) {
+              return Scaffold(
+                backgroundColor: AppColors.background,
+                appBar: const CavaAppBar(
+                  title: 'Produkti',
+                  showBack: true,
+                  backgroundColor: AppColors.background,
+                ),
+                body: const Center(child: Text('Produkti nuk u gjet')),
+              );
+            }
 
+            return _buildProductContent(product);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildProductContent(ProductEntity product) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: CavaAppBar(

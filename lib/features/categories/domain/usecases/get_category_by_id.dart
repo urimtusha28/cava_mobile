@@ -3,13 +3,13 @@ import '../../../../core/usecase/base_usecase.dart';
 import '../entities/category_entity.dart';
 import '../repositories/category_repository.dart';
 
-class GetCategoryByIdUseCase extends SyncUseCase<CategoryEntity?, String> {
+class GetCategoryByIdUseCase extends BaseUseCase<CategoryEntity?, String> {
   GetCategoryByIdUseCase(this._repository);
 
   final CategoryRepository _repository;
 
   @override
-  Result<CategoryEntity?> call(String categoryId) {
-    return guardSync(() => _repository.getById(categoryId));
+  Future<Result<CategoryEntity?>> call(String categoryId) {
+    return guard(() => _repository.getById(categoryId));
   }
 }

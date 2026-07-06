@@ -1,6 +1,7 @@
 import '../../../../core/state/cart_state_notifier.dart';
 import '../../../products/domain/entities/product_entity.dart';
 import '../../domain/entities/cart_item_entity.dart';
+import '../../domain/entities/cart_summary_entity.dart';
 import '../../domain/repositories/cart_repository.dart';
 import '../datasources/cart_data_source.dart';
 
@@ -11,52 +12,66 @@ class CartRepositoryImpl implements CartRepository {
 
   final CartDataSource _dataSource;
 
-  void _notifyChange() {
+  Future<void> _notifyChange() async {
     CartStateNotifier.update(_dataSource.getItemCount());
   }
 
   @override
-  List<CartItemEntity> getItems() => _dataSource.getItems();
+  Future<CartSummaryEntity> getSummary() => Future.sync(() {
+        return CartSummaryEntity(
+          items: _dataSource.getItems(),
+          itemCount: _dataSource.getItemCount(),
+          subtotal: _dataSource.getSubtotal(),
+          discount: _dataSource.getDiscount(),
+          vat: _dataSource.getVat(),
+          shipping: _dataSource.getShipping(),
+          total: _dataSource.getTotal(),
+        );
+      });
 
   @override
-  int getItemCount() => _dataSource.getItemCount();
+  Future<List<CartItemEntity>> getItems() =>
+      Future.sync(_dataSource.getItems);
 
   @override
-  double getSubtotal() => _dataSource.getSubtotal();
+  Future<int> getItemCount() => Future.sync(_dataSource.getItemCount);
 
   @override
-  double getDiscount() => _dataSource.getDiscount();
+  Future<double> getSubtotal() => Future.sync(_dataSource.getSubtotal);
 
   @override
-  double getVat() => _dataSource.getVat();
+  Future<double> getDiscount() => Future.sync(_dataSource.getDiscount);
 
   @override
-  double getShipping() => _dataSource.getShipping();
+  Future<double> getVat() => Future.sync(_dataSource.getVat);
 
   @override
-  double getTotal() => _dataSource.getTotal();
+  Future<double> getShipping() => Future.sync(_dataSource.getShipping);
 
   @override
-  void addProduct(ProductEntity product) {
-    _dataSource.addProduct(product);
-    _notifyChange();
-  }
+  Future<double> getTotal() => Future.sync(_dataSource.getTotal);
 
   @override
-  void updateQuantity(int index, int quantity) {
-    _dataSource.updateQuantity(index, quantity);
-    _notifyChange();
-  }
+  Future<void> addProduct(ProductEntity product) => Future.sync(() {
+        _dataSource.addProduct(product);
+        _notifyChange();
+      });
 
   @override
-  void removeAt(int index) {
-    _dataSource.removeAt(index);
-    _notifyChange();
-  }
+  Future<void> updateQuantity(int index, int quantity) => Future.sync(() {
+        _dataSource.updateQuantity(index, quantity);
+        _notifyChange();
+      });
 
   @override
-  void clear() {
-    _dataSource.clear();
-    _notifyChange();
-  }
+  Future<void> removeAt(int index) => Future.sync(() {
+        _dataSource.removeAt(index);
+        _notifyChange();
+      });
+
+  @override
+  Future<void> clear() => Future.sync(() {
+        _dataSource.clear();
+        _notifyChange();
+      });
 }

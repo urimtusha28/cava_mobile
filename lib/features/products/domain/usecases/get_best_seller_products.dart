@@ -3,13 +3,13 @@ import '../../../../core/usecase/base_usecase.dart';
 import '../entities/product_entity.dart';
 import '../repositories/product_repository.dart';
 
-class GetBestSellerProducts extends SyncUseCaseNoParams<List<ProductEntity>> {
+class GetBestSellerProducts extends BaseUseCaseNoParams<List<ProductEntity>> {
   GetBestSellerProducts(this._repository);
 
   final ProductRepository _repository;
 
   @override
-  Result<List<ProductEntity>> call() {
-    return guardSync(_repository.getBestSellers);
+  Future<Result<List<ProductEntity>>> call() {
+    return guard(_repository.getBestSellers);
   }
 }

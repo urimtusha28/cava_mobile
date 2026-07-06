@@ -13,15 +13,15 @@ final class UpdateCartQuantityParams {
 }
 
 class UpdateCartQuantityUseCase
-    extends SyncUseCase<void, UpdateCartQuantityParams> {
+    extends BaseUseCase<void, UpdateCartQuantityParams> {
   UpdateCartQuantityUseCase(this._repository);
 
   final CartRepository _repository;
 
   @override
-  Result<void> call(UpdateCartQuantityParams params) {
-    return guardSync(() {
-      _repository.updateQuantity(params.index, params.quantity);
-    });
+  Future<Result<void>> call(UpdateCartQuantityParams params) {
+    return guard(
+      () => _repository.updateQuantity(params.index, params.quantity),
+    );
   }
 }

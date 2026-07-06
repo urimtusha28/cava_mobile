@@ -10,38 +10,40 @@ class WishlistRepositoryImpl implements WishlistRepository {
 
   final WishlistDataSource _dataSource;
 
-  void _notifyChange() {
+  Future<void> _notifyChange() async {
     WishlistStateNotifier.update(_dataSource.getCount());
   }
 
   @override
-  List<ProductEntity> getItems() => _dataSource.getItems();
+  Future<List<ProductEntity>> getItems() =>
+      Future.sync(_dataSource.getItems);
 
   @override
-  int getCount() => _dataSource.getCount();
+  Future<int> getCount() => Future.sync(_dataSource.getCount);
 
   @override
-  bool isInWishlist(String productId) => _dataSource.isInWishlist(productId);
+  Future<bool> isInWishlist(String productId) =>
+      Future.sync(() => _dataSource.isInWishlist(productId));
 
   @override
-  void add(ProductEntity product) {
-    _dataSource.add(product);
-    _notifyChange();
-  }
+  Future<void> add(ProductEntity product) => Future.sync(() {
+        _dataSource.add(product);
+        _notifyChange();
+      });
 
   @override
-  void remove(String productId) {
-    _dataSource.remove(productId);
-    _notifyChange();
-  }
+  Future<void> remove(String productId) => Future.sync(() {
+        _dataSource.remove(productId);
+        _notifyChange();
+      });
 
   @override
-  void toggle(ProductEntity product) {
-    if (_dataSource.isInWishlist(product.id)) {
-      _dataSource.remove(product.id);
-    } else {
-      _dataSource.add(product);
-    }
-    _notifyChange();
-  }
+  Future<void> toggle(ProductEntity product) => Future.sync(() {
+        if (_dataSource.isInWishlist(product.id)) {
+          _dataSource.remove(product.id);
+        } else {
+          _dataSource.add(product);
+        }
+        _notifyChange();
+      });
 }

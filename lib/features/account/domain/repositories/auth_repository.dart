@@ -1,9 +1,11 @@
 abstract class AuthRepository {
-  bool isLoggedIn();
+  Stream<bool> watchAuthState();
 
-  String getUserName();
+  Future<bool> isLoggedIn();
 
-  void login();
+  Future<String> getUserName();
 
-  void logout();
+  Future<void> login();
+
+  Future<void> logout();
 }

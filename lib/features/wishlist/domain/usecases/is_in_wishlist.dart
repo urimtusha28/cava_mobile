@@ -2,13 +2,13 @@ import '../../../../core/result/result.dart';
 import '../../../../core/usecase/base_usecase.dart';
 import '../repositories/wishlist_repository.dart';
 
-class IsInWishlistUseCase extends SyncUseCase<bool, String> {
+class IsInWishlistUseCase extends BaseUseCase<bool, String> {
   IsInWishlistUseCase(this._repository);
 
   final WishlistRepository _repository;
 
   @override
-  Result<bool> call(String productId) {
-    return guardSync(() => _repository.isInWishlist(productId));
+  Future<Result<bool>> call(String productId) {
+    return guard(() => _repository.isInWishlist(productId));
   }
 }

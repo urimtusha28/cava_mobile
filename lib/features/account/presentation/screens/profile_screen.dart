@@ -1,77 +1,104 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/state/auth_state_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
-import '../auth_query.dart';
+import '../controllers/auth_controller.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late final AuthController _controller;
+  late final Future<void> _loadFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = createAuthController();
+    _loadFuture = _controller.load();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: const CavaAppBar(title: 'Profili'),
-      body: ValueListenableBuilder<bool>(
-        valueListenable: AuthQuery.authState,
-        builder: (context, isLoggedIn, child) {
-          return ListView(
-            padding: const EdgeInsets.all(AppSpacing.screen),
-            children: [
-              _ProfileHeader(
-                isLoggedIn: isLoggedIn,
-                onLoginTap: AuthQuery.login,
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              _Tile(
-                icon: Icons.shopping_bag_outlined,
-                title: 'Porositë e mia',
-                onTap: () => context.push(AppRoutes.orders),
-              ),
-              _Tile(
-                icon: Icons.location_on_outlined,
-                title: 'Adresat',
-                onTap: () => context.push(AppRoutes.addresses),
-              ),
-              _Tile(
-                icon: Icons.help_outline,
-                title: 'Ndihmë & Kontakt',
-                onTap: () => context.push(AppRoutes.help),
-              ),
-              _Tile(
-                icon: Icons.info_outline,
-                title: 'Rreth Cava Premium',
-                onTap: () => context.push(AppRoutes.about),
-              ),
-              _Tile(
-                icon: Icons.language_outlined,
-                title: 'Gjuha',
-                onTap: () => context.push(AppRoutes.language),
-              ),
-              _Tile(
-                icon: Icons.euro_outlined,
-                title: 'Valuta',
-                onTap: () => context.push(AppRoutes.currency),
-              ),
-              _Tile(
-                icon: Icons.description_outlined,
-                title: 'Kushtet e përdorimit',
-                onTap: () => context.push(AppRoutes.terms),
-              ),
-              _Tile(
-                icon: Icons.privacy_tip_outlined,
-                title: 'Politika e privatësisë',
-                onTap: () => context.push(AppRoutes.privacy),
-              ),
-            ],
-          );
-        },
-      ),
+    return FutureBuilder<void>(
+      future: _loadFuture,
+      builder: (context, snapshot) {
+        return ValueListenableBuilder<bool>(
+          valueListenable: AuthStateNotifier.isLoggedIn,
+          builder: (context, isLoggedIn, child) {
+            return ListenableBuilder(
+              listenable: _controller,
+              builder: (context, _) {
+                return Scaffold(
+                  backgroundColor: AppColors.background,
+                  appBar: const CavaAppBar(title: 'Profili'),
+                  body: ListView(
+                    padding: const EdgeInsets.all(AppSpacing.screen),
+                    children: [
+                      _ProfileHeader(
+                        isLoggedIn: isLoggedIn,
+                        userName: _controller.userName,
+                        onLoginTap: () => _controller.login(),
+                      ),
+                      const SizedBox(height: AppSpacing.xxl),
+                      _Tile(
+                        icon: Icons.shopping_bag_outlined,
+                        title: 'Porositë e mia',
+                        onTap: () => context.push(AppRoutes.orders),
+                      ),
+                      _Tile(
+                        icon: Icons.location_on_outlined,
+                        title: 'Adresat',
+                        onTap: () => context.push(AppRoutes.addresses),
+                      ),
+                      _Tile(
+                        icon: Icons.help_outline,
+                        title: 'Ndihmë & Kontakt',
+                        onTap: () => context.push(AppRoutes.help),
+                      ),
+                      _Tile(
+                        icon: Icons.info_outline,
+                        title: 'Rreth Cava Premium',
+                        onTap: () => context.push(AppRoutes.about),
+                      ),
+                      _Tile(
+                        icon: Icons.language_outlined,
+                        title: 'Gjuha',
+                        onTap: () => context.push(AppRoutes.language),
+                      ),
+                      _Tile(
+                        icon: Icons.euro_outlined,
+                        title: 'Valuta',
+                        onTap: () => context.push(AppRoutes.currency),
+                      ),
+                      _Tile(
+                        icon: Icons.description_outlined,
+                        title: 'Kushtet e përdorimit',
+                        onTap: () => context.push(AppRoutes.terms),
+                      ),
+                      _Tile(
+                        icon: Icons.privacy_tip_outlined,
+                        title: 'Politika e privatësisë',
+                        onTap: () => context.push(AppRoutes.privacy),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -79,10 +106,12 @@ class ProfileScreen extends StatelessWidget {
 class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader({
     required this.isLoggedIn,
+    required this.userName,
     required this.onLoginTap,
   });
 
   final bool isLoggedIn;
+  final String userName;
   final VoidCallback onLoginTap;
 
   @override
@@ -106,7 +135,7 @@ class _ProfileHeader extends StatelessWidget {
             const SizedBox(width: AppSpacing.lg),
             Expanded(
               child: Text(
-                isLoggedIn ? AuthQuery.userName : 'Kyçu',
+                isLoggedIn ? userName : 'Kyçu',
                 style: AppTextStyles.h2.copyWith(
                   color: isLoggedIn ? AppColors.textPrimary : AppColors.burgundy,
                 ),

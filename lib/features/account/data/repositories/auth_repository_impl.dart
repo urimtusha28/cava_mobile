@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../../../../core/state/auth_state_notifier.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_data_source.dart';
@@ -9,25 +11,24 @@ class AuthRepositoryImpl implements AuthRepository {
 
   final AuthDataSource _dataSource;
 
-  void _notifyChange() {
-    AuthStateNotifier.update(_dataSource.isLoggedIn());
-  }
+  @override
+  Stream<bool> watchAuthState() => AuthStateNotifier.stream;
 
   @override
-  bool isLoggedIn() => _dataSource.isLoggedIn();
+  Future<bool> isLoggedIn() => Future.sync(_dataSource.isLoggedIn);
 
   @override
-  String getUserName() => _dataSource.getUserName();
+  Future<String> getUserName() => Future.sync(_dataSource.getUserName);
 
   @override
-  void login() {
-    _dataSource.login();
-    _notifyChange();
-  }
+  Future<void> login() => Future.sync(() {
+        _dataSource.login();
+        AuthStateNotifier.update(true);
+      });
 
   @override
-  void logout() {
-    _dataSource.logout();
-    _notifyChange();
-  }
+  Future<void> logout() => Future.sync(() {
+        _dataSource.logout();
+        AuthStateNotifier.update(false);
+      });
 }

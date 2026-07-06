@@ -8,7 +8,7 @@ import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/checkout_screen_header.dart';
-import '../../../cart/data/mock/mock_cart.dart';
+import '../controllers/checkout_controller.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -18,12 +18,28 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  late final CheckoutController _controller;
+  late final Future<void> _loadFuture;
+
   String _payment = 'cash';
   bool _acceptedTerms = false;
 
   @override
+  void initState() {
+    super.initState();
+    _controller = createCheckoutController();
+    _loadFuture = _controller.load();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return FutureBuilder<void>(
+      future: _loadFuture,
+      builder: (context, snapshot) {
+        return ListenableBuilder(
+          listenable: _controller,
+          builder: (context, _) {
+            return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
@@ -95,13 +111,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ),
             _CheckoutFooter(
-              total: MockCart.total,
+              total: _controller.total,
               enabled: _acceptedTerms,
               onBuy: () => context.go(AppRoutes.orderSuccess),
             ),
           ],
         ),
       ),
+            );
+          },
+        );
+      },
     );
   }
 }
