@@ -23,6 +23,7 @@ class ProductEntity {
     this.winery,
     this.servingTemp,
     this.imageUrl,
+    this.detailImageUrl,
   });
 
   final String id;
@@ -48,4 +49,5 @@ class ProductEntity {
   final String? winery;
   final String? servingTemp;
   final String? imageUrl;
+  final String? detailImageUrl;
 }

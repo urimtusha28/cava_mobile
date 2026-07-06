@@ -100,6 +100,52 @@ const testCartSummary = CartSummaryEntity(
 
 Map<String, dynamic> get testProductJson => testProductModel.toJson();
 
+/// Sample web Firebase `products` document (sales schema only).
+Map<String, dynamic> get testWebProductJson => {
+      'id': 'web-p1',
+      'name': 'Stone Castle Merlot',
+      'description': 'Merlot i butë dhe elegant.',
+      'price': 18.90,
+      'originalPrice': 21.00,
+      'stock': 12,
+      'status': 'published',
+      'productStatus': 'active',
+      'category': 'Wines',
+      'subCategory': 'Merlot',
+      'imageUrl': 'https://cdn.example.com/p1.jpg',
+      'images': {
+        'thumb': 'https://cdn.example.com/p1-thumb.jpg',
+        'medium': 'https://cdn.example.com/p1-medium.jpg',
+        'original': 'https://cdn.example.com/p1-original.jpg',
+      },
+      'brandProducer': 'Stone Castle',
+      'origin': 'North Macedonia',
+      'originCode': 'MK',
+      'details': {
+        'abv': 13.5,
+        'volume': '750ml',
+        'region': 'Tikves',
+        'vintageYear': 2022,
+      },
+      'topPick': true,
+    };
+
+Map<String, dynamic> get testWebDraftProductJson => {
+      ...testWebProductJson,
+      'id': 'web-draft',
+      'name': 'Draft Wine',
+      'productStatus': 'draft',
+      'topPick': false,
+    };
+
+Map<String, dynamic> get testWebHiddenProductJson => {
+      ...testWebProductJson,
+      'id': 'web-hidden',
+      'name': 'Hidden Wine',
+      'productStatus': 'hidden',
+      'topPick': false,
+    };
+
 Map<String, dynamic> get testCategoryJson => testCategoryModel.toJson();
 
 Map<String, dynamic> get testHomeSectionJson => testHomeSectionModel.toJson();
