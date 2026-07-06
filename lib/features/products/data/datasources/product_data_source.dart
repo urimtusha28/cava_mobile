@@ -1,12 +1,12 @@
 import '../models/product_model.dart';
 
-/// Contract for product data sources (mock now, Firestore in Phase 3).
+/// Contract for product data sources (mock or Firestore).
 abstract class ProductDataSource {
-  List<ProductModel> getAllProducts();
+  Future<List<ProductModel>> getAllProducts();
 
-  ProductModel? getProductById(String id);
+  Future<ProductModel?> getProductById(String id);
 
-  List<ProductModel> getFeaturedProducts();
+  Future<List<ProductModel>> getFeaturedProducts();
 
-  List<ProductModel> getProductsByCategory(String categoryId);
+  Future<List<ProductModel>> getProductsByCategory(String categoryId);
 }

@@ -11,11 +11,11 @@ class ProductMockDataSource implements ProductDataSource {
       .toList(growable: false);
 
   @override
-  List<ProductModel> getAllProducts() =>
+  Future<List<ProductModel>> getAllProducts() async =>
       List<ProductModel>.from(_models);
 
   @override
-  ProductModel? getProductById(String id) {
+  Future<ProductModel?> getProductById(String id) async {
     for (final model in _models) {
       if (model.id == id) {
         return model;
@@ -25,11 +25,12 @@ class ProductMockDataSource implements ProductDataSource {
   }
 
   @override
-  List<ProductModel> getFeaturedProducts() =>
+  Future<List<ProductModel>> getFeaturedProducts() async =>
       _models.where((model) => model.isFeatured).toList(growable: false);
 
   @override
-  List<ProductModel> getProductsByCategory(String categoryId) => _models
-      .where((model) => model.categoryId == categoryId)
-      .toList(growable: false);
+  Future<List<ProductModel>> getProductsByCategory(String categoryId) async =>
+      _models
+          .where((model) => model.categoryId == categoryId)
+          .toList(growable: false);
 }

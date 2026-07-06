@@ -9,42 +9,41 @@ class ProductRepositoryImpl implements ProductRepository {
   final ProductDataSource _dataSource;
 
   @override
-  Future<List<ProductEntity>> getRecommended() => Future.sync(() {
-        return ProductMapper.toEntityList(_dataSource.getFeaturedProducts());
-      });
+  Future<List<ProductEntity>> getRecommended() async {
+    final models = await _dataSource.getFeaturedProducts();
+    return ProductMapper.toEntityList(models);
+  }
 
   @override
-  Future<List<ProductEntity>> getBestSellers() => Future.sync(() {
-        final models = List.of(_dataSource.getAllProducts());
-        models.sort((a, b) => b.reviewCount.compareTo(a.reviewCount));
-        return ProductMapper.toEntityList(models.take(8).toList(growable: false));
-      });
+  Future<List<ProductEntity>> getBestSellers() async {
+    final models = List.of(await _dataSource.getAllProducts());
+    models.sort((a, b) => b.reviewCount.compareTo(a.reviewCount));
+    return ProductMapper.toEntityList(models.take(8).toList(growable: false));
+  }
 
   @override
-  Future<List<ProductEntity>> getOffers() => Future.sync(() {
-        final models = _dataSource
-            .getAllProducts()
-            .where((model) => model.oldPrice != null)
-            .toList(growable: false);
-        return ProductMapper.toEntityList(models);
-      });
+  Future<List<ProductEntity>> getOffers() async {
+    final models = (await _dataSource.getAllProducts())
+        .where((model) => model.oldPrice != null)
+        .toList(growable: false);
+    return ProductMapper.toEntityList(models);
+  }
 
   @override
-  Future<List<ProductEntity>> getAll() => Future.sync(() {
-        return ProductMapper.toEntityList(_dataSource.getAllProducts());
-      });
+  Future<List<ProductEntity>> getAll() async {
+    return ProductMapper.toEntityList(await _dataSource.getAllProducts());
+  }
 
   @override
-  Future<List<ProductEntity>> getProductsByCategory(String categoryId) =>
-      Future.sync(() {
-        return ProductMapper.toEntityList(
-          _dataSource.getProductsByCategory(categoryId),
-        );
-      });
+  Future<List<ProductEntity>> getProductsByCategory(String categoryId) async {
+    return ProductMapper.toEntityList(
+      await _dataSource.getProductsByCategory(categoryId),
+    );
+  }
 
   @override
-  Future<ProductEntity?> getById(String id) => Future.sync(() {
-        final model = _dataSource.getProductById(id);
-        return model == null ? null : ProductMapper.toEntity(model);
-      });
+  Future<ProductEntity?> getById(String id) async {
+    final model = await _dataSource.getProductById(id);
+    return model == null ? null : ProductMapper.toEntity(model);
+  }
 }

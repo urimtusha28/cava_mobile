@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_it/get_it.dart';
+
+import '../firebase/firebase_config.dart';
 
 import '../../features/account/data/datasources/auth_data_source.dart';
 import '../../features/account/data/datasources/auth_mock_datasource.dart';
@@ -37,6 +40,7 @@ import '../../features/home/domain/repositories/home_repository.dart';
 import '../../features/home/domain/usecases/get_home_sections.dart';
 import '../../features/home/presentation/controllers/home_controller.dart';
 import '../../features/products/data/datasources/product_data_source.dart';
+import '../../features/products/data/datasources/product_firestore_datasource.dart';
 import '../../features/products/data/datasources/product_mock_datasource.dart';
 import '../../features/products/data/repositories/product_repository_impl.dart';
 import '../../features/products/domain/repositories/product_repository.dart';
@@ -91,12 +95,17 @@ void _registerProducts() {
     return;
   }
 
-  sl.registerLazySingleton<ProductDataSource>(
-    () => const ProductMockDataSource(),
-  );
+  sl.registerLazySingleton<ProductDataSource>(_createProductDataSource);
   sl.registerLazySingleton<ProductRepository>(
     () => ProductRepositoryImpl(sl<ProductDataSource>()),
   );
+}
+
+ProductDataSource _createProductDataSource() {
+  if (FirebaseConfig.enabled && FirebaseConfig.useFirestoreProducts) {
+    return ProductFirestoreDataSource(FirebaseFirestore.instance);
+  }
+  return const ProductMockDataSource();
 }
 
 void _registerCategories() {

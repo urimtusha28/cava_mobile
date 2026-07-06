@@ -18,7 +18,7 @@ void main() {
   group('ProductRepositoryImpl', () {
     test('getRecommended maps featured products', () async {
       when(() => dataSource.getFeaturedProducts())
-          .thenReturn([testProductModel]);
+          .thenAnswer((_) async => [testProductModel]);
 
       final result = await repository.getRecommended();
       expect(result, hasLength(1));
@@ -42,27 +42,30 @@ void main() {
         inStock: true,
         isFeatured: false,
       );
-      when(() => dataSource.getAllProducts()).thenReturn([low, high]);
+      when(() => dataSource.getAllProducts())
+          .thenAnswer((_) async => [low, high]);
 
       final result = await repository.getBestSellers();
       expect(result.first.id, 'p2');
     });
 
     test('getOffers filters products with oldPrice', () async {
-      when(() => dataSource.getAllProducts()).thenReturn([testProductModel]);
+      when(() => dataSource.getAllProducts())
+          .thenAnswer((_) async => [testProductModel]);
 
       final result = await repository.getOffers();
       expect(result, hasLength(1));
     });
 
     test('getById returns null when missing', () async {
-      when(() => dataSource.getProductById('missing')).thenReturn(null);
+      when(() => dataSource.getProductById('missing'))
+          .thenAnswer((_) async => null);
       expect(await repository.getById('missing'), isNull);
     });
 
     test('getProductsByCategory delegates to datasource', () async {
       when(() => dataSource.getProductsByCategory('wines'))
-          .thenReturn([testProductModel]);
+          .thenAnswer((_) async => [testProductModel]);
 
       final result = await repository.getProductsByCategory('wines');
       expect(result.first.categoryId, 'wines');

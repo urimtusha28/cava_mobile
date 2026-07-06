@@ -9,6 +9,8 @@ import 'package:cava_ecommerce/features/categories/domain/repositories/category_
 import 'package:cava_ecommerce/features/home/data/repositories/home_repository_impl.dart';
 import 'package:cava_ecommerce/features/home/domain/repositories/home_repository.dart';
 import 'package:cava_ecommerce/features/home/presentation/controllers/home_controller.dart';
+import 'package:cava_ecommerce/features/products/data/datasources/product_data_source.dart';
+import 'package:cava_ecommerce/features/products/data/datasources/product_mock_datasource.dart';
 import 'package:cava_ecommerce/features/products/data/repositories/product_repository_impl.dart';
 import 'package:cava_ecommerce/features/products/domain/repositories/product_repository.dart';
 import 'package:cava_ecommerce/features/products/domain/usecases/get_recommended_products.dart';
@@ -22,6 +24,11 @@ void main() {
   tearDown(tearDownTestDependencies);
 
   group('configureDependencies', () {
+    test('registers ProductMockDataSource by default', () async {
+      await setUpTestDependencies();
+      expect(sl<ProductDataSource>(), isA<ProductMockDataSource>());
+    });
+
     test('registers datasources as LazySingleton', () async {
       await setUpTestDependencies();
       expect(sl<ProductRepository>(), same(sl<ProductRepository>()));
