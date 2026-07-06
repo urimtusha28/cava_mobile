@@ -23,5 +23,5 @@ class ProductDetailController extends BaseController {
 
 ProductDetailController createProductDetailController() {
   configureDependencies();
-  return ProductDetailController(sl());
+  return sl<ProductDetailController>();
 }

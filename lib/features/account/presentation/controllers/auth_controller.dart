@@ -44,5 +44,5 @@ class AuthController extends BaseController {
 
 AuthController createAuthController() {
   configureDependencies();
-  return AuthController(sl(), sl(), sl());
+  return sl<AuthController>();
 }

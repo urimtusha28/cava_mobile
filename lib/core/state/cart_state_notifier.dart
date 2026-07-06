@@ -7,4 +7,9 @@ abstract final class CartStateNotifier {
   static void update(int itemCount) {
     revision.value = itemCount;
   }
+
+  /// Resets badge state — call from [resetDependencies] in tests.
+  static void reset() {
+    revision.value = 0;
+  }
 }

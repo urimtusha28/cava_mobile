@@ -68,5 +68,5 @@ class CartController extends BaseController {
 
 CartController createCartController() {
   configureDependencies();
-  return CartController(sl(), sl(), sl());
+  return sl<CartController>();
 }

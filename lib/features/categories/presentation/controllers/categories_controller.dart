@@ -23,5 +23,5 @@ class CategoriesController extends BaseController {
 
 CategoriesController createCategoriesController() {
   configureDependencies();
-  return CategoriesController(sl());
+  return sl<CategoriesController>();
 }

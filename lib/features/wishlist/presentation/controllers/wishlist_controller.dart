@@ -50,5 +50,5 @@ class WishlistController extends BaseController {
 
 WishlistController createWishlistController() {
   configureDependencies();
-  return WishlistController(sl(), sl(), sl());
+  return sl<WishlistController>();
 }

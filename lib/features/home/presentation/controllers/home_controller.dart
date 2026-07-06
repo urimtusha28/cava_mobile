@@ -40,5 +40,5 @@ class HomeController extends BaseController {
 
 HomeController createHomeController() {
   configureDependencies();
-  return HomeController(sl(), sl());
+  return sl<HomeController>();
 }

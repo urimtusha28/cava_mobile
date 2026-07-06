@@ -21,5 +21,5 @@ class CheckoutController extends BaseController {
 
 CheckoutController createCheckoutController() {
   configureDependencies();
-  return CheckoutController(createCartController());
+  return sl<CheckoutController>();
 }

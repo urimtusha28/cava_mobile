@@ -58,5 +58,5 @@ class CategoryProductsController extends BaseController {
 
 CategoryProductsController createCategoryProductsController() {
   configureDependencies();
-  return CategoryProductsController(sl(), sl(), sl(), sl());
+  return sl<CategoryProductsController>();
 }

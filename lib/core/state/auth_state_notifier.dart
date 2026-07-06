@@ -16,4 +16,12 @@ abstract final class AuthStateNotifier {
       _controller.add(loggedIn);
     }
   }
+
+  /// Resets auth state — call from [resetDependencies] in tests.
+  static void reset() {
+    isLoggedIn.value = false;
+    if (!_controller.isClosed) {
+      _controller.add(false);
+    }
+  }
 }
