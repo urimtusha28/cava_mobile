@@ -1,3 +1,4 @@
+import 'package:cava_ecommerce/core/firebase/firebase_config.dart';
 import 'package:cava_ecommerce/core/di/injection.dart';
 import 'package:cava_ecommerce/features/account/data/repositories/auth_repository_impl.dart';
 import 'package:cava_ecommerce/features/account/domain/repositories/auth_repository.dart';
@@ -24,9 +25,15 @@ void main() {
   tearDown(tearDownTestDependencies);
 
   group('configureDependencies', () {
-    test('registers ProductMockDataSource by default', () async {
+    test('registers ProductMockDataSource in tests via override', () async {
       await setUpTestDependencies();
       expect(sl<ProductDataSource>(), isA<ProductMockDataSource>());
+    });
+
+    test('Firebase flags enable Firestore products in DI wiring', () {
+      expect(FirebaseConfig.enabled, isTrue);
+      expect(FirebaseConfig.useFirestoreProducts, isTrue);
+      expect(FirebaseConfig.fallbackToMockProductsOnError, isFalse);
     });
 
     test('registers datasources as LazySingleton', () async {

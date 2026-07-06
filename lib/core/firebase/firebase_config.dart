@@ -3,11 +3,13 @@
 /// Centralizes collection and storage paths so datasources stay consistent.
 abstract final class FirebaseConfig {
   /// Set to `true` after `flutterfire configure` and platform setup.
-  static const bool enabled = false;
+  static const bool enabled = true;
 
   /// When `true` together with [enabled], products load from Firestore.
-  /// Default remains mock — do not enable until Firebase is initialized.
-  static const bool useFirestoreProducts = false;
+  static const bool useFirestoreProducts = true;
+
+  /// When `true`, Firestore errors fall back to [ProductMockDataSource].
+  static const bool fallbackToMockProductsOnError = false;
 
   // Firestore collections
   static const String productsCollection = 'products';

@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/firebase/firebase_config.dart';
 import '../models/product_model.dart';
 import 'product_data_source.dart';
+import 'product_mock_datasource.dart';
 
 /// Firestore implementation for [ProductDataSource].
 ///
@@ -14,64 +16,167 @@ class ProductFirestoreDataSource implements ProductDataSource {
 
   final FirebaseFirestore _firestore;
 
+  static const ProductMockDataSource _mockFallback =
+      ProductMockDataSource();
+
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection(FirebaseConfig.productsCollection);
 
   @override
   Future<List<ProductModel>> getAllProducts() async {
-    final snapshot = await _collection.get();
-    return _mapActiveDocuments(snapshot.docs);
+    return _safeList(
+      operation: 'getAllProducts',
+      request: () async {
+        final snapshot = await _collection.get();
+        return _mapActiveDocuments(snapshot.docs);
+      },
+      fallback: () => _mockFallback.getAllProducts(),
+    );
   }
 
   @override
   Future<ProductModel?> getProductById(String id) async {
-    final snapshot = await _collection.doc(id).get();
-    if (!snapshot.exists) {
-      return null;
-    }
-    final data = snapshot.data()!;
-    if (!ProductModel.isActiveProductStatus(
-      data['productStatus'] as String?,
-    )) {
-      return null;
-    }
-    return mapDocumentToModel(data, snapshot.id);
+    return _safeValue(
+      operation: 'getProductById',
+      request: () async {
+        final snapshot = await _collection.doc(id).get();
+        if (!snapshot.exists) {
+          return null;
+        }
+        final data = snapshot.data()!;
+        if (!ProductModel.isActiveProductStatus(
+          data['productStatus'] as String?,
+        )) {
+          return null;
+        }
+        return _tryMapDocument(data, snapshot.id);
+      },
+      fallback: () => _mockFallback.getProductById(id),
+    );
   }
 
   @override
   Future<List<ProductModel>> getFeaturedProducts() async {
-    final snapshot =
-        await _collection.where('topPick', isEqualTo: true).get();
-    return _mapActiveDocuments(snapshot.docs);
+    return _safeList(
+      operation: 'getFeaturedProducts',
+      request: () async {
+        try {
+          final snapshot =
+              await _collection.where('topPick', isEqualTo: true).get();
+          return _mapActiveDocuments(snapshot.docs);
+        } catch (error) {
+          _logQueryFallback('getFeaturedProducts', error);
+          final all = await getAllProducts();
+          return all.where((product) => product.topPick).toList(growable: false);
+        }
+      },
+      fallback: () => _mockFallback.getFeaturedProducts(),
+    );
   }
 
   @override
   Future<List<ProductModel>> getProductsByCategory(String category) async {
-    final snapshot = await _collection.get();
-    final normalized = category.toLowerCase();
-    return _mapActiveDocuments(
-      snapshot.docs.where((doc) {
-        final docCategory = doc.data()['category'] as String?;
-        if (docCategory == null) {
-          return false;
-        }
-        return docCategory == category ||
-            ProductModel.categorySlug(docCategory) == normalized;
-      }).toList(growable: false),
+    return _safeList(
+      operation: 'getProductsByCategory',
+      request: () async {
+        final snapshot = await _collection.get();
+        final normalized = category.toLowerCase();
+        return _mapActiveDocuments(
+          snapshot.docs.where((doc) {
+            final docCategory = doc.data()['category'] as String?;
+            if (docCategory == null) {
+              return false;
+            }
+            return docCategory == category ||
+                ProductModel.categorySlug(docCategory) == normalized;
+          }).toList(growable: false),
+        );
+      },
+      fallback: () => _mockFallback.getProductsByCategory(category),
     );
   }
 
   List<ProductModel> _mapActiveDocuments(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
   ) {
-    return docs
-        .where(
-          (doc) => ProductModel.isActiveProductStatus(
-            doc.data()['productStatus'] as String?,
-          ),
-        )
-        .map((doc) => mapDocumentToModel(doc.data(), doc.id))
-        .toList(growable: false);
+    final products = <ProductModel>[];
+    for (final doc in docs) {
+      if (!ProductModel.isActiveProductStatus(
+        doc.data()['productStatus'] as String?,
+      )) {
+        continue;
+      }
+      final model = _tryMapDocument(doc.data(), doc.id);
+      if (model != null) {
+        products.add(model);
+      }
+    }
+    if (kDebugMode && products.isNotEmpty) {
+      debugPrint(
+        'ProductFirestoreDataSource: mapped ${products.length} active products',
+      );
+    }
+    return products;
+  }
+
+  ProductModel? _tryMapDocument(Map<String, dynamic> data, String documentId) {
+    try {
+      return mapDocumentToModel(data, documentId);
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint(
+          'ProductFirestoreDataSource: skipped $documentId — $error',
+        );
+      }
+      return null;
+    }
+  }
+
+  Future<List<ProductModel>> _safeList({
+    required String operation,
+    required Future<List<ProductModel>> Function() request,
+    required Future<List<ProductModel>> Function() fallback,
+  }) async {
+    try {
+      return await request();
+    } catch (error, stackTrace) {
+      _logError(operation, error, stackTrace);
+      if (FirebaseConfig.fallbackToMockProductsOnError) {
+        return fallback();
+      }
+      return const [];
+    }
+  }
+
+  Future<ProductModel?> _safeValue({
+    required String operation,
+    required Future<ProductModel?> Function() request,
+    required Future<ProductModel?> Function() fallback,
+  }) async {
+    try {
+      return await request();
+    } catch (error, stackTrace) {
+      _logError(operation, error, stackTrace);
+      if (FirebaseConfig.fallbackToMockProductsOnError) {
+        return fallback();
+      }
+      return null;
+    }
+  }
+
+  void _logQueryFallback(String operation, Object error) {
+    if (kDebugMode) {
+      debugPrint(
+        'ProductFirestoreDataSource: $operation query fallback — $error',
+      );
+    }
+  }
+
+  void _logError(String operation, Object error, StackTrace stackTrace) {
+    if (kDebugMode) {
+      debugPrint('ProductFirestoreDataSource: $operation failed — $error');
+      debugPrint('$stackTrace');
+    }
   }
 
   /// Maps Firestore document data to [ProductModel].
