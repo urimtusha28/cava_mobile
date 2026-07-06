@@ -8,21 +8,21 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../cart/presentation/cart_query.dart';
 import '../../../products/domain/entities/product_entity.dart';
-import '../../../cart/data/mock/mock_cart.dart';
-import '../../data/mock/mock_wishlist.dart';
+import '../wishlist_query.dart';
 
 class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
 
-  void _removeProduct(String productId) => MockWishlist.remove(productId);
+  void _removeProduct(String productId) => WishlistQuery.remove(productId);
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<int>(
-      valueListenable: MockWishlist.revision,
+      valueListenable: WishlistQuery.revision,
       builder: (context, _, child) {
-        final products = MockWishlist.items;
+        final products = WishlistQuery.getItems();
 
         return Scaffold(
           backgroundColor: AppColors.background,
@@ -40,7 +40,7 @@ class WishlistScreen extends StatelessWidget {
                     return _WishlistItemCard(
                       product: product,
                       onRemove: () => _removeProduct(product.id),
-                      onAddToCart: () => MockCart.addProduct(product),
+                      onAddToCart: () => CartQuery.addProduct(product),
                       onTap: () => context.push(AppRoutes.product(product.id)),
                     );
                   },

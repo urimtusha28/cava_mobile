@@ -7,7 +7,7 @@ import '../../../../core/widgets/cava_app_bar.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../data/mock/mock_auth.dart';
+import '../auth_query.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -18,14 +18,14 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: const CavaAppBar(title: 'Profili'),
       body: ValueListenableBuilder<bool>(
-        valueListenable: MockAuth.revision,
+        valueListenable: AuthQuery.authState,
         builder: (context, isLoggedIn, child) {
           return ListView(
             padding: const EdgeInsets.all(AppSpacing.screen),
             children: [
               _ProfileHeader(
                 isLoggedIn: isLoggedIn,
-                onLoginTap: MockAuth.login,
+                onLoginTap: AuthQuery.login,
               ),
               const SizedBox(height: AppSpacing.xxl),
               _Tile(
@@ -106,7 +106,7 @@ class _ProfileHeader extends StatelessWidget {
             const SizedBox(width: AppSpacing.lg),
             Expanded(
               child: Text(
-                isLoggedIn ? MockAuth.userName : 'Kyçu',
+                isLoggedIn ? AuthQuery.userName : 'Kyçu',
                 style: AppTextStyles.h2.copyWith(
                   color: isLoggedIn ? AppColors.textPrimary : AppColors.burgundy,
                 ),

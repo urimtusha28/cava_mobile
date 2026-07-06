@@ -6,8 +6,10 @@ import '../constants/app_assets.dart';
 import '../constants/app_spacing.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
-import '../../features/cart/data/mock/mock_cart.dart';
-import '../../features/wishlist/data/mock/mock_wishlist.dart';
+import '../state/cart_state_notifier.dart';
+import '../state/wishlist_state_notifier.dart';
+import '../../features/cart/presentation/cart_query.dart';
+import '../../features/wishlist/presentation/wishlist_query.dart';
 import '../router/app_routes.dart';
 
 class BottomNavigation extends StatefulWidget {
@@ -57,13 +59,13 @@ class _BottomNavigationState extends State<BottomNavigation> {
     final barWidth = screenWidth - horizontalPadding * 2;
 
     return ValueListenableBuilder<int>(
-      valueListenable: MockCart.revision,
+      valueListenable: CartStateNotifier.revision,
       builder: (context, _, child) {
         return ValueListenableBuilder<int>(
-          valueListenable: MockWishlist.revision,
+          valueListenable: WishlistStateNotifier.revision,
           builder: (context, _, child) {
-            final wishlistCount = MockWishlist.count;
-            final cartCount = MockCart.itemCount;
+            final wishlistCount = WishlistQuery.count;
+            final cartCount = CartQuery.itemCount;
 
             return SafeArea(
               minimum: const EdgeInsets.fromLTRB(

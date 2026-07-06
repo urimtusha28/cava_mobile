@@ -8,7 +8,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
-import '../../data/mock/mock_cart.dart';
+import '../cart_query.dart';
 import '../../domain/entities/cart_item_entity.dart';
 
 class CartScreen extends StatefulWidget {
@@ -20,19 +20,19 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   void _updateQuantity(int index, int quantity) {
-    setState(() => MockCart.updateQuantity(index, quantity));
+    setState(() => CartQuery.updateQuantity(index, quantity));
   }
 
   void _removeItem(int index) {
-    setState(() => MockCart.removeAt(index));
+    setState(() => CartQuery.removeAt(index));
   }
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<int>(
-      valueListenable: MockCart.revision,
+      valueListenable: CartQuery.revision,
       builder: (context, _, child) {
-        final items = MockCart.items;
+        final items = CartQuery.getItems();
 
         return Scaffold(
           backgroundColor: AppColors.background,
@@ -94,7 +94,7 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                       ),
                       _CartFooter(
-                        total: MockCart.total,
+                        total: CartQuery.total,
                         onContinue: () => context.push(AppRoutes.checkout),
                       ),
                     ],
@@ -246,18 +246,18 @@ class _OrderSummaryCard extends StatelessWidget {
         children: [
           Text('Totali i porosisë', style: AppTextStyles.h3),
           const SizedBox(height: AppSpacing.lg),
-          _SummaryRow('Çmimi', Formatters.currency(MockCart.subtotal)),
+          _SummaryRow('Çmimi', Formatters.currency(CartQuery.subtotal)),
           const SizedBox(height: AppSpacing.sm),
-          _SummaryRow('TVSH', Formatters.currency(MockCart.vat)),
+          _SummaryRow('TVSH', Formatters.currency(CartQuery.vat)),
           const SizedBox(height: AppSpacing.sm),
-          _SummaryRow('Transporti', Formatters.currency(MockCart.shipping)),
+          _SummaryRow('Transporti', Formatters.currency(CartQuery.shipping)),
           const SizedBox(height: AppSpacing.sm),
-          _SummaryRow('Zbritja', Formatters.currency(MockCart.discount)),
+          _SummaryRow('Zbritja', Formatters.currency(CartQuery.discount)),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
             child: Divider(height: 1, color: AppColors.border),
           ),
-          _SummaryRow('Totali:', Formatters.currency(MockCart.total), emphasized: true),
+          _SummaryRow('Totali:', Formatters.currency(CartQuery.total), emphasized: true),
         ],
       ),
     );
