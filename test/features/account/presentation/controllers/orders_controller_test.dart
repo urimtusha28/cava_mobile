@@ -1,6 +1,5 @@
 import 'package:cava_ecommerce/core/result/result.dart';
 import 'package:cava_ecommerce/features/account/domain/entities/order_entity.dart';
-import 'package:cava_ecommerce/features/account/domain/repositories/orders_repository.dart';
 import 'package:cava_ecommerce/features/account/domain/usecases/get_my_orders.dart';
 import 'package:cava_ecommerce/features/account/domain/usecases/is_logged_in.dart';
 import 'package:cava_ecommerce/features/account/presentation/controllers/orders_controller.dart';

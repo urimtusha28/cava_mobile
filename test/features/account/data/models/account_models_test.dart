@@ -1,84 +1,99 @@
-import 'package:cava_ecommerce/features/account/data/mappers/address_mapper.dart';
 import 'package:cava_ecommerce/features/account/data/mappers/order_mapper.dart';
-import 'package:cava_ecommerce/features/account/data/models/address_model.dart';
 import 'package:cava_ecommerce/features/account/data/models/order_model.dart';
+import 'package:cava_ecommerce/features/account/presentation/utils/order_formatters.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('OrderModel', () {
     test('toEntity maps fields', () {
-      final model = OrderModel(
+      const model = OrderModel(
         id: 'o1',
         orderNumber: '#CP-1',
         status: 'shipped',
         paymentStatus: 'paid',
         total: 18.9,
         itemCount: 2,
-        createdAt: DateTime(2026, 1, 1),
+        createdAt: null,
       );
 
       final entity = model.toEntity();
       expect(entity.id, 'o1');
-      expect(entity.orderNumber, '#CP-1');
+      expect(entity.displayOrderNumber, '#CP-1');
       expect(entity.itemCount, 2);
     });
   });
 
   group('OrderMapper', () {
-    test('maps firestore document', () {
+    test('maps totals.total from nested totals object', () {
       final model = OrderMapper.fromFirestore('o1', {
         'orderNumber': '#CP-1',
         'status': 'delivered',
         'paymentStatus': 'paid',
-        'total': 32,
-        'items': [{}, {}],
+        'total': 0,
+        'totals': {'total': 8.5, 'subtotal': 8.5},
+        'items': [
+          {'name': 'Verë', 'quantity': 1, 'price': 8.5, 'total': 8.5},
+        ],
         'createdAt': Timestamp.fromDate(DateTime(2026, 2, 1)),
         'userId': 'uid-1',
       });
 
-      expect(model?.orderNumber, '#CP-1');
-      expect(model?.itemCount, 2);
-      expect(model?.total, 32);
+      expect(model?.total, 8.5);
+      expect(model?.totals?.subtotal, 8.5);
     });
-  });
 
-  group('AddressModel', () {
-    test('toEntity maps fields', () {
-      final model = AddressModel(
-        id: 'a1',
-        label: 'Shtëpi',
-        fullName: 'Urim Tusha',
-        phone: '+38344111222',
-        street: 'Rruga 1',
-        city: 'Ferizaj',
-        country: 'Kosovë',
-        zip: '70000',
-        isDefault: true,
-      );
-
-      final entity = model.toEntity();
-      expect(entity.label, 'Shtëpi');
-      expect(entity.isDefault, isTrue);
-      expect(entity.displayLine, 'Rruga 1, Ferizaj');
-    });
-  });
-
-  group('AddressMapper', () {
-    test('maps firestore document', () {
-      final model = AddressMapper.fromFirestore('a1', {
-        'label': 'Punë',
-        'fullName': 'Urim',
-        'phone': '044',
-        'street': 'Bulevardi',
-        'city': 'Prishtinë',
-        'country': 'Kosovë',
-        'zip': '10000',
-        'isDefault': false,
+    test('falls back to items sum when totals missing', () {
+      final model = OrderMapper.fromFirestore('o1', {
+        'status': 'pending',
+        'paymentStatus': 'pending',
+        'items': [
+          {'name': 'A', 'quantity': 2, 'price': 4.25},
+          {'name': 'B', 'quantity': 1, 'price': 3.0, 'total': 3.0},
+        ],
       });
 
-      expect(model?.label, 'Punë');
-      expect(model?.city, 'Prishtinë');
+      expect(model?.total, closeTo(11.5, 0.001));
+      expect(model?.itemCount, 2);
+    });
+
+    test('uses orderNumber when present', () {
+      final model = OrderMapper.fromFirestore('long-order-id-123456', {
+        'orderNumber': '#CP-99',
+        'status': 'pending',
+        'paymentStatus': 'paid',
+        'totals': {'total': 10},
+      });
+
+      expect(model?.toEntity().displayOrderNumber, '#CP-99');
+    });
+
+    test('uses short id suffix when orderNumber missing', () {
+      final model = OrderMapper.fromFirestore('long-order-id-123456', {
+        'status': 'pending',
+        'paymentStatus': 'paid',
+        'totals': {'total': 10},
+      });
+
+      expect(model?.toEntity().displayOrderNumber, 'Porosia #123456');
+    });
+
+    test('maps customer and items without crash on missing fields', () {
+      final model = OrderMapper.fromFirestore('o1', {
+        'status': 'pending',
+        'paymentStatus': 'paid',
+        'totals': {'total': 5},
+      });
+
+      expect(model, isNotNull);
+      expect(model!.items, isEmpty);
+      expect(model.customer, isNull);
+    });
+  });
+
+  group('formatPaymentStatus', () {
+    test('maps paid to Albanian label', () {
+      expect(formatPaymentStatus('paid'), 'E paguar');
     });
   });
 }

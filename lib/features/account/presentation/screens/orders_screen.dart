@@ -11,6 +11,7 @@ import '../controllers/auth_controller.dart';
 import '../controllers/orders_controller.dart';
 import '../utils/order_formatters.dart';
 import '../widgets/auth_bottom_sheet.dart';
+import '../widgets/order_detail_bottom_sheet.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -77,51 +78,66 @@ class _OrdersScreenState extends State<OrdersScreen> {
       separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
       itemBuilder: (_, index) {
         final order = _controller.orders[index];
-        return Container(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
+        return Material(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          child: InkWell(
+            onTap: () => showOrderDetailBottomSheet(
+              context: context,
+              order: order,
+            ),
             borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Container(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(order.orderNumber, style: AppTextStyles.bodySmall),
-                  Text(
-                    formatOrderStatus(order.status),
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.burgundy,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          order.displayOrderNumber,
+                          style: AppTextStyles.bodySmall,
+                        ),
+                      ),
+                      Text(
+                        formatOrderStatus(order.status),
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.burgundy,
+                        ),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    formatPaymentStatus(order.paymentStatus),
+                    style: AppTextStyles.bodySmall,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    formatOrderTotal(order.total),
+                    style: AppTextStyles.price.copyWith(fontSize: 15),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${order.itemCount} produkte',
+                    style: AppTextStyles.bodySmall,
+                  ),
+                  if (order.createdAt != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      formatOrderDate(order.createdAt),
+                      style: AppTextStyles.caption,
+                    ),
+                  ],
                 ],
               ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                formatPaymentStatus(order.paymentStatus),
-                style: AppTextStyles.bodySmall,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                formatOrderTotal(order.total),
-                style: AppTextStyles.price.copyWith(fontSize: 15),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${order.itemCount} produkte',
-                style: AppTextStyles.bodySmall,
-              ),
-              if (order.createdAt != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  formatOrderDate(order.createdAt),
-                  style: AppTextStyles.caption,
-                ),
-              ],
-            ],
+            ),
           ),
         );
       },
