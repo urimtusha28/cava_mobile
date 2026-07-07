@@ -42,4 +42,7 @@ class CartMockDataSource implements CartDataSource {
     MockCart.items.clear();
     MockCart.revision.value = MockCart.itemCount;
   }
+
+  @override
+  Future<void> loadPersistedCart() async {}
 }

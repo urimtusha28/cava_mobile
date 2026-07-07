@@ -12,7 +12,8 @@ import '../../features/account/domain/usecases/login.dart';
 import '../../features/account/domain/usecases/logout.dart';
 import '../../features/account/presentation/controllers/auth_controller.dart';
 import '../../features/cart/data/datasources/cart_data_source.dart';
-import '../../features/cart/data/datasources/cart_mock_datasource.dart';
+import '../../features/cart/data/datasources/cart_local_datasource.dart';
+import '../../features/cart/data/local/cart_local_storage.dart';
 import '../../features/cart/data/repositories/cart_repository_impl.dart';
 import '../../features/cart/domain/repositories/cart_repository.dart';
 import '../../features/cart/domain/usecases/add_to_cart.dart';
@@ -144,7 +145,13 @@ void _registerCart() {
     return;
   }
 
-  sl.registerLazySingleton<CartDataSource>(() => const CartMockDataSource());
+  sl.registerLazySingleton<CartLocalStorage>(() => CartLocalStorage());
+  sl.registerLazySingleton<CartDataSource>(
+    () => CartLocalDataSource(
+      sl<CartLocalStorage>(),
+      sl<ProductRepository>(),
+    ),
+  );
   sl.registerLazySingleton<CartRepository>(
     () => CartRepositoryImpl(sl<CartDataSource>()),
   );
@@ -306,11 +313,27 @@ void _registerControllers() {
 
 /// Resets all registrations and ephemeral global state — use in test tearDown.
 Future<void> resetDependencies() async {
+  if (sl.isRegistered<CartDataSource>()) {
+    try {
+      final cartDataSource = sl<CartDataSource>();
+      if (cartDataSource is CartLocalDataSource) {
+        cartDataSource.resetForTests();
+      }
+    } catch (_) {
+      // Cart datasource not instantiated yet or dependencies unavailable.
+    }
+  }
+
   await sl.reset(dispose: true);
   _dependenciesConfigured = false;
   CartStateNotifier.reset();
   WishlistStateNotifier.reset();
   LocalWishlistStore.clear();
+  try {
+    await CartLocalStorage().clear();
+  } catch (_) {
+    // SharedPreferences may be unavailable before Flutter binding init.
+  }
   AuthStateNotifier.reset();
 }
 

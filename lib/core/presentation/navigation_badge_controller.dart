@@ -14,6 +14,7 @@ abstract final class NavigationBadgeController {
   static Future<void> syncBadges() async {
     configureDependencies();
 
+    await sl<CartRepository>().hydrateFromStorage();
     CartStateNotifier.update(await sl<CartRepository>().getItemCount());
     WishlistStateNotifier.update(await sl<WishlistRepository>().getCount());
     AuthStateNotifier.update(await sl<AuthRepository>().isLoggedIn());

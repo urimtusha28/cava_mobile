@@ -1,4 +1,3 @@
-import 'package:cava_ecommerce/core/di/injection.dart';
 import 'package:cava_ecommerce/core/state/wishlist_state_notifier.dart';
 import 'package:cava_ecommerce/core/widgets/product_grid_card.dart';
 import 'package:cava_ecommerce/core/widgets/product_wishlist_toggle.dart';
@@ -7,16 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fixtures.dart';
+import '../../helpers/test_di.dart';
 
 void main() {
   setUp(() async {
-    await configureTestDependencies();
+    await setUpTestDependencies();
     LocalWishlistStore.clear();
     WishlistStateNotifier.reset();
   });
 
   tearDown(() async {
-    await resetDependencies();
+    await tearDownTestDependencies();
   });
 
   testWidgets('product card shows wishlist toggle left of price', (tester) async {

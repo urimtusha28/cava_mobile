@@ -23,4 +23,7 @@ abstract class CartDataSource {
   void removeAt(int index);
 
   void clear();
+
+  /// Loads guest cart lines from local storage and hydrates products.
+  Future<void> loadPersistedCart();
 }

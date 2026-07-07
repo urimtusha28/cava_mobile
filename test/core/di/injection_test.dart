@@ -81,7 +81,10 @@ void main() {
       await setUpTestDependencies();
       final first = sl<CartController>();
       await resetDependencies();
-      configureDependencies();
+      await configureTestDependencies(
+        productDataSource: const ProductMockDataSource(),
+        categoryDataSource: const CategoryMockDataSource(),
+      );
       final second = sl<CartController>();
       expect(first, isNot(same(second)));
     });

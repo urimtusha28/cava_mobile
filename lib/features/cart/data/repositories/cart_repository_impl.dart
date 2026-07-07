@@ -15,62 +15,88 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   @override
-  Future<CartSummaryEntity> getSummary() => Future.sync(() {
-        _notifyChange();
-        return CartSummaryEntity(
-          items: _dataSource.getItems(),
-          itemCount: _dataSource.getItemCount(),
-          subtotal: _dataSource.getSubtotal(),
-          discount: _dataSource.getDiscount(),
-          vat: _dataSource.getVat(),
-          shipping: _dataSource.getShipping(),
-          total: _dataSource.getTotal(),
-        );
-      });
+  Future<void> hydrateFromStorage() async {
+    await _dataSource.loadPersistedCart();
+    _notifyChange();
+  }
 
   @override
-  Future<List<CartItemEntity>> getItems() =>
-      Future.sync(_dataSource.getItems);
+  Future<CartSummaryEntity> getSummary() async {
+    await hydrateFromStorage();
+    return CartSummaryEntity(
+      items: _dataSource.getItems(),
+      itemCount: _dataSource.getItemCount(),
+      subtotal: _dataSource.getSubtotal(),
+      discount: _dataSource.getDiscount(),
+      vat: _dataSource.getVat(),
+      shipping: _dataSource.getShipping(),
+      total: _dataSource.getTotal(),
+    );
+  }
 
   @override
-  Future<int> getItemCount() => Future.sync(_dataSource.getItemCount);
+  Future<List<CartItemEntity>> getItems() async {
+    await hydrateFromStorage();
+    return _dataSource.getItems();
+  }
 
   @override
-  Future<double> getSubtotal() => Future.sync(_dataSource.getSubtotal);
+  Future<int> getItemCount() async {
+    await hydrateFromStorage();
+    return _dataSource.getItemCount();
+  }
 
   @override
-  Future<double> getDiscount() => Future.sync(_dataSource.getDiscount);
+  Future<double> getSubtotal() async {
+    await hydrateFromStorage();
+    return _dataSource.getSubtotal();
+  }
 
   @override
-  Future<double> getVat() => Future.sync(_dataSource.getVat);
+  Future<double> getDiscount() async {
+    await hydrateFromStorage();
+    return _dataSource.getDiscount();
+  }
 
   @override
-  Future<double> getShipping() => Future.sync(_dataSource.getShipping);
+  Future<double> getVat() async {
+    await hydrateFromStorage();
+    return _dataSource.getVat();
+  }
 
   @override
-  Future<double> getTotal() => Future.sync(_dataSource.getTotal);
+  Future<double> getShipping() async {
+    await hydrateFromStorage();
+    return _dataSource.getShipping();
+  }
 
   @override
-  Future<void> addProduct(ProductEntity product) => Future.sync(() {
-        _dataSource.addProduct(product);
-        _notifyChange();
-      });
+  Future<double> getTotal() async {
+    await hydrateFromStorage();
+    return _dataSource.getTotal();
+  }
 
   @override
-  Future<void> updateQuantity(int index, int quantity) => Future.sync(() {
-        _dataSource.updateQuantity(index, quantity);
-        _notifyChange();
-      });
+  Future<void> addProduct(ProductEntity product) async {
+    _dataSource.addProduct(product);
+    _notifyChange();
+  }
 
   @override
-  Future<void> removeAt(int index) => Future.sync(() {
-        _dataSource.removeAt(index);
-        _notifyChange();
-      });
+  Future<void> updateQuantity(int index, int quantity) async {
+    _dataSource.updateQuantity(index, quantity);
+    _notifyChange();
+  }
 
   @override
-  Future<void> clear() => Future.sync(() {
-        _dataSource.clear();
-        _notifyChange();
-      });
+  Future<void> removeAt(int index) async {
+    _dataSource.removeAt(index);
+    _notifyChange();
+  }
+
+  @override
+  Future<void> clear() async {
+    _dataSource.clear();
+    _notifyChange();
+  }
 }

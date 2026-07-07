@@ -42,4 +42,7 @@ class CartFirestoreDataSource implements CartDataSource {
 
   @override
   void clear() => _todo();
+
+  @override
+  Future<void> loadPersistedCart() async => _todo();
 }

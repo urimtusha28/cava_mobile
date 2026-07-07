@@ -15,6 +15,7 @@ void main() {
     CartStateNotifier.reset();
     dataSource = MockCartDataSource();
     when(() => dataSource.getItemCount()).thenReturn(0);
+    when(() => dataSource.loadPersistedCart()).thenAnswer((_) async {});
     repository = CartRepositoryImpl(dataSource);
   });
 

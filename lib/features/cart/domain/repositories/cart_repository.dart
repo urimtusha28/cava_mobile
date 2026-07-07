@@ -26,4 +26,7 @@ abstract class CartRepository {
   Future<void> removeAt(int index);
 
   Future<void> clear();
+
+  /// Hydrates in-memory cart from local guest storage.
+  Future<void> hydrateFromStorage();
 }

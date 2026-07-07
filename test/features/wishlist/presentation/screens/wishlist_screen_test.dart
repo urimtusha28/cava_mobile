@@ -1,15 +1,16 @@
-import 'package:cava_ecommerce/core/di/injection.dart';
 import 'package:cava_ecommerce/features/wishlist/presentation/screens/wishlist_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../../helpers/test_di.dart';
+
 void main() {
   setUp(() async {
-    await configureTestDependencies();
+    await setUpTestDependencies();
   });
 
   tearDown(() async {
-    await resetDependencies();
+    await tearDownTestDependencies();
   });
 
   testWidgets('shows empty state when wishlist has no items', (tester) async {
