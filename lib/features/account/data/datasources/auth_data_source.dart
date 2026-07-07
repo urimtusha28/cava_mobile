@@ -1,9 +1,22 @@
+import '../../domain/entities/auth_user_entity.dart';
+
 abstract class AuthDataSource {
-  bool isLoggedIn();
+  Stream<AuthUserEntity?> authStateChanges();
 
-  String getUserName();
+  AuthUserEntity? get currentUser;
 
-  void login();
+  Future<AuthUserEntity> login({
+    required String email,
+    required String password,
+  });
 
-  void logout();
+  Future<AuthUserEntity> register({
+    required String email,
+    required String password,
+    String? name,
+  });
+
+  Future<void> forgotPassword({required String email});
+
+  Future<void> logout();
 }

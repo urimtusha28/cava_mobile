@@ -11,6 +11,9 @@ abstract final class FirebaseConfig {
   /// When `true` together with [enabled], categories load from Firestore.
   static const bool useFirestoreCategories = true;
 
+  /// When `true` together with [enabled], auth uses Firebase Authentication.
+  static const bool useFirebaseAuth = true;
+
   /// When `true`, Firestore category errors fall back to [CategoryMockDataSource].
   static const bool fallbackToMockCategoriesOnError = false;
 

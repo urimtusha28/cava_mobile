@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/firebase/firebase_config.dart';
 import '../../../../core/state/auth_state_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -9,6 +10,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
 import '../controllers/auth_controller.dart';
+import '../widgets/auth_bottom_sheet.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -48,7 +50,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _ProfileHeader(
                         isLoggedIn: isLoggedIn,
                         userName: _controller.userName,
-                        onLoginTap: () => _controller.login(),
+                        onLoginTap: () {
+                          if (FirebaseConfig.enabled &&
+                              FirebaseConfig.useFirebaseAuth) {
+                            showAuthBottomSheet(
+                              context: context,
+                              controller: _controller,
+                            );
+                          } else {
+                            _controller.login();
+                          }
+                        },
                       ),
                       const SizedBox(height: AppSpacing.xxl),
                       _Tile(
@@ -77,11 +89,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onTap: () => context.push(AppRoutes.language),
                       ),
                       _Tile(
-                        icon: Icons.euro_outlined,
-                        title: 'Valuta',
-                        onTap: () => context.push(AppRoutes.currency),
-                      ),
-                      _Tile(
                         icon: Icons.description_outlined,
                         title: 'Kushtet e përdorimit',
                         onTap: () => context.push(AppRoutes.terms),
@@ -91,6 +98,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         title: 'Politika e privatësisë',
                         onTap: () => context.push(AppRoutes.privacy),
                       ),
+                      if (isLoggedIn)
+                        _Tile(
+                          icon: Icons.logout,
+                          title: 'Dil',
+                          onTap: () => _controller.logout(),
+                        ),
                     ],
                   ),
                 );

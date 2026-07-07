@@ -1,5 +1,7 @@
 import 'package:cava_ecommerce/core/firebase/firebase_config.dart';
 import 'package:cava_ecommerce/core/di/injection.dart';
+import 'package:cava_ecommerce/features/account/data/datasources/auth_data_source.dart';
+import 'package:cava_ecommerce/features/account/data/datasources/auth_mock_datasource.dart';
 import 'package:cava_ecommerce/features/account/data/repositories/auth_repository_impl.dart';
 import 'package:cava_ecommerce/features/account/domain/repositories/auth_repository.dart';
 import 'package:cava_ecommerce/features/cart/data/repositories/cart_repository_impl.dart';
@@ -37,6 +39,7 @@ void main() {
       expect(FirebaseConfig.enabled, isTrue);
       expect(FirebaseConfig.useFirestoreProducts, isTrue);
       expect(FirebaseConfig.useFirestoreCategories, isTrue);
+      expect(FirebaseConfig.useFirebaseAuth, isTrue);
       expect(FirebaseConfig.fallbackToMockProductsOnError, isFalse);
       expect(FirebaseConfig.fallbackToMockCategoriesOnError, isFalse);
     });
@@ -73,6 +76,18 @@ void main() {
       expect(sl<CartRepository>(), isA<CartRepositoryImpl>());
       expect(sl<WishlistRepository>(), isA<WishlistRepositoryImpl>());
       expect(sl<AuthRepository>(), isA<AuthRepositoryImpl>());
+    });
+
+    test('production auth registration uses firebase datasource when flag enabled', () async {
+      await resetDependencies();
+      configureDependencies();
+      expect(sl.isRegistered<AuthDataSource>(), isTrue);
+      expect(FirebaseConfig.useFirebaseAuth, isTrue);
+    });
+
+    test('test auth registration uses mock datasource by default', () async {
+      await setUpTestDependencies();
+      expect(sl<AuthDataSource>(), isA<AuthMockDataSource>());
     });
   });
 

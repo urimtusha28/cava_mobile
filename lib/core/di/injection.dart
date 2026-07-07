@@ -1,15 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 
 import '../firebase/firebase_config.dart';
 
 import '../../features/account/data/datasources/auth_data_source.dart';
+import '../../features/account/data/datasources/auth_firebase_datasource.dart';
 import '../../features/account/data/datasources/auth_mock_datasource.dart';
+import '../../features/account/data/firebase/firebase_auth_gateway.dart';
 import '../../features/account/data/repositories/auth_repository_impl.dart';
 import '../../features/account/domain/repositories/auth_repository.dart';
+import '../../features/account/domain/usecases/forgot_password.dart';
 import '../../features/account/domain/usecases/is_logged_in.dart';
 import '../../features/account/domain/usecases/login.dart';
 import '../../features/account/domain/usecases/logout.dart';
+import '../../features/account/domain/usecases/register.dart';
 import '../../features/account/presentation/controllers/auth_controller.dart';
 import '../../features/cart/data/datasources/cart_data_source.dart';
 import '../../features/cart/data/datasources/cart_local_datasource.dart';
@@ -175,10 +180,20 @@ void _registerAuth() {
     return;
   }
 
-  sl.registerLazySingleton<AuthDataSource>(() => const AuthMockDataSource());
+  sl.registerLazySingleton<AuthDataSource>(_createAuthDataSource);
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(sl<AuthDataSource>()),
   );
+}
+
+AuthDataSource _createAuthDataSource() {
+  if (FirebaseConfig.enabled && FirebaseConfig.useFirebaseAuth) {
+    return AuthFirebaseDataSource(
+      FirebaseAuthGatewayImpl(FirebaseAuth.instance),
+      FirebaseFirestore.instance,
+    );
+  }
+  return const AuthMockDataSource();
 }
 
 // ---------------------------------------------------------------------------
@@ -271,6 +286,12 @@ void _registerUseCases() {
     () => IsLoggedInUseCase(sl<AuthRepository>()),
   );
   sl.registerFactory<LoginUseCase>(() => LoginUseCase(sl<AuthRepository>()));
+  sl.registerFactory<RegisterUseCase>(
+    () => RegisterUseCase(sl<AuthRepository>()),
+  );
+  sl.registerFactory<ForgotPasswordUseCase>(
+    () => ForgotPasswordUseCase(sl<AuthRepository>()),
+  );
   sl.registerFactory<LogoutUseCase>(() => LogoutUseCase(sl<AuthRepository>()));
 }
 
@@ -304,7 +325,7 @@ void _registerControllers() {
     () => WishlistController(sl(), sl(), sl()),
   );
   sl.registerFactory<AuthController>(
-    () => AuthController(sl(), sl(), sl()),
+    () => AuthController(sl(), sl(), sl(), sl(), sl(), sl()),
   );
   sl.registerFactory<CheckoutController>(
     () => CheckoutController(sl<CartController>()),
@@ -399,7 +420,10 @@ Future<void> configureTestDependencies({
       () => AuthRepositoryImpl(sl<AuthDataSource>()),
     );
   } else {
-    _registerAuth();
+    sl.registerLazySingleton<AuthDataSource>(() => const AuthMockDataSource());
+    sl.registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(sl<AuthDataSource>()),
+    );
   }
 
   _registerControllers();
