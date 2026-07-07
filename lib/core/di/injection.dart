@@ -281,7 +281,7 @@ void _registerControllers() {
     () => HomeController(sl(), sl()),
   );
   sl.registerFactory<ProductDetailController>(
-    () => ProductDetailController(sl(), sl()),
+    () => ProductDetailController(sl(), sl(), sl()),
   );
   sl.registerFactory<CategoriesController>(
     () => CategoriesController(sl()),

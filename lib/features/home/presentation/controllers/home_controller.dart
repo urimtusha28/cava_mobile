@@ -5,6 +5,7 @@ import '../../../categories/domain/entities/category_entity.dart';
 import '../../../categories/domain/usecases/get_categories.dart';
 import '../../domain/entities/home_section_entity.dart';
 import '../../domain/usecases/get_home_sections.dart';
+import '../utils/home_category_order.dart';
 
 class HomeController extends BaseController {
   HomeController(this._getCategories, this._getHomeSections);
@@ -26,9 +27,11 @@ class HomeController extends BaseController {
 
   Future<void> load() {
     return runLoad(() async {
-      categories = await unwrapFutureResult(
-        _getCategories(),
-        fallback: const [],
+      categories = prioritizeWinesForHome(
+        await unwrapFutureResult(
+          _getCategories(),
+          fallback: const [],
+        ),
       );
       sections = await unwrapFutureResult(
         _getHomeSections(),

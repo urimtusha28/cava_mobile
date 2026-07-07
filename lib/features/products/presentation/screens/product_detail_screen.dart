@@ -97,7 +97,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                   children: [
                     _ProductImage(
                       product: product,
-                      categoryBadgeColor: _controller.category?.badgeColor,
+                      badgeLabel: _controller.categoryBadgeLabel,
+                      categoryBadgeColor:
+                          _controller.productSubcategory?.badgeColor,
+                      parentBadgeColor: _controller.category?.badgeColor,
                     ),
                     const SizedBox(height: AppSpacing.xl),
                     Text(
@@ -183,11 +186,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
 class _ProductImage extends StatelessWidget {
   const _ProductImage({
     required this.product,
+    required this.badgeLabel,
     this.categoryBadgeColor,
+    this.parentBadgeColor,
   });
 
   final ProductEntity product;
+  final String badgeLabel;
   final String? categoryBadgeColor;
+  final String? parentBadgeColor;
 
   /// Hero image height ratio. Was 0.34 — +~15% for vertical bottle photos.
   static const double _imageHeightRatio = 0.39;
@@ -210,6 +217,7 @@ class _ProductImage extends StatelessWidget {
     final fallback = Theme.of(context).colorScheme.primary;
     final badgeBackground = CategoryBadgeColorHelper.resolveBackground(
       badgeColor: categoryBadgeColor,
+      parentBadgeColor: parentBadgeColor,
       fallback: fallback,
     );
     final badgeTextColor = CategoryBadgeColorHelper.textColor(badgeBackground);
@@ -241,7 +249,7 @@ class _ProductImage extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              product.categoryName,
+              badgeLabel,
               style: AppTextStyles.caption.copyWith(
                 color: badgeTextColor,
               ),
