@@ -4,19 +4,19 @@ import '../../domain/repositories/wishlist_repository.dart';
 import '../datasources/wishlist_data_source.dart';
 
 class WishlistRepositoryImpl implements WishlistRepository {
-  WishlistRepositoryImpl(this._dataSource) {
-    WishlistStateNotifier.update(_dataSource.getCount());
-  }
+  WishlistRepositoryImpl(this._dataSource);
 
   final WishlistDataSource _dataSource;
 
-  Future<void> _notifyChange() async {
+  void _notifyChange() {
     WishlistStateNotifier.update(_dataSource.getCount());
   }
 
   @override
-  Future<List<ProductEntity>> getItems() =>
-      Future.sync(_dataSource.getItems);
+  Future<List<ProductEntity>> getItems() => Future.sync(() {
+        _notifyChange();
+        return _dataSource.getItems();
+      });
 
   @override
   Future<int> getCount() => Future.sync(_dataSource.getCount);

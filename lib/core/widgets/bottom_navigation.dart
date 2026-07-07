@@ -39,6 +39,9 @@ class _BottomNavigationState extends State<BottomNavigation> {
   void initState() {
     super.initState();
     _controller = NotchBottomBarController(index: widget.currentIndex);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NavigationBadgeController.syncBadges();
+    });
   }
 
   @override
@@ -63,7 +66,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
         return ValueListenableBuilder<int>(
           valueListenable: WishlistStateNotifier.revision,
           builder: (context, _, child) {
-            NavigationBadgeController.ensureInitialized();
             final wishlistCount = NavigationBadgeController.wishlistCount;
             final cartCount = NavigationBadgeController.cartCount;
 

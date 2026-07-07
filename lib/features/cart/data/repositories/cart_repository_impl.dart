@@ -6,18 +6,17 @@ import '../../domain/repositories/cart_repository.dart';
 import '../datasources/cart_data_source.dart';
 
 class CartRepositoryImpl implements CartRepository {
-  CartRepositoryImpl(this._dataSource) {
-    CartStateNotifier.update(_dataSource.getItemCount());
-  }
+  CartRepositoryImpl(this._dataSource);
 
   final CartDataSource _dataSource;
 
-  Future<void> _notifyChange() async {
+  void _notifyChange() {
     CartStateNotifier.update(_dataSource.getItemCount());
   }
 
   @override
   Future<CartSummaryEntity> getSummary() => Future.sync(() {
+        _notifyChange();
         return CartSummaryEntity(
           items: _dataSource.getItems(),
           itemCount: _dataSource.getItemCount(),

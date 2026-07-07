@@ -5,9 +5,7 @@ import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._dataSource) {
-    AuthStateNotifier.update(_dataSource.isLoggedIn());
-  }
+  AuthRepositoryImpl(this._dataSource);
 
   final AuthDataSource _dataSource;
 
