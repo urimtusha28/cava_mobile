@@ -81,6 +81,26 @@ void main() {
       final categories = await dataSource.getAllCategories();
       expect(categories, isNotEmpty);
     });
+
+    test('loadActiveCategories uses cache until clearCache', () async {
+      final first = await dataSource.getAllCategories();
+      expect(first, hasLength(1));
+
+      await seed('cat-spirits', {
+        ...testWebCategoryJson,
+        'id': 'cat-spirits',
+        'slug': 'spirits',
+        'name': 'Spirits',
+        'order': 2,
+      });
+
+      final cached = await dataSource.getAllCategories();
+      expect(cached, hasLength(1));
+
+      dataSource.clearCache();
+      final refreshed = await dataSource.getAllCategories();
+      expect(refreshed, hasLength(2));
+    });
   });
 
   group('sortCategoriesByOrder', () {

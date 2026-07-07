@@ -17,6 +17,9 @@ abstract final class FirebaseConfig {
   /// When `true`, Firestore errors fall back to [ProductMockDataSource].
   static const bool fallbackToMockProductsOnError = false;
 
+  /// In-memory cache TTL for Firestore product/category reads.
+  static const Duration firestoreCacheTtl = Duration(minutes: 5);
+
   // Firestore collections
   static const String productsCollection = 'products';
   static const String categoriesCollection = 'categories';

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/cache/ttl_memory_cache.dart';
 import '../../../../core/firebase/firebase_config.dart';
 import '../models/category_model.dart';
 import '../models/subcategory_model.dart';
@@ -19,8 +20,28 @@ class CategoryFirestoreDataSource implements CategoryDataSource {
   static const CategoryMockDataSource _mockFallback =
       CategoryMockDataSource();
 
+  final TtlMemoryCache<List<CategoryModel>> _allCategoriesCache =
+      TtlMemoryCache(ttl: FirebaseConfig.firestoreCacheTtl);
+  final TtlMemoryMapCache<List<SubcategoryModel>> _subcategoriesCache =
+      TtlMemoryMapCache(ttl: FirebaseConfig.firestoreCacheTtl);
+
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection(FirebaseConfig.categoriesCollection);
+
+  /// Clears all in-memory category caches.
+  void clearCache() {
+    _allCategoriesCache.clear();
+    _subcategoriesCache.clear();
+    if (kDebugMode) {
+      debugPrint('CategoryFirestoreDataSource: cache cleared');
+    }
+  }
+
+  /// Clears cache and preloads active categories from Firestore.
+  Future<void> refreshCache() async {
+    clearCache();
+    await getAllCategories();
+  }
 
   @override
   Future<List<CategoryModel>> getAllCategories() async {
@@ -62,6 +83,13 @@ class CategoryFirestoreDataSource implements CategoryDataSource {
 
   @override
   Future<List<SubcategoryModel>> getSubcategories(String categoryId) async {
+    final cacheKey = categoryId.trim().toLowerCase();
+    final cached = _subcategoriesCache.get(cacheKey);
+    if (cached != null) {
+      _logCacheHit('getSubcategories', cached.length);
+      return cached;
+    }
+
     return _safeSubcategories(
       operation: 'getSubcategories',
       request: () async {
@@ -87,18 +115,24 @@ class CategoryFirestoreDataSource implements CategoryDataSource {
             )
             .toList(growable: false);
 
-        return [
+        final result = List<SubcategoryModel>.unmodifiable([
           const SubcategoryModel(id: 'all', label: 'All'),
           ...models,
-        ];
+        ]);
+        _subcategoriesCache.put(cacheKey, result);
+        return result;
       },
       fallback: () => _mockFallback.getSubcategories(categoryId),
     );
   }
 
   Future<List<CategoryModel>> _loadActiveCategories() async {
-    // Query must filter isActive server-side — rules only allow read when
-    // resource.data.isActive == true; an unfiltered .get() is rejected.
+    final cached = _allCategoriesCache.valueIfValid;
+    if (cached != null) {
+      _logCacheHit('_loadActiveCategories', cached.length);
+      return cached;
+    }
+
     final snapshot = await _collection
         .where('isActive', isEqualTo: true)
         .get();
@@ -112,7 +146,17 @@ class CategoryFirestoreDataSource implements CategoryDataSource {
       }
     }
 
-    return categories;
+    final result = List<CategoryModel>.unmodifiable(categories);
+    _allCategoriesCache.put(result);
+    return result;
+  }
+
+  void _logCacheHit(String operation, int count) {
+    if (kDebugMode) {
+      debugPrint(
+        'CategoryFirestoreDataSource: cache hit $operation ($count items)',
+      );
+    }
   }
 
   CategoryModel? _tryMapDocument(Map<String, dynamic> data, String documentId) {

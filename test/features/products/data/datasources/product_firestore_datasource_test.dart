@@ -93,6 +93,37 @@ void main() {
       expect(entity.imageUrl, (testWebProductJson['images'] as Map)['thumb']);
       expect(entity.detailImageUrl, (testWebProductJson['images'] as Map)['medium']);
     });
+
+    test('getAllProducts returns cached data until clearCache', () async {
+      final first = await dataSource.getAllProducts();
+      expect(first, hasLength(1));
+
+      await seedWebProduct('web-p2', {
+        ...testWebProductJson,
+        'id': 'web-p2',
+        'name': 'Second Wine',
+      });
+
+      final cached = await dataSource.getAllProducts();
+      expect(cached, hasLength(1));
+
+      dataSource.clearCache();
+      final refreshed = await dataSource.getAllProducts();
+      expect(refreshed, hasLength(2));
+    });
+
+    test('getFeaturedProducts derives from cached all products', () async {
+      await dataSource.getAllProducts();
+      final featured = await dataSource.getFeaturedProducts();
+      expect(featured, hasLength(1));
+      expect(featured.first.topPick, isTrue);
+    });
+
+    test('getProductsByCategory derives from cached all products', () async {
+      await dataSource.getAllProducts();
+      final byCategory = await dataSource.getProductsByCategory('Wines');
+      expect(byCategory, hasLength(1));
+    });
   });
 
   group('ProductFirestoreDataSource.mapDocumentToModel', () {
