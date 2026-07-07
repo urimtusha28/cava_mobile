@@ -45,7 +45,7 @@ class ProductSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         SizedBox(
-          height: 240,
+          height: ProductGridCard.homeRowHeight,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
@@ -73,7 +73,7 @@ class ProductGrid extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.screen),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.62,
+        childAspectRatio: ProductGridCard.gridChildAspectRatio,
         crossAxisSpacing: AppSpacing.md,
         mainAxisSpacing: AppSpacing.md,
       ),

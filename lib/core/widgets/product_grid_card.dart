@@ -17,11 +17,31 @@ class ProductGridCard extends StatelessWidget {
     this.compact = false,
   });
 
-  /// Compact image area (Home horizontal cards). Was 110 — +~18% for bottles.
-  static const double imageHeightCompact = 130;
+  /// Compact image area (Home horizontal cards).
+  static const double imageHeightCompact = 143;
 
-  /// Grid image area (All Products, Category). Was 140 — +~20% for bottles.
-  static const double imageHeight = 168;
+  /// Grid image area (All Products, Category).
+  static const double imageHeight = 185;
+
+  /// Text block below compact image (padding included in SizedBox).
+  static const double contentAreaHeightCompact = 125;
+
+  /// Extra total card height — parent constraint only, not image.
+  static const double cardHeightBump = 19;
+
+  /// Compact text area inside card (grows with [cardHeightBump], not image).
+  static const double compactContentHeight =
+      contentAreaHeightCompact + cardHeightBump;
+
+  /// [Border.all] on card — 1px top + 1px bottom inside height budget.
+  static const double cardVerticalBorder = 2;
+
+  /// Home horizontal row — must include border (grid cells are taller, so OK there).
+  static const double homeRowHeight =
+      imageHeightCompact + compactContentHeight + cardVerticalBorder;
+
+  /// Grid cell aspect ratio — lower = taller card (more room below fixed image).
+  static const double gridChildAspectRatio = 0.529;
 
   final ProductEntity product;
   final bool compact;
@@ -66,63 +86,81 @@ class ProductGridCard extends StatelessWidget {
                 ),
               ),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.md,
-                  AppSpacing.sm,
-                  AppSpacing.md,
-                  AppSpacing.md,
+            if (compact)
+              SizedBox(
+                height: compactContentHeight,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.sm,
+                    AppSpacing.md,
+                    AppSpacing.md,
+                  ),
+                  child: _buildContent(),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.name,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textPrimary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      product.type,
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const Spacer(),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            Formatters.currency(product.price),
-                            style: AppTextStyles.price.copyWith(fontSize: 15),
-                          ),
-                          if (product.oldPrice != null)
-                            Text(
-                              Formatters.currency(product.oldPrice!),
-                              style: AppTextStyles.caption.copyWith(
-                                decoration: TextDecoration.lineThrough,
-                                fontSize: 10,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
+              )
+            else
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.sm,
+                    AppSpacing.md,
+                    AppSpacing.md,
+                  ),
+                  child: _buildContent(),
                 ),
               ),
-            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          product.name,
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textPrimary,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          product.type,
+          style: AppTextStyles.caption.copyWith(
+            color: AppColors.textSecondary,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const Spacer(),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                Formatters.currency(product.price),
+                style: AppTextStyles.price.copyWith(fontSize: 15),
+              ),
+              if (product.oldPrice != null)
+                Text(
+                  Formatters.currency(product.oldPrice!),
+                  style: AppTextStyles.caption.copyWith(
+                    decoration: TextDecoration.lineThrough,
+                    fontSize: 10,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
