@@ -113,7 +113,7 @@ class _TopBar extends StatelessWidget {
             _CircleIcon(
               icon: Icons.shopping_bag_outlined,
               badge: cartCount,
-              onTap: () => context.push(AppRoutes.cart),
+              onTap: () => context.go(AppRoutes.cart),
             ),
           ],
         ),

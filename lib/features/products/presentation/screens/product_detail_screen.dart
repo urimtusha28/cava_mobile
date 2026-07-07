@@ -194,7 +194,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     switch (result) {
       case AddToCartResult.success:
         if (navigateToCart) {
-          context.push(AppRoutes.cart);
+          context.go(AppRoutes.cart);
         } else {
           _showCartMessage('Produkti u shtua në shportë.');
         }

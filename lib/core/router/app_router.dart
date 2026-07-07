@@ -41,11 +41,17 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/', redirect: (_, _) => AppRoutes.splash),
     GoRoute(
       path: AppRoutes.splash,
-      pageBuilder: (_, _) => const NoTransitionPage(child: SplashScreen()),
+      pageBuilder: (context, state) => NoTransitionPage(
+        key: state.pageKey,
+        child: const SplashScreen(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.onboarding,
-      pageBuilder: (_, _) => const NoTransitionPage(child: OnboardingScreen()),
+      pageBuilder: (context, state) => NoTransitionPage(
+        key: state.pageKey,
+        child: const OnboardingScreen(),
+      ),
     ),
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
@@ -68,23 +74,36 @@ final GoRouter appRouter = GoRouter(
       routes: [
         GoRoute(
           path: AppRoutes.home,
-          pageBuilder: (_, _) => const NoTransitionPage(child: HomeScreen()),
+          pageBuilder: (context, state) => NoTransitionPage(
+            key: state.pageKey,
+            child: const HomeScreen(),
+          ),
         ),
         GoRoute(
           path: AppRoutes.wishlist,
-          pageBuilder: (_, _) => const NoTransitionPage(child: WishlistScreen()),
+          pageBuilder: (context, state) => NoTransitionPage(
+            key: state.pageKey,
+            child: const WishlistScreen(),
+          ),
         ),
         GoRoute(
           path: AppRoutes.cart,
-          pageBuilder: (_, _) => const NoTransitionPage(child: CartScreen()),
+          pageBuilder: (context, state) => NoTransitionPage(
+            key: state.pageKey,
+            child: const CartScreen(),
+          ),
         ),
         GoRoute(
           path: AppRoutes.profile,
-          pageBuilder: (_, _) => const NoTransitionPage(child: ProfileScreen()),
+          pageBuilder: (context, state) => NoTransitionPage(
+            key: state.pageKey,
+            child: const ProfileScreen(),
+          ),
         ),
         GoRoute(
           path: '/category/:categoryId',
           pageBuilder: (context, state) => NoTransitionPage(
+            key: state.pageKey,
             child: CategoryProductsScreen(
               categoryId: state.pathParameters['categoryId']!,
             ),
