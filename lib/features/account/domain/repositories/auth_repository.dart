@@ -1,3 +1,5 @@
+import '../entities/auth_user_entity.dart';
+
 abstract class AuthRepository {
   Stream<bool> watchAuthState();
 
@@ -6,6 +8,8 @@ abstract class AuthRepository {
   Future<String> getUserName();
 
   Future<String?> getCurrentUserId();
+
+  Future<AuthUserEntity?> getCurrentUser();
 
   Future<void> login({
     required String email,

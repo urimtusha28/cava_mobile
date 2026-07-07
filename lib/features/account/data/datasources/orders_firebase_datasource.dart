@@ -27,4 +27,23 @@ class OrdersFirebaseDataSource implements OrdersDataSource {
     }
     return orders;
   }
+
+  @override
+  Future<OrderModel?> getOrderById(String userId, String orderId) async {
+    final doc = await _firestore
+        .collection(FirebaseConfig.ordersCollection)
+        .doc(orderId)
+        .get();
+
+    if (!doc.exists) {
+      return null;
+    }
+
+    final data = doc.data();
+    if (data == null || data['userId'] != userId) {
+      return null;
+    }
+
+    return OrderMapper.fromFirestore(doc.id, data);
+  }
 }

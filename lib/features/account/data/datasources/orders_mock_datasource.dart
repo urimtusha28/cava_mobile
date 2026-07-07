@@ -6,4 +6,8 @@ class OrdersMockDataSource implements OrdersDataSource {
 
   @override
   Future<List<OrderModel>> getMyOrders(String userId) async => const [];
+
+  @override
+  Future<OrderModel?> getOrderById(String userId, String orderId) async =>
+      null;
 }

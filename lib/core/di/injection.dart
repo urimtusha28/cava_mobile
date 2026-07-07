@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 
 import '../firebase/firebase_config.dart';
+import '../firebase/firebase_functions_gateway.dart';
 
 import '../../features/account/data/datasources/addresses_data_source.dart';
 import '../../features/account/data/datasources/addresses_firebase_datasource.dart';
@@ -22,7 +24,9 @@ import '../../features/account/domain/repositories/auth_repository.dart';
 import '../../features/account/domain/repositories/orders_repository.dart';
 import '../../features/account/domain/usecases/address_usecases.dart';
 import '../../features/account/domain/usecases/forgot_password.dart';
+import '../../features/account/domain/usecases/get_current_user.dart';
 import '../../features/account/domain/usecases/get_my_orders.dart';
+import '../../features/account/domain/usecases/get_order_by_id.dart';
 import '../../features/account/domain/usecases/is_logged_in.dart';
 import '../../features/account/domain/usecases/login.dart';
 import '../../features/account/domain/usecases/logout.dart';
@@ -53,6 +57,13 @@ import '../../features/categories/domain/usecases/get_category_by_id.dart';
 import '../../features/categories/domain/usecases/get_subcategories.dart';
 import '../../features/categories/presentation/controllers/categories_controller.dart';
 import '../../features/categories/presentation/controllers/category_products_controller.dart';
+import '../../features/checkout/data/datasources/checkout_data_source.dart';
+import '../../features/checkout/data/datasources/checkout_firebase_datasource.dart';
+import '../../features/checkout/data/firebase/firebase_functions_gateway_impl.dart';
+import '../../features/checkout/data/repositories/checkout_repository_impl.dart';
+import '../../features/checkout/domain/repositories/checkout_repository.dart';
+import '../../features/checkout/domain/usecases/place_order.dart';
+import '../../features/checkout/presentation/controllers/order_success_controller.dart';
 import '../../features/checkout/presentation/controllers/checkout_controller.dart';
 import '../../features/home/data/datasources/home_data_source.dart';
 import '../../features/home/data/datasources/home_mock_datasource.dart';
@@ -106,6 +117,7 @@ void configureDependencies() {
   _registerAuth();
   _registerOrders();
   _registerAddresses();
+  _registerCheckout();
   _registerControllers();
   _dependenciesConfigured = true;
 }
@@ -251,6 +263,27 @@ AddressesDataSource _createAddressesDataSource() {
   return AddressesMockDataSource();
 }
 
+void _registerCheckout() {
+  if (sl.isRegistered<CheckoutRepository>()) {
+    return;
+  }
+
+  sl.registerLazySingleton<FirebaseFunctionsGateway>(
+    () => FirebaseFunctionsGatewayImpl(FirebaseFunctions.instance),
+  );
+  sl.registerLazySingleton<CheckoutDataSource>(
+    () => CheckoutFirebaseDataSource(sl<FirebaseFunctionsGateway>()),
+  );
+  sl.registerLazySingleton<CheckoutRepository>(
+    () => CheckoutRepositoryImpl(
+      sl<CheckoutDataSource>(),
+      sl<AuthRepository>(),
+      sl<AddressesRepository>(),
+      sl<CartRepository>(),
+    ),
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Domain layer — Factory (stateless, new instance per resolve)
 // ---------------------------------------------------------------------------
@@ -319,6 +352,11 @@ void _registerUseCases() {
     () => GetCartCountUseCase(sl<CartRepository>()),
   );
 
+  // Checkout
+  sl.registerFactory<PlaceOrderUseCase>(
+    () => PlaceOrderUseCase(sl<CheckoutRepository>()),
+  );
+
   // Wishlist
   sl.registerFactory<GetWishlistItemsUseCase>(
     () => GetWishlistItemsUseCase(sl<WishlistRepository>()),
@@ -340,6 +378,9 @@ void _registerUseCases() {
   sl.registerFactory<IsLoggedInUseCase>(
     () => IsLoggedInUseCase(sl<AuthRepository>()),
   );
+  sl.registerFactory<GetCurrentUserUseCase>(
+    () => GetCurrentUserUseCase(sl<AuthRepository>()),
+  );
   sl.registerFactory<LoginUseCase>(() => LoginUseCase(sl<AuthRepository>()));
   sl.registerFactory<RegisterUseCase>(
     () => RegisterUseCase(sl<AuthRepository>()),
@@ -352,6 +393,9 @@ void _registerUseCases() {
   // Orders & Addresses
   sl.registerFactory<GetMyOrdersUseCase>(
     () => GetMyOrdersUseCase(sl<OrdersRepository>()),
+  );
+  sl.registerFactory<GetOrderByIdUseCase>(
+    () => GetOrderByIdUseCase(sl<OrdersRepository>()),
   );
   sl.registerFactory<GetAddressesUseCase>(
     () => GetAddressesUseCase(sl<AddressesRepository>()),
@@ -408,8 +452,18 @@ void _registerControllers() {
   sl.registerFactory<AddressesController>(
     () => AddressesController(sl(), sl(), sl(), sl()),
   );
+  sl.registerFactory<OrderSuccessController>(
+    () => OrderSuccessController(sl<GetOrderByIdUseCase>()),
+  );
   sl.registerFactory<CheckoutController>(
-    () => CheckoutController(sl<CartController>()),
+    () => CheckoutController(
+      sl<CartController>(),
+      sl<PlaceOrderUseCase>(),
+      sl<ClearCartUseCase>(),
+      sl<IsLoggedInUseCase>(),
+      sl<GetAddressesUseCase>(),
+      sl<GetCurrentUserUseCase>(),
+    ),
   );
 }
 
@@ -449,6 +503,7 @@ Future<void> configureTestDependencies({
   AuthDataSource? authDataSource,
   OrdersDataSource? ordersDataSource,
   AddressesDataSource? addressesDataSource,
+  CheckoutDataSource? checkoutDataSource,
 }) async {
   await resetDependencies();
 
@@ -537,6 +592,20 @@ Future<void> configureTestDependencies({
         sl<AuthRepository>(),
       ),
     );
+  }
+
+  if (checkoutDataSource != null) {
+    sl.registerLazySingleton<CheckoutDataSource>(() => checkoutDataSource);
+    sl.registerLazySingleton<CheckoutRepository>(
+      () => CheckoutRepositoryImpl(
+        sl<CheckoutDataSource>(),
+        sl<AuthRepository>(),
+        sl<AddressesRepository>(),
+        sl<CartRepository>(),
+      ),
+    );
+  } else {
+    _registerCheckout();
   }
 
   _registerControllers();

@@ -1,3 +1,4 @@
+import 'package:cava_ecommerce/features/account/domain/entities/address_entity.dart';
 import 'package:cava_ecommerce/features/cart/domain/entities/cart_item_entity.dart';
 import 'package:cava_ecommerce/features/cart/domain/entities/cart_summary_entity.dart';
 import 'package:cava_ecommerce/features/categories/data/models/category_model.dart';
@@ -89,6 +90,18 @@ const testHomeSectionEntity = HomeSectionEntity(
 final testCartItem = CartItemEntity(
   product: testProductEntity,
   quantity: 2,
+);
+
+const testAddressEntity = AddressEntity(
+  id: 'addr-1',
+  label: 'Home',
+  fullName: 'Urim Tusha',
+  phone: '+38344111222',
+  street: 'Rruga e Dielave 12',
+  city: 'Prishtinë',
+  country: 'Kosovë',
+  zip: '10000',
+  isDefault: true,
 );
 
 const testCartSummary = CartSummaryEntity(

@@ -30,6 +30,9 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<String?> getCurrentUserId() async => _dataSource.currentUser?.uid;
 
   @override
+  Future<AuthUserEntity?> getCurrentUser() async => _dataSource.currentUser;
+
+  @override
   Future<void> login({
     required String email,
     required String password,

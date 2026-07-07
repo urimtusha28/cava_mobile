@@ -19,4 +19,15 @@ class OrdersRepositoryImpl implements OrdersRepository {
     final orders = await _dataSource.getMyOrders(userId);
     return orders.map((order) => order.toEntity()).toList(growable: false);
   }
+
+  @override
+  Future<OrderEntity?> getOrderById(String orderId) async {
+    final userId = await _authRepository.getCurrentUserId();
+    if (userId == null) {
+      return null;
+    }
+
+    final order = await _dataSource.getOrderById(userId, orderId);
+    return order?.toEntity();
+  }
 }

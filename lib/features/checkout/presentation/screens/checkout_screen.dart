@@ -9,6 +9,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/checkout_screen_header.dart';
 import '../controllers/checkout_controller.dart';
+import '../models/checkout_session_state.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -29,6 +30,38 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     super.initState();
     _controller = createCheckoutController();
     _loadFuture = _controller.load();
+  }
+
+  Future<void> _handlePlaceOrder() async {
+    final result = await _controller.submitOrder(
+      paymentMethod: _payment,
+      termsAccepted: _acceptedTerms,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    switch (result.status) {
+      case CheckoutSubmitStatus.success:
+        context.go(AppRoutes.orderSuccess, extra: result.order);
+      case CheckoutSubmitStatus.validationError:
+      case CheckoutSubmitStatus.requestError:
+        _showMessage(result.message ?? 'Porosia nuk u krijua. Provo përsëri.');
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
+        ),
+        backgroundColor: AppColors.burgundy,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -54,7 +87,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
                 children: [
-                  const _UserInfoCard(),
+                  _UserInfoCard(
+                    email: _controller.customerInfo.email,
+                    address: _controller.customerInfo.addressLine,
+                    city: _controller.customerInfo.city,
+                    country: _controller.customerInfo.country,
+                  ),
                   const SizedBox(height: AppSpacing.lg),
                   _PaymentMethodsCard(
                     selected: _payment,
@@ -71,8 +109,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         height: 24,
                         child: Checkbox(
                           value: _acceptedTerms,
-                          onChanged: (value) =>
-                              setState(() => _acceptedTerms = value ?? false),
+                          onChanged: _controller.isSubmitting
+                              ? null
+                              : (value) =>
+                                  setState(() => _acceptedTerms = value ?? false),
                           activeColor: AppColors.burgundy,
                           side: const BorderSide(color: AppColors.textPrimary),
                         ),
@@ -112,8 +152,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             _CheckoutFooter(
               total: _controller.total,
-              enabled: _acceptedTerms,
-              onBuy: () => context.go(AppRoutes.orderSuccess),
+              enabled: _acceptedTerms && !_controller.isSubmitting,
+              isLoading: _controller.isSubmitting,
+              onBuy: _handlePlaceOrder,
             ),
           ],
         ),
@@ -127,7 +168,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 }
 
 class _UserInfoCard extends StatelessWidget {
-  const _UserInfoCard();
+  const _UserInfoCard({
+    required this.email,
+    required this.address,
+    required this.city,
+    required this.country,
+  });
+
+  final String email;
+  final String address;
+  final String city;
+  final String country;
 
   @override
   Widget build(BuildContext context) {
@@ -135,13 +186,13 @@ class _UserInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _InfoLine('Email:', 'info@cava-premium.com'),
+          _InfoLine('Email:', email),
           const SizedBox(height: AppSpacing.sm),
-          const _InfoLine('Adresa:', ''),
+          _InfoLine('Adresa:', address),
           const SizedBox(height: AppSpacing.sm),
-          const _InfoLine('Qyteti:', ''),
+          _InfoLine('Qyteti:', city),
           const SizedBox(height: AppSpacing.sm),
-          const _InfoLine('Shteti:', ''),
+          _InfoLine('Shteti:', country),
           const SizedBox(height: AppSpacing.md),
           Align(
             alignment: Alignment.centerRight,
@@ -340,11 +391,13 @@ class _CheckoutFooter extends StatelessWidget {
   const _CheckoutFooter({
     required this.total,
     required this.enabled,
+    required this.isLoading,
     required this.onBuy,
   });
 
   final double total;
   final bool enabled;
+  final bool isLoading;
   final VoidCallback onBuy;
 
   @override
@@ -383,7 +436,16 @@ class _CheckoutFooter extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 14),
-                child: Text('Bli', style: AppTextStyles.button),
+                child: isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text('Bli', style: AppTextStyles.button),
               ),
             ),
           ),

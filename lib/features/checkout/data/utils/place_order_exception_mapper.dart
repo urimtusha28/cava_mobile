@@ -1,0 +1,33 @@
+import '../../../../core/error/failures.dart';
+
+abstract final class PlaceOrderExceptionMapper {
+  static const defaultMessage = 'Porosia nuk u krijua. Provo përsëri.';
+
+  static String toUserMessage(Failure failure) {
+    final code = failure.code?.toUpperCase();
+    return switch (code) {
+      'OUT_OF_STOCK' => 'Një produkt nuk është më në stok.',
+      'PRICE_MISMATCH' => 'Çmimi i një produkti ka ndryshuar. Rifresko shportën.',
+      'TERMS_REQUIRED' => 'Duhet të pranosh kushtet.',
+      'UNAUTHENTICATED' => 'Kyçu për të vazhduar.',
+      'RATE_LIMITED' => 'Provo përsëri më vonë.',
+      _ => failure.message.trim().isNotEmpty ? failure.message : defaultMessage,
+    };
+  }
+
+  static String? extractErrorCode(Object error) {
+    final message = error.toString();
+    for (final code in [
+      'OUT_OF_STOCK',
+      'PRICE_MISMATCH',
+      'TERMS_REQUIRED',
+      'UNAUTHENTICATED',
+      'RATE_LIMITED',
+    ]) {
+      if (message.toUpperCase().contains(code)) {
+        return code;
+      }
+    }
+    return null;
+  }
+}

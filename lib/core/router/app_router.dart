@@ -9,6 +9,7 @@ import '../../features/products/presentation/screens/product_detail_screen.dart'
 import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/checkout/presentation/screens/checkout_screen.dart';
 import '../../features/checkout/presentation/screens/order_success_screen.dart';
+import '../../features/checkout/domain/entities/place_order_result_entity.dart';
 import '../../features/messages/presentation/screens/messages_screen.dart';
 import '../../features/wishlist/presentation/screens/wishlist_screen.dart';
 import '../../features/account/presentation/screens/profile_screen.dart';
@@ -111,7 +112,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: AppRoutes.orderSuccess,
-      builder: (_, _) => const OrderSuccessScreen(),
+      builder: (context, state) {
+        final result = state.extra as PlaceOrderResultEntity?;
+        return OrderSuccessScreen(initialResult: result);
+      },
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,

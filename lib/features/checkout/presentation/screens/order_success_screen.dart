@@ -6,15 +6,43 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../domain/entities/place_order_result_entity.dart';
+import '../controllers/order_success_controller.dart';
 
-class OrderSuccessScreen extends StatelessWidget {
-  const OrderSuccessScreen({super.key});
+class OrderSuccessScreen extends StatefulWidget {
+  const OrderSuccessScreen({super.key, this.initialResult});
+
+  final PlaceOrderResultEntity? initialResult;
+
+  @override
+  State<OrderSuccessScreen> createState() => _OrderSuccessScreenState();
+}
+
+class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
+  late final OrderSuccessController _controller;
+  late final Future<void> _loadFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = createOrderSuccessController();
+    _loadFuture = _controller.load(widget.initialResult);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return FutureBuilder<void>(
+      future: _loadFuture,
+      builder: (context, snapshot) {
+        return ListenableBuilder(
+          listenable: _controller,
+          builder: (context, _) {
+            final result = _controller.result;
+
+            return Scaffold(
       backgroundColor: AppColors.background,
       appBar: const CavaAppBar(title: 'Porosia'),
       body: Padding(
@@ -50,9 +78,19 @@ class OrderSuccessScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _Row('Porosia', '#CP-2024-01568'),
+                  _Row('Porosia', result?.displayOrderNumber ?? '—'),
                   const SizedBox(height: 10),
-                  _Row('Totali', '€61,90'),
+                  _Row(
+                    'Totali',
+                    result != null ? Formatters.currency(result.total) : '—',
+                  ),
+                  if (result != null) ...[
+                    const SizedBox(height: 10),
+                    _Row(
+                      'Pagesa',
+                      paymentMethodLabel(result.paymentMethod),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -65,6 +103,10 @@ class OrderSuccessScreen extends StatelessWidget {
           ],
         ),
       ),
+            );
+          },
+        );
+      },
     );
   }
 }
