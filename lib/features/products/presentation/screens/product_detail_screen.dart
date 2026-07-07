@@ -182,12 +182,16 @@ class _ProductImage extends StatelessWidget {
 
   final ProductEntity product;
 
+  /// Hero image height ratio. Was 0.34 — +~15% for vertical bottle photos.
+  static const double _imageHeightRatio = 0.39;
+
   @override
   Widget build(BuildContext context) {
     final color = Color(product.placeholderColor ?? 0xFF6B1D2A);
     final imageUrl = ProductImageView.hasUrl(product.detailImageUrl)
         ? product.detailImageUrl
         : product.imageUrl;
+    final imageHeight = MediaQuery.sizeOf(context).height * _imageHeightRatio;
     final placeholder = Center(
       child: Icon(
         Icons.wine_bar_outlined,
@@ -199,7 +203,7 @@ class _ProductImage extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          height: MediaQuery.sizeOf(context).height * 0.34,
+          height: imageHeight,
           width: double.infinity,
           decoration: BoxDecoration(
             color: AppColors.surfaceMuted,
@@ -208,7 +212,8 @@ class _ProductImage extends StatelessWidget {
           child: ProductImageView(
             imageUrl: imageUrl,
             width: double.infinity,
-            height: MediaQuery.sizeOf(context).height * 0.34,
+            height: imageHeight,
+            borderRadius: BorderRadius.circular(20),
             placeholder: placeholder,
           ),
         ),

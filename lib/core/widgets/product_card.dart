@@ -53,6 +53,7 @@ class ProductCard extends StatelessWidget {
                 ),
                 child: ProductImageView(
                   imageUrl: product.imageUrl,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                   placeholder: Center(
                     child: Icon(
                       _iconFor(product.categoryId),

@@ -17,8 +17,16 @@ class ProductGridCard extends StatelessWidget {
     this.compact = false,
   });
 
+  /// Compact image area (Home horizontal cards). Was 110 — +~18% for bottles.
+  static const double imageHeightCompact = 130;
+
+  /// Grid image area (All Products, Category). Was 140 — +~20% for bottles.
+  static const double imageHeight = 168;
+
   final ProductEntity product;
   final bool compact;
+
+  double get _imageHeight => compact ? imageHeightCompact : imageHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +44,7 @@ class ProductGridCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: compact ? 110 : 140,
+              height: _imageHeight,
               width: double.infinity,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.06),
@@ -47,7 +55,10 @@ class ProductGridCard extends StatelessWidget {
               child: ProductImageView(
                 imageUrl: product.imageUrl,
                 width: double.infinity,
-                height: compact ? 110 : 140,
+                height: _imageHeight,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(AppRadius.lg - 1),
+                ),
                 placeholder: Icon(
                   _iconFor(product.categoryId),
                   size: 48,

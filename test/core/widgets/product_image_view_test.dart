@@ -52,6 +52,23 @@ void main() {
     await tester.pump();
   });
 
+  testWidgets('clips network image when borderRadius is set', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: ProductImageView(
+            imageUrl: 'https://example.com/product.jpg',
+            placeholder: placeholder,
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    expect(find.byType(ClipRRect), findsOneWidget);
+  });
+
   test('hasUrl returns false for null and blank', () {
     expect(ProductImageView.hasUrl(null), isFalse);
     expect(ProductImageView.hasUrl(''), isFalse);

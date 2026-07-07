@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 /// Network product image with identical placeholder/error fallback.
 ///
-/// Uses [CachedNetworkImage] (memory + disk cache). No layout properties —
-/// callers keep existing width, height, and decoration.
+/// Uses [CachedNetworkImage] (memory + disk cache). Real images use
+/// [BoxFit.cover] to fill the container; placeholders are unchanged.
 class ProductImageView extends StatelessWidget {
   const ProductImageView({
     super.key,
@@ -12,7 +12,8 @@ class ProductImageView extends StatelessWidget {
     required this.placeholder,
     this.width,
     this.height,
-    this.fit = BoxFit.contain,
+    this.fit = BoxFit.cover,
+    this.borderRadius,
   });
 
   final String? imageUrl;
@@ -20,6 +21,7 @@ class ProductImageView extends StatelessWidget {
   final double? width;
   final double? height;
   final BoxFit fit;
+  final BorderRadius? borderRadius;
 
   static bool hasUrl(String? url) => url != null && url.trim().isNotEmpty;
 
@@ -29,7 +31,7 @@ class ProductImageView extends StatelessWidget {
       return placeholder;
     }
 
-    return CachedNetworkImage(
+    final image = CachedNetworkImage(
       imageUrl: imageUrl!.trim(),
       width: width,
       height: height,
@@ -39,5 +41,11 @@ class ProductImageView extends StatelessWidget {
       placeholder: (_, _) => placeholder,
       errorWidget: (_, _, _) => placeholder,
     );
+
+    if (borderRadius != null) {
+      return ClipRRect(borderRadius: borderRadius!, child: image);
+    }
+
+    return image;
   }
 }
