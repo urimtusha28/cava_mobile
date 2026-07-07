@@ -97,14 +97,15 @@ class CategoryFirestoreDataSource implements CategoryDataSource {
   }
 
   Future<List<CategoryModel>> _loadActiveCategories() async {
-    final snapshot = await _collection.get();
+    // Query must filter isActive server-side — rules only allow read when
+    // resource.data.isActive == true; an unfiltered .get() is rejected.
+    final snapshot = await _collection
+        .where('isActive', isEqualTo: true)
+        .get();
     final categories = <CategoryModel>[];
 
     for (final doc in snapshot.docs) {
       final data = doc.data();
-      if (data['isActive'] == false) {
-        continue;
-      }
       final model = _tryMapDocument(data, doc.id);
       if (model != null) {
         categories.add(model);
