@@ -93,6 +93,8 @@ flutter:
     - assets/icons/profile.png
     - assets/icons/ringing.png
     - assets/icons/chat.png
+    - assets/icons/cava2.png
+    - assets/images/store_location.jpg
 
   fonts:
     - family: DMSans

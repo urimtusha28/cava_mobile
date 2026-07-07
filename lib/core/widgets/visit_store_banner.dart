@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../constants/app_assets.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../constants/app_radius.dart';
@@ -37,29 +38,7 @@ class VisitStoreBanner extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Container(color: AppColors.surfaceMuted),
-                    CustomPaint(painter: const _MapGridPainter()),
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.burgundy,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.burgundy.withValues(alpha: 0.35),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.location_on_rounded,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      ),
-                    ),
+                    const _StoreLocationPreview(),
                     Positioned(
                       left: AppSpacing.md,
                       bottom: AppSpacing.md,
@@ -82,7 +61,7 @@ class VisitStoreBanner extends StatelessWidget {
                               color: AppColors.burgundy,
                             ),
                             const SizedBox(width: 6),
-                            Text('Cava Premium Store', style: AppTextStyles.caption),
+                            Text('Cava Premium', style: AppTextStyles.caption),
                           ],
                         ),
                       ),
@@ -215,6 +194,36 @@ void _showMapsErrorSnackBar(BuildContext context) {
       ),
     ),
   );
+}
+
+class _StoreLocationPreview extends StatelessWidget {
+  const _StoreLocationPreview();
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      AppAssets.storeLocation,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (_, _, _) => const _MapIllustrationFallback(),
+    );
+  }
+}
+
+class _MapIllustrationFallback extends StatelessWidget {
+  const _MapIllustrationFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Container(color: AppColors.surfaceMuted),
+        CustomPaint(painter: const _MapGridPainter()),
+      ],
+    );
+  }
 }
 
 class _MapGridPainter extends CustomPainter {

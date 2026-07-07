@@ -7,4 +7,6 @@ abstract final class AppAssets {
   static const String navProfile = 'assets/icons/profile.png';
   static const String ringing = 'assets/icons/ringing.png';
   static const String chat = 'assets/icons/chat.png';
+
+  static const String storeLocation = 'assets/images/store_location.jpg';
 }

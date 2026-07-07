@@ -3,6 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('shows store location image preview', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: VisitStoreBanner(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byType(Image), findsOneWidget);
+    expect(find.text('Cava Premium'), findsOneWidget);
+    expect(find.byIcon(Icons.location_on_rounded), findsNothing);
+  });
+
   testWidgets('shows Ferizaj store address', (WidgetTester tester) async {
     await tester.pumpWidget(
       const MaterialApp(
