@@ -4,18 +4,32 @@ import 'package:get_it/get_it.dart';
 
 import '../firebase/firebase_config.dart';
 
+import '../../features/account/data/datasources/addresses_data_source.dart';
+import '../../features/account/data/datasources/addresses_firebase_datasource.dart';
+import '../../features/account/data/datasources/addresses_mock_datasource.dart';
 import '../../features/account/data/datasources/auth_data_source.dart';
 import '../../features/account/data/datasources/auth_firebase_datasource.dart';
 import '../../features/account/data/datasources/auth_mock_datasource.dart';
+import '../../features/account/data/datasources/orders_data_source.dart';
+import '../../features/account/data/datasources/orders_firebase_datasource.dart';
+import '../../features/account/data/datasources/orders_mock_datasource.dart';
 import '../../features/account/data/firebase/firebase_auth_gateway.dart';
+import '../../features/account/data/repositories/addresses_repository_impl.dart';
 import '../../features/account/data/repositories/auth_repository_impl.dart';
+import '../../features/account/data/repositories/orders_repository_impl.dart';
+import '../../features/account/domain/repositories/addresses_repository.dart';
 import '../../features/account/domain/repositories/auth_repository.dart';
+import '../../features/account/domain/repositories/orders_repository.dart';
+import '../../features/account/domain/usecases/address_usecases.dart';
 import '../../features/account/domain/usecases/forgot_password.dart';
+import '../../features/account/domain/usecases/get_my_orders.dart';
 import '../../features/account/domain/usecases/is_logged_in.dart';
 import '../../features/account/domain/usecases/login.dart';
 import '../../features/account/domain/usecases/logout.dart';
 import '../../features/account/domain/usecases/register.dart';
+import '../../features/account/presentation/controllers/addresses_controller.dart';
 import '../../features/account/presentation/controllers/auth_controller.dart';
+import '../../features/account/presentation/controllers/orders_controller.dart';
 import '../../features/cart/data/datasources/cart_data_source.dart';
 import '../../features/cart/data/datasources/cart_local_datasource.dart';
 import '../../features/cart/data/local/cart_local_storage.dart';
@@ -90,6 +104,8 @@ void configureDependencies() {
   _registerCart();
   _registerWishlist();
   _registerAuth();
+  _registerOrders();
+  _registerAddresses();
   _registerControllers();
   _dependenciesConfigured = true;
 }
@@ -196,6 +212,45 @@ AuthDataSource _createAuthDataSource() {
   return const AuthMockDataSource();
 }
 
+void _registerOrders() {
+  if (sl.isRegistered<OrdersRepository>()) {
+    return;
+  }
+
+  sl.registerLazySingleton<OrdersDataSource>(_createOrdersDataSource);
+  sl.registerLazySingleton<OrdersRepository>(
+    () => OrdersRepositoryImpl(sl<OrdersDataSource>(), sl<AuthRepository>()),
+  );
+}
+
+OrdersDataSource _createOrdersDataSource() {
+  if (FirebaseConfig.enabled && FirebaseConfig.useFirestoreOrders) {
+    return OrdersFirebaseDataSource(FirebaseFirestore.instance);
+  }
+  return const OrdersMockDataSource();
+}
+
+void _registerAddresses() {
+  if (sl.isRegistered<AddressesRepository>()) {
+    return;
+  }
+
+  sl.registerLazySingleton<AddressesDataSource>(_createAddressesDataSource);
+  sl.registerLazySingleton<AddressesRepository>(
+    () => AddressesRepositoryImpl(
+      sl<AddressesDataSource>(),
+      sl<AuthRepository>(),
+    ),
+  );
+}
+
+AddressesDataSource _createAddressesDataSource() {
+  if (FirebaseConfig.enabled && FirebaseConfig.useFirestoreAddresses) {
+    return AddressesFirebaseDataSource(FirebaseFirestore.instance);
+  }
+  return AddressesMockDataSource();
+}
+
 // ---------------------------------------------------------------------------
 // Domain layer — Factory (stateless, new instance per resolve)
 // ---------------------------------------------------------------------------
@@ -293,6 +348,26 @@ void _registerUseCases() {
     () => ForgotPasswordUseCase(sl<AuthRepository>()),
   );
   sl.registerFactory<LogoutUseCase>(() => LogoutUseCase(sl<AuthRepository>()));
+
+  // Orders & Addresses
+  sl.registerFactory<GetMyOrdersUseCase>(
+    () => GetMyOrdersUseCase(sl<OrdersRepository>()),
+  );
+  sl.registerFactory<GetAddressesUseCase>(
+    () => GetAddressesUseCase(sl<AddressesRepository>()),
+  );
+  sl.registerFactory<AddAddressUseCase>(
+    () => AddAddressUseCase(sl<AddressesRepository>()),
+  );
+  sl.registerFactory<UpdateAddressUseCase>(
+    () => UpdateAddressUseCase(sl<AddressesRepository>()),
+  );
+  sl.registerFactory<DeleteAddressUseCase>(
+    () => DeleteAddressUseCase(sl<AddressesRepository>()),
+  );
+  sl.registerFactory<SetDefaultAddressUseCase>(
+    () => SetDefaultAddressUseCase(sl<AddressesRepository>()),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -326,6 +401,12 @@ void _registerControllers() {
   );
   sl.registerFactory<AuthController>(
     () => AuthController(sl(), sl(), sl(), sl(), sl(), sl()),
+  );
+  sl.registerFactory<OrdersController>(
+    () => OrdersController(sl(), sl()),
+  );
+  sl.registerFactory<AddressesController>(
+    () => AddressesController(sl(), sl(), sl(), sl()),
   );
   sl.registerFactory<CheckoutController>(
     () => CheckoutController(sl<CartController>()),
@@ -366,6 +447,8 @@ Future<void> configureTestDependencies({
   CartDataSource? cartDataSource,
   WishlistDataSource? wishlistDataSource,
   AuthDataSource? authDataSource,
+  OrdersDataSource? ordersDataSource,
+  AddressesDataSource? addressesDataSource,
 }) async {
   await resetDependencies();
 
@@ -423,6 +506,36 @@ Future<void> configureTestDependencies({
     sl.registerLazySingleton<AuthDataSource>(() => const AuthMockDataSource());
     sl.registerLazySingleton<AuthRepository>(
       () => AuthRepositoryImpl(sl<AuthDataSource>()),
+    );
+  }
+
+  if (ordersDataSource != null) {
+    sl.registerLazySingleton<OrdersDataSource>(() => ordersDataSource);
+    sl.registerLazySingleton<OrdersRepository>(
+      () => OrdersRepositoryImpl(sl<OrdersDataSource>(), sl<AuthRepository>()),
+    );
+  } else {
+    sl.registerLazySingleton<OrdersDataSource>(() => const OrdersMockDataSource());
+    sl.registerLazySingleton<OrdersRepository>(
+      () => OrdersRepositoryImpl(sl<OrdersDataSource>(), sl<AuthRepository>()),
+    );
+  }
+
+  if (addressesDataSource != null) {
+    sl.registerLazySingleton<AddressesDataSource>(() => addressesDataSource);
+    sl.registerLazySingleton<AddressesRepository>(
+      () => AddressesRepositoryImpl(
+        sl<AddressesDataSource>(),
+        sl<AuthRepository>(),
+      ),
+    );
+  } else {
+    sl.registerLazySingleton<AddressesDataSource>(AddressesMockDataSource.new);
+    sl.registerLazySingleton<AddressesRepository>(
+      () => AddressesRepositoryImpl(
+        sl<AddressesDataSource>(),
+        sl<AuthRepository>(),
+      ),
     );
   }
 

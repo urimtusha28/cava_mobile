@@ -1,5 +1,7 @@
 import 'package:cava_ecommerce/features/account/data/datasources/auth_data_source.dart';
+import 'package:cava_ecommerce/features/account/domain/repositories/addresses_repository.dart';
 import 'package:cava_ecommerce/features/account/domain/repositories/auth_repository.dart';
+import 'package:cava_ecommerce/features/account/domain/repositories/orders_repository.dart';
 import 'package:cava_ecommerce/features/cart/data/datasources/cart_data_source.dart';
 import 'package:cava_ecommerce/features/cart/domain/repositories/cart_repository.dart';
 import 'package:cava_ecommerce/features/categories/data/datasources/category_data_source.dart';
@@ -35,3 +37,7 @@ class MockCartRepository extends Mock implements CartRepository {}
 class MockWishlistRepository extends Mock implements WishlistRepository {}
 
 class MockAuthRepository extends Mock implements AuthRepository {}
+
+class MockOrdersRepository extends Mock implements OrdersRepository {}
+
+class MockAddressesRepository extends Mock implements AddressesRepository {}

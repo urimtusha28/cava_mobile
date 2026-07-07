@@ -27,6 +27,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<String?> getCurrentUserId() async => _dataSource.currentUser?.uid;
+
+  @override
   Future<void> login({
     required String email,
     required String password,

@@ -17,6 +17,7 @@ class CavaAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.centerTitle = true,
     this.titleStyle,
     this.backgroundColor,
+    this.actions,
   });
 
   final String? title;
@@ -25,6 +26,7 @@ class CavaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool centerTitle;
   final TextStyle? titleStyle;
   final Color? backgroundColor;
+  final List<Widget>? actions;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -44,7 +46,7 @@ class CavaAppBar extends StatelessWidget implements PreferredSizeWidget {
             )
           : null,
       title: isLogo ? const _BrandTitle() : _buildTitle(),
-      actions: isLogo ? const [_RingingAction(), _ChatAction()] : null,
+      actions: actions ?? (isLogo ? const [_RingingAction(), _ChatAction()] : null),
     );
   }
 

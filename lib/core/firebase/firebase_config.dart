@@ -14,6 +14,12 @@ abstract final class FirebaseConfig {
   /// When `true` together with [enabled], auth uses Firebase Authentication.
   static const bool useFirebaseAuth = true;
 
+  /// When `true` together with [enabled], orders load from Firestore.
+  static const bool useFirestoreOrders = true;
+
+  /// When `true` together with [enabled], addresses load from Firestore.
+  static const bool useFirestoreAddresses = true;
+
   /// When `true`, Firestore category errors fall back to [CategoryMockDataSource].
   static const bool fallbackToMockCategoriesOnError = false;
 
@@ -30,6 +36,7 @@ abstract final class FirebaseConfig {
   static const String bannersCollection = 'banners';
   static const String ordersCollection = 'orders';
   static const String usersCollection = 'users';
+  static const String addressesSubcollection = 'addresses';
 
   // Firebase Storage paths
   static const String productImagesPath = 'products';
