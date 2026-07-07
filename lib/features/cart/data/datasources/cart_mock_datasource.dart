@@ -28,7 +28,8 @@ class CartMockDataSource implements CartDataSource {
   double getTotal() => MockCart.total;
 
   @override
-  void addProduct(ProductEntity product) => MockCart.addProduct(product);
+  void addProduct(ProductEntity product, {int quantity = 1}) =>
+      MockCart.addProduct(product, quantity: quantity);
 
   @override
   void updateQuantity(int index, int quantity) =>

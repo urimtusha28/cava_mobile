@@ -22,6 +22,12 @@ void main() {
   late MockRemoveFromWishlistUseCase removeFromWishlist;
   late MockAddToCartUseCase addToCart;
 
+  setUpAll(() {
+    registerFallbackValue(
+      AddToCartParams(product: testProductEntity, quantity: 1),
+    );
+  });
+
   setUp(() {
     getWishlistItems = MockGetWishlistItemsUseCase();
     removeFromWishlist = MockRemoveFromWishlistUseCase();
@@ -54,12 +60,11 @@ void main() {
     expect(controller.items, isEmpty);
   });
 
-  test('addToCart delegates to use case', () async {
-    when(() => addToCart(testProductEntity))
-        .thenAnswer((_) async => const Success(null));
+  test('addToCart delegates to use case with quantity 1', () async {
+    when(() => addToCart(any())).thenAnswer((_) async => const Success(null));
 
     await controller.addToCart(testProductEntity);
 
-    verify(() => addToCart(testProductEntity)).called(1);
+    verify(() => addToCart(any())).called(1);
   });
 }

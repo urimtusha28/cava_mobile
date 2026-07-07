@@ -8,6 +8,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
 import '../../../../core/widgets/product_image_view.dart';
+import '../../../cart/domain/add_to_cart_result.dart';
 import '../../../categories/presentation/utils/category_badge_color_helper.dart';
 import '../../domain/entities/product_entity.dart';
 import '../controllers/product_detail_controller.dart';
@@ -176,9 +177,44 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             _BottomActions(
               quantity: _quantity,
               onQuantityChanged: (q) => setState(() => _quantity = q),
+              onCartIconTap: () => _handleAddToCart(navigateToCart: false),
+              onBuyNowTap: () => _handleAddToCart(navigateToCart: true),
             ),
           ],
         ),
+    );
+  }
+
+  Future<void> _handleAddToCart({required bool navigateToCart}) async {
+    final result = await _controller.addToCart(quantity: _quantity);
+    if (!mounted) {
+      return;
+    }
+
+    switch (result) {
+      case AddToCartResult.success:
+        if (navigateToCart) {
+          context.push(AppRoutes.cart);
+        } else {
+          _showCartMessage('Produkti u shtua në shportë.');
+        }
+      case AddToCartResult.outOfStock:
+        _showCartMessage('Produkti nuk është në stok.');
+      case AddToCartResult.failure:
+        _showCartMessage('Nuk u shtua në shportë. Provo përsëri.');
+    }
+  }
+
+  void _showCartMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
+        ),
+        backgroundColor: AppColors.burgundy,
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 }
@@ -435,10 +471,14 @@ class _BottomActions extends StatelessWidget {
   const _BottomActions({
     required this.quantity,
     required this.onQuantityChanged,
+    required this.onCartIconTap,
+    required this.onBuyNowTap,
   });
 
   final int quantity;
   final ValueChanged<int> onQuantityChanged;
+  final VoidCallback onCartIconTap;
+  final VoidCallback onBuyNowTap;
 
   @override
   Widget build(BuildContext context) {
@@ -472,7 +512,7 @@ class _BottomActions extends StatelessWidget {
               color: AppColors.burgundy,
               borderRadius: BorderRadius.circular(12),
               child: InkWell(
-                onTap: () => context.push(AppRoutes.cart),
+                onTap: onCartIconTap,
                 borderRadius: BorderRadius.circular(12),
                 child: const SizedBox(
                   width: 60,
@@ -487,7 +527,7 @@ class _BottomActions extends StatelessWidget {
                 color: AppColors.burgundy,
                 borderRadius: BorderRadius.circular(12),
                 child: InkWell(
-                  onTap: () => context.push(AppRoutes.cart),
+                  onTap: onBuyNowTap,
                   borderRadius: BorderRadius.circular(12),
                   child: SizedBox(
                     height: 52,

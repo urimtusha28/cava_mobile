@@ -19,7 +19,7 @@ abstract class CartRepository {
 
   Future<double> getTotal();
 
-  Future<void> addProduct(ProductEntity product);
+  Future<void> addProduct(ProductEntity product, {int quantity = 1});
 
   Future<void> updateQuantity(int index, int quantity);
 

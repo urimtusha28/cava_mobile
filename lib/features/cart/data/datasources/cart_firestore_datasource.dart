@@ -32,7 +32,7 @@ class CartFirestoreDataSource implements CartDataSource {
   double getTotal() => _todo();
 
   @override
-  void addProduct(ProductEntity product) => _todo();
+  void addProduct(ProductEntity product, {int quantity = 1}) => _todo();
 
   @override
   void updateQuantity(int index, int quantity) => _todo();

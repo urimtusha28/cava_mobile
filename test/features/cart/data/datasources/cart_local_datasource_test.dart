@@ -103,6 +103,35 @@ void main() {
     expect(await storage.readItems(), isEmpty);
   });
 
+  test('duplicate product increases quantity instead of new line', () async {
+    when(() => productRepository.getById('p1'))
+        .thenAnswer((_) async => testProductEntity);
+
+    final dataSource = CartLocalDataSource(storage, productRepository);
+    dataSource.addProduct(testProductEntity);
+    dataSource.addProduct(testProductEntity, quantity: 2);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(dataSource.getItems(), hasLength(1));
+    expect(dataSource.getItemCount(), 3);
+
+    final stored = await storage.readItems();
+    expect(stored.single.quantity, 3);
+  });
+
+  test('addProduct with quantity persists correct amount', () async {
+    when(() => productRepository.getById('p1'))
+        .thenAnswer((_) async => testProductEntity);
+
+    final dataSource = CartLocalDataSource(storage, productRepository);
+    dataSource.addProduct(testProductEntity, quantity: 4);
+    await Future<void>.delayed(Duration.zero);
+
+    final stored = await storage.readItems();
+    expect(stored.single.quantity, 4);
+    expect(dataSource.getItemCount(), 4);
+  });
+
   test('hydrate uses current product price from repository', () async {
     const updatedProduct = ProductEntity(
       id: 'p1',

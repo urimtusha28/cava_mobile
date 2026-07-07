@@ -77,8 +77,8 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   @override
-  Future<void> addProduct(ProductEntity product) async {
-    _dataSource.addProduct(product);
+  Future<void> addProduct(ProductEntity product, {int quantity = 1}) async {
+    _dataSource.addProduct(product, quantity: quantity);
     _notifyChange();
   }
 

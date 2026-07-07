@@ -37,12 +37,14 @@ void main() {
     expect(summary.total, 57.0);
   });
 
-  test('addProduct updates cart notifier', () async {
-    when(() => dataSource.getItemCount()).thenReturn(3);
+  test('addProduct with quantity persists and updates badge', () async {
+    when(() => dataSource.getItemCount()).thenReturn(5);
 
-    await repository.addProduct(testProductEntity);
+    await repository.addProduct(testProductEntity, quantity: 3);
 
-    verify(() => dataSource.addProduct(testProductEntity)).called(1);
-    expect(CartStateNotifier.revision.value, 3);
+    verify(
+      () => dataSource.addProduct(testProductEntity, quantity: 3),
+    ).called(1);
+    expect(CartStateNotifier.revision.value, 5);
   });
 }

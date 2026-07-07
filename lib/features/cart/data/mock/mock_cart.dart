@@ -28,16 +28,20 @@ abstract final class MockCart {
 
   static void _notify() => revision.value = itemCount;
 
-  static void addProduct(ProductEntity product) {
+  static void addProduct(ProductEntity product, {int quantity = 1}) {
+    if (quantity <= 0) {
+      return;
+    }
+
     final index = items.indexWhere((item) => item.product.id == product.id);
     if (index >= 0) {
       final item = items[index];
       items[index] = CartItemEntity(
         product: item.product,
-        quantity: item.quantity + 1,
+        quantity: item.quantity + quantity,
       );
     } else {
-      items.add(CartItemEntity(product: product, quantity: 1));
+      items.add(CartItemEntity(product: product, quantity: quantity));
     }
     _notify();
   }

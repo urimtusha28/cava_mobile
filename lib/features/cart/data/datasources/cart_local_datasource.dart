@@ -87,11 +87,15 @@ class CartLocalDataSource implements CartDataSource {
   double getTotal() => getSubtotal() - getDiscount() + getVat() + getShipping();
 
   @override
-  void addProduct(ProductEntity product) {
+  void addProduct(ProductEntity product, {int quantity = 1}) {
+    if (quantity <= 0) {
+      return;
+    }
+
     final index = _items.indexWhere((item) => item.product.id == product.id);
     if (index >= 0) {
       final current = _items[index];
-      final nextQuantity = current.quantity + 1;
+      final nextQuantity = current.quantity + quantity;
       _items[index] = CartItemEntity(
         product: product,
         quantity: nextQuantity,
@@ -104,10 +108,10 @@ class CartLocalDataSource implements CartDataSource {
             DateTime.now().toUtc().toIso8601String(),
       );
     } else {
-      _items.add(CartItemEntity(product: product, quantity: 1));
+      _items.add(CartItemEntity(product: product, quantity: quantity));
       _metadataByProductId[product.id] = StoredCartItemModel(
         productId: product.id,
-        quantity: 1,
+        quantity: quantity,
         selectedVariant: null,
         addedAt: DateTime.now().toUtc().toIso8601String(),
       );

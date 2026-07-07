@@ -10,6 +10,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../cart/domain/add_to_cart_result.dart';
 import '../../../products/domain/entities/product_entity.dart';
 import '../controllers/wishlist_controller.dart';
 
@@ -32,6 +33,30 @@ class _WishlistScreenState extends State<WishlistScreen> {
   }
 
   void _removeProduct(String productId) => _controller.remove(productId);
+
+  Future<void> _addToCart(ProductEntity product) async {
+    final result = await _controller.addToCart(product);
+    if (!mounted) {
+      return;
+    }
+
+    final message = switch (result) {
+      AddToCartResult.success => 'Produkti u shtua në shportë.',
+      AddToCartResult.outOfStock => 'Produkti nuk është në stok.',
+      AddToCartResult.failure => 'Nuk u shtua në shportë. Provo përsëri.',
+    };
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
+        ),
+        backgroundColor: AppColors.burgundy,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +91,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                             return _WishlistItemCard(
                               product: product,
                               onRemove: () => _removeProduct(product.id),
-                              onAddToCart: () => _controller.addToCart(product),
+                              onAddToCart: () => _addToCart(product),
                               onTap: () =>
                                   context.push(AppRoutes.product(product.id)),
                             );

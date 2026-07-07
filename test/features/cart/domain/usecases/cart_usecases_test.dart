@@ -41,11 +41,17 @@ void main() {
     expect(result.dataOrNull, hasLength(1));
   });
 
-  test('AddToCartUseCase delegates to repository', () async {
-    when(() => repository.addProduct(testProductEntity))
-        .thenAnswer((_) => Future<void>.value());
-    final result = await AddToCartUseCase(repository)(testProductEntity);
+  test('AddToCartUseCase delegates to repository with quantity', () async {
+    when(
+      () => repository.addProduct(testProductEntity, quantity: 2),
+    ).thenAnswer((_) => Future<void>.value());
+    final result = await AddToCartUseCase(repository)(
+      const AddToCartParams(product: testProductEntity, quantity: 2),
+    );
     expect(result.isSuccess, isTrue);
+    verify(
+      () => repository.addProduct(testProductEntity, quantity: 2),
+    ).called(1);
   });
 
   test('RemoveFromCartUseCase delegates to repository', () async {

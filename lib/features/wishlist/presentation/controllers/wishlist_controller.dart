@@ -2,6 +2,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/presentation/base_controller.dart';
 import '../../../../core/presentation/result_extensions.dart';
 import '../../../../core/state/wishlist_state_notifier.dart';
+import '../../../cart/domain/add_to_cart_result.dart';
 import '../../../cart/domain/usecases/add_to_cart.dart';
 import '../../../products/domain/entities/product_entity.dart';
 import '../../domain/usecases/get_wishlist_items.dart';
@@ -33,10 +34,19 @@ class WishlistController extends BaseController {
     });
   }
 
-  Future<void> addToCart(ProductEntity product) {
-    return runAction(() async {
-      await _addToCart(product);
-    });
+  Future<AddToCartResult> addToCart(ProductEntity product) async {
+    if (!product.inStock) {
+      return AddToCartResult.outOfStock;
+    }
+
+    try {
+      final result = await _addToCart(
+        AddToCartParams(product: product, quantity: 1),
+      );
+      return result.isSuccess ? AddToCartResult.success : AddToCartResult.failure;
+    } catch (_) {
+      return AddToCartResult.failure;
+    }
   }
 
   Future<void> _refreshItems() async {

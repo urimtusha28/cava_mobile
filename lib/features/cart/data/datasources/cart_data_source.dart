@@ -16,7 +16,7 @@ abstract class CartDataSource {
 
   double getTotal();
 
-  void addProduct(ProductEntity product);
+  void addProduct(ProductEntity product, {int quantity = 1});
 
   void updateQuantity(int index, int quantity);
 
