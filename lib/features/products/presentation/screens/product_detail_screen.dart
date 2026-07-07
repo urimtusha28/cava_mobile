@@ -344,18 +344,15 @@ class _DetailRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: 118,
-            child: Padding(
-              padding: EdgeInsets.only(top: minHeight != null ? 10 : 0),
-              child: Text(
-                label,
-                textAlign: TextAlign.right,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            child: Text(
+              label,
+              textAlign: TextAlign.right,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
               ),
             ),
           ),
@@ -369,7 +366,7 @@ class _DetailRow extends StatelessWidget {
                 color: AppColors.surfaceMuted,
                 borderRadius: BorderRadius.circular(12),
               ),
-              alignment: Alignment.topLeft,
+              alignment: Alignment.centerLeft,
               child: Text(
                 value,
                 style: AppTextStyles.bodySmall.copyWith(
