@@ -49,7 +49,7 @@ void main() {
     expect(controller.subcategories.first.id, 'all');
   });
 
-    test('load category products for specific id', () async {
+  test('load category products for specific id', () async {
     when(() => getCategoryById('wines'))
         .thenAnswer((_) async => Success(testCategoryEntity));
     when(() => getProductsByCategory('Wines'))
@@ -62,5 +62,17 @@ void main() {
     expect(controller.category?.id, 'wines');
     expect(controller.products, hasLength(1));
     expect(controller.subcategories, hasLength(1));
+  });
+
+  test('isLoading is false after load completes', () async {
+    when(() => getAllProducts())
+        .thenAnswer((_) async => Success([testProductEntity]));
+
+    expect(controller.isLoading, isFalse);
+    final loadFuture = controller.load('all');
+    expect(controller.isLoading, isTrue);
+    await loadFuture;
+    expect(controller.isLoading, isFalse);
+    expect(controller.isInitialized, isTrue);
   });
 }

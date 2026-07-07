@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
+import '../../../../core/widgets/cava_loading_overlay.dart';
 import '../../../../core/widgets/search_bar.dart';
 import '../../../../core/widgets/subcategory_chip_bar.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -156,34 +157,10 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                     const SizedBox(height: AppSpacing.md),
                   ],
                   Expanded(
-                    child: filteredProducts.isEmpty
-                        ? Center(
-                            child: Text(
-                              'Nuk u gjet asnjë produkt.',
-                              style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          )
-                        : GridView.builder(
-                            padding: const EdgeInsets.fromLTRB(
-                              AppSpacing.screen,
-                              0,
-                              AppSpacing.screen,
-                              AppSpacing.screen,
-                            ),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              childAspectRatio:
-                                  ProductGridCard.gridChildAspectRatio,
-                              crossAxisSpacing: AppSpacing.md,
-                              mainAxisSpacing: AppSpacing.md,
-                            ),
-                            itemCount: filteredProducts.length,
-                            itemBuilder: (_, i) =>
-                                ProductGridCard(product: filteredProducts[i]),
-                          ),
+                    child: CavaLoadingOverlay(
+                      isLoading: _controller.isLoading,
+                      child: _buildProductsBody(filteredProducts),
+                    ),
                   ),
                 ],
               ),
@@ -191,6 +168,56 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
           },
         );
       },
+    );
+  }
+
+  Widget _buildProductsBody(List<ProductEntity> filteredProducts) {
+    if (_controller.isLoading) {
+      return const SizedBox.expand();
+    }
+
+    if (_controller.errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.screen),
+          child: Text(
+            _controller.errorMessage!,
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    if (filteredProducts.isEmpty) {
+      return Center(
+        child: Text(
+          'Nuk u gjet asnjë produkt.',
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+      );
+    }
+
+    return GridView.builder(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.screen,
+        0,
+        AppSpacing.screen,
+        AppSpacing.screen,
+      ),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: ProductGridCard.gridChildAspectRatio,
+        crossAxisSpacing: AppSpacing.md,
+        mainAxisSpacing: AppSpacing.md,
+      ),
+      itemCount: filteredProducts.length,
+      itemBuilder: (_, i) =>
+          ProductGridCard(product: filteredProducts[i]),
     );
   }
 }
