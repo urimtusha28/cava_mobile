@@ -7,6 +7,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/price_widget.dart';
 import '../../../../core/widgets/info_card.dart';
+import '../../../../core/widgets/product_image_view.dart';
 import '../../domain/entities/product_entity.dart';
 
 class ProductHeroImage extends StatelessWidget {
@@ -18,17 +19,26 @@ class ProductHeroImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = Color(product.placeholderColor ?? 0xFF6B1D2A);
     final height = MediaQuery.sizeOf(context).height * 0.36;
+    final imageUrl = ProductImageView.hasUrl(product.detailImageUrl)
+        ? product.detailImageUrl
+        : product.imageUrl;
+    final placeholder = Center(
+      child: Icon(
+        Icons.wine_bar_outlined,
+        size: 120,
+        color: color.withValues(alpha: 0.35),
+      ),
+    );
 
     return Container(
       height: height,
       width: double.infinity,
       color: AppColors.surfaceMuted,
-      child: Center(
-        child: Icon(
-          Icons.wine_bar_outlined,
-          size: 120,
-          color: color.withValues(alpha: 0.35),
-        ),
+      child: ProductImageView(
+        imageUrl: imageUrl,
+        width: double.infinity,
+        height: height,
+        placeholder: placeholder,
       ),
     );
   }

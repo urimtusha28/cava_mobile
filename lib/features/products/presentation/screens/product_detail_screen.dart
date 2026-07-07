@@ -8,6 +8,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
+import '../../../../core/widgets/product_image_view.dart';
 import '../../domain/entities/product_entity.dart';
 import '../controllers/product_detail_controller.dart';
 
@@ -184,6 +185,16 @@ class _ProductImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = Color(product.placeholderColor ?? 0xFF6B1D2A);
+    final imageUrl = ProductImageView.hasUrl(product.detailImageUrl)
+        ? product.detailImageUrl
+        : product.imageUrl;
+    final placeholder = Center(
+      child: Icon(
+        Icons.wine_bar_outlined,
+        size: 110,
+        color: color.withValues(alpha: 0.35),
+      ),
+    );
 
     return Stack(
       children: [
@@ -194,10 +205,11 @@ class _ProductImage extends StatelessWidget {
             color: AppColors.surfaceMuted,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: Icon(
-            Icons.wine_bar_outlined,
-            size: 110,
-            color: color.withValues(alpha: 0.35),
+          child: ProductImageView(
+            imageUrl: imageUrl,
+            width: double.infinity,
+            height: MediaQuery.sizeOf(context).height * 0.34,
+            placeholder: placeholder,
           ),
         ),
         Positioned(

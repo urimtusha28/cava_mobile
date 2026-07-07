@@ -8,6 +8,7 @@ import '../constants/app_spacing.dart';
 import '../router/app_routes.dart';
 import '../../features/products/domain/entities/product_entity.dart';
 import 'price_widget.dart';
+import 'product_image_view.dart';
 
 class ProductCard extends StatelessWidget {
   const ProductCard({
@@ -50,11 +51,14 @@ class ProductCard extends StatelessWidget {
                   color: color.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
-                child: Center(
-                  child: Icon(
-                    _iconFor(product.categoryId),
-                    size: 64,
-                    color: color.withValues(alpha: 0.45),
+                child: ProductImageView(
+                  imageUrl: product.imageUrl,
+                  placeholder: Center(
+                    child: Icon(
+                      _iconFor(product.categoryId),
+                      size: 64,
+                      color: color.withValues(alpha: 0.45),
+                    ),
                   ),
                 ),
               ),

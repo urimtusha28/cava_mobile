@@ -8,6 +8,7 @@ import '../constants/app_spacing.dart';
 import '../router/app_routes.dart';
 import '../utils/formatters.dart';
 import '../../features/products/domain/entities/product_entity.dart';
+import 'product_image_view.dart';
 
 class ProductGridCard extends StatelessWidget {
   const ProductGridCard({
@@ -43,10 +44,15 @@ class ProductGridCard extends StatelessWidget {
                   top: Radius.circular(AppRadius.lg - 1),
                 ),
               ),
-              child: Icon(
-                _iconFor(product.categoryId),
-                size: 48,
-                color: color.withValues(alpha: 0.35),
+              child: ProductImageView(
+                imageUrl: product.imageUrl,
+                width: double.infinity,
+                height: compact ? 110 : 140,
+                placeholder: Icon(
+                  _iconFor(product.categoryId),
+                  size: 48,
+                  color: color.withValues(alpha: 0.35),
+                ),
               ),
             ),
             Expanded(
