@@ -7,6 +7,7 @@ import '../constants/app_radius.dart';
 import '../constants/app_spacing.dart';
 import '../router/app_routes.dart';
 import '../../features/categories/domain/entities/category_entity.dart';
+import '../../features/categories/presentation/utils/category_badge_color_helper.dart';
 
 class CategoryChipBar extends StatelessWidget {
   const CategoryChipBar({
@@ -40,6 +41,7 @@ class CategoryChipBar extends StatelessWidget {
             return _Chip(
               label: 'All Products',
               selected: selectedId == _allProductsId,
+              badgeColor: null,
               onTap: () => _handleTap(context, _allProductsId),
             );
           }
@@ -48,6 +50,7 @@ class CategoryChipBar extends StatelessWidget {
           return _Chip(
             label: cat.label,
             selected: cat.id == selectedId,
+            badgeColor: cat.badgeColor,
             onTap: () => _handleTap(context, cat.id),
           );
         },
@@ -68,30 +71,40 @@ class _Chip extends StatelessWidget {
   const _Chip({
     required this.label,
     required this.selected,
+    required this.badgeColor,
     required this.onTap,
   });
 
   final String label;
   final bool selected;
+  final String? badgeColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final fallback = Theme.of(context).colorScheme.primary;
+    final accent = CategoryBadgeColorHelper.resolveBackground(
+      badgeColor: badgeColor,
+      fallback: fallback,
+    );
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? AppColors.burgundy : AppColors.surface,
+          color: selected ? accent : AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.sm),
           border: Border.all(
-            color: selected ? AppColors.burgundy : AppColors.border,
+            color: selected ? accent : AppColors.border,
           ),
         ),
         child: Text(
           label,
           style: AppTextStyles.bodySmall.copyWith(
-            color: selected ? Colors.white : AppColors.textPrimary,
+            color: selected
+                ? CategoryBadgeColorHelper.textColor(accent)
+                : AppColors.textPrimary,
           ),
         ),
       ),

@@ -22,6 +22,7 @@ class CategoryModel {
       name: entity.name,
       label: entity.label,
       emoji: entity.emoji,
+      badgeColor: entity.badgeColor,
       type: 'main',
       isActive: true,
     );

@@ -8,6 +8,7 @@ abstract final class SubcategoryMapper {
       label: model.label,
       matchTypes: model.matchTypes,
       matchKeywords: model.matchKeywords,
+      badgeColor: model.badgeColor,
     );
   }
 

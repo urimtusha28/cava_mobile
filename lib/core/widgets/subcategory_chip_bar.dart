@@ -5,6 +5,7 @@ import '../theme/app_text_styles.dart';
 import '../constants/app_radius.dart';
 import '../constants/app_spacing.dart';
 import '../../features/categories/domain/entities/subcategory_entity.dart';
+import '../../features/categories/presentation/utils/category_badge_color_helper.dart';
 
 class SubcategoryChipBar extends StatelessWidget {
   const SubcategoryChipBar({
@@ -12,11 +13,13 @@ class SubcategoryChipBar extends StatelessWidget {
     required this.subcategories,
     required this.selectedId,
     required this.onSelected,
+    this.parentBadgeColor,
   });
 
   final List<SubcategoryEntity> subcategories;
   final String selectedId;
   final ValueChanged<String> onSelected;
+  final String? parentBadgeColor;
 
   @override
   Widget build(BuildContext context) {
@@ -30,22 +33,30 @@ class SubcategoryChipBar extends StatelessWidget {
         itemBuilder: (context, index) {
           final sub = subcategories[index];
           final selected = sub.id == selectedId;
+          final fallback = Theme.of(context).colorScheme.primary;
+          final accent = CategoryBadgeColorHelper.resolveBackground(
+            badgeColor: sub.badgeColor,
+            parentBadgeColor: parentBadgeColor,
+            fallback: fallback,
+          );
 
           return GestureDetector(
             onTap: () => onSelected(sub.id),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               decoration: BoxDecoration(
-                color: selected ? AppColors.burgundy : AppColors.surface,
+                color: selected ? accent : AppColors.surface,
                 borderRadius: BorderRadius.circular(AppRadius.sm),
                 border: Border.all(
-                  color: selected ? AppColors.burgundy : AppColors.border,
+                  color: selected ? accent : AppColors.border,
                 ),
               ),
               child: Text(
                 sub.label,
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: selected ? Colors.white : AppColors.textPrimary,
+                  color: selected
+                      ? CategoryBadgeColorHelper.textColor(accent)
+                      : AppColors.textPrimary,
                 ),
               ),
             ),

@@ -6,6 +6,7 @@ class SubcategoryModel {
     required this.label,
     this.matchTypes = const [],
     this.matchKeywords = const [],
+    this.badgeColor,
   });
 
   factory SubcategoryModel.fromEntity(SubcategoryEntity entity) {
@@ -14,6 +15,7 @@ class SubcategoryModel {
       label: entity.label,
       matchTypes: entity.matchTypes,
       matchKeywords: entity.matchKeywords,
+      badgeColor: entity.badgeColor,
     );
   }
 
@@ -29,6 +31,7 @@ class SubcategoryModel {
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      badgeColor: json['badgeColor'] as String?,
     );
   }
 
@@ -36,6 +39,7 @@ class SubcategoryModel {
   final String label;
   final List<String> matchTypes;
   final List<String> matchKeywords;
+  final String? badgeColor;
 
   Map<String, dynamic> toJson() {
     return {
@@ -43,6 +47,7 @@ class SubcategoryModel {
       'label': label,
       'matchTypes': matchTypes,
       'matchKeywords': matchKeywords,
+      if (badgeColor != null) 'badgeColor': badgeColor,
     };
   }
 }

@@ -152,6 +152,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                     SubcategoryChipBar(
                       subcategories: subcategories,
                       selectedId: _selectedSubId,
+                      parentBadgeColor: category?.badgeColor,
                       onSelected: (id) => setState(() => _selectedSubId = id),
                     ),
                     const SizedBox(height: AppSpacing.md),

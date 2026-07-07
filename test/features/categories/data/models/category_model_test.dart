@@ -9,6 +9,7 @@ void main() {
       final model = CategoryModel.fromEntity(testCategoryEntity);
       expect(model.id, testCategoryEntity.id);
       expect(model.emoji, testCategoryEntity.emoji);
+      expect(model.badgeColor, testCategoryEntity.badgeColor);
     });
 
     test('legacy fromJson round-trips core fields', () {
@@ -27,12 +28,14 @@ void main() {
         expect(model.order, 1);
         expect(model.isActive, isTrue);
         expect(model.isMainCategory, isTrue);
+        expect(model.badgeColor, '#6B1D2A');
       });
 
       test('parses subcategory fields', () {
         final model = CategoryModel.fromJson(testWebSubcategoryJson);
         expect(model.isSubCategory, isTrue);
         expect(model.parentId, 'cat-wines');
+        expect(model.badgeColor, '#6B1D2A');
       });
     });
   });

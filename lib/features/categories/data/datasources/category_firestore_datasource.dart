@@ -111,6 +111,7 @@ class CategoryFirestoreDataSource implements CategoryDataSource {
                 id: category.slug.isNotEmpty ? category.slug : category.id,
                 label: category.name,
                 matchTypes: [category.name],
+                badgeColor: category.badgeColor,
               ),
             )
             .toList(growable: false);

@@ -8,6 +8,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
 import '../../../../core/widgets/product_image_view.dart';
+import '../../../categories/presentation/utils/category_badge_color_helper.dart';
 import '../../domain/entities/product_entity.dart';
 import '../controllers/product_detail_controller.dart';
 
@@ -94,7 +95,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _ProductImage(product: product),
+                    _ProductImage(
+                      product: product,
+                      categoryBadgeColor: _controller.category?.badgeColor,
+                    ),
                     const SizedBox(height: AppSpacing.xl),
                     Text(
                       product.brand,
@@ -177,9 +181,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
 }
 
 class _ProductImage extends StatelessWidget {
-  const _ProductImage({required this.product});
+  const _ProductImage({
+    required this.product,
+    this.categoryBadgeColor,
+  });
 
   final ProductEntity product;
+  final String? categoryBadgeColor;
 
   /// Hero image height ratio. Was 0.34 — +~15% for vertical bottle photos.
   static const double _imageHeightRatio = 0.39;
@@ -198,6 +206,13 @@ class _ProductImage extends StatelessWidget {
         color: color.withValues(alpha: 0.35),
       ),
     );
+
+    final fallback = Theme.of(context).colorScheme.primary;
+    final badgeBackground = CategoryBadgeColorHelper.resolveBackground(
+      badgeColor: categoryBadgeColor,
+      fallback: fallback,
+    );
+    final badgeTextColor = CategoryBadgeColorHelper.textColor(badgeBackground);
 
     return Stack(
       children: [
@@ -222,13 +237,13 @@ class _ProductImage extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.burgundy,
+              color: badgeBackground,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               product.categoryName,
               style: AppTextStyles.caption.copyWith(
-                color: Colors.white,
+                color: badgeTextColor,
               ),
             ),
           ),

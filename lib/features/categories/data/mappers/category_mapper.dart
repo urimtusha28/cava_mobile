@@ -10,6 +10,7 @@ abstract final class CategoryMapper {
       name: model.name,
       label: model.label.isNotEmpty ? model.label : model.name,
       emoji: model.emoji,
+      badgeColor: model.badgeColor,
     );
   }
 

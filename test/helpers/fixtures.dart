@@ -53,6 +53,7 @@ const testCategoryEntity = CategoryEntity(
   name: 'Wines',
   label: 'Verërat',
   emoji: '🍷',
+  badgeColor: '#7A1F32',
 );
 
 const testCategoryModel = CategoryModel(
@@ -60,12 +61,14 @@ const testCategoryModel = CategoryModel(
   name: 'Wines',
   label: 'Verërat',
   emoji: '🍷',
+  badgeColor: '#7A1F32',
 );
 
 const testSubcategoryEntity = SubcategoryEntity(
   id: 'red',
   label: 'Red Wine',
   matchTypes: ['Red'],
+  badgeColor: '#AA0000',
 );
 
 const testHomeSectionModel = HomeSectionModel(

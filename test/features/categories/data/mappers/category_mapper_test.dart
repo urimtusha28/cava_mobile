@@ -10,11 +10,13 @@ void main() {
       final entity = CategoryMapper.toEntity(testCategoryModel);
       expect(entity.id, 'wines');
       expect(entity.label, 'Verërat');
+      expect(entity.badgeColor, '#7A1F32');
     });
 
     test('toModel round-trips entity', () {
       final model = CategoryMapper.toModel(testCategoryEntity);
       expect(model.id, testCategoryEntity.id);
+      expect(model.badgeColor, testCategoryEntity.badgeColor);
     });
 
     test('maps web schema slug to entity id for routing', () {
@@ -23,6 +25,7 @@ void main() {
       expect(entity.id, 'wines');
       expect(entity.label, 'Wines');
       expect(entity.name, 'Wines');
+      expect(entity.badgeColor, '#6B1D2A');
     });
   });
 }
