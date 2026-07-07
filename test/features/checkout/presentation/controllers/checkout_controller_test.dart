@@ -7,6 +7,7 @@ import 'package:cava_ecommerce/features/account/data/models/address_model.dart';
 import 'package:cava_ecommerce/features/cart/domain/usecases/add_to_cart.dart';
 import 'package:cava_ecommerce/features/cart/domain/usecases/clear_cart.dart';
 import 'package:cava_ecommerce/features/checkout/data/datasources/checkout_mock_datasource.dart';
+import 'package:cava_ecommerce/features/checkout/data/local/checkout_selected_address_storage.dart';
 import 'package:cava_ecommerce/features/checkout/presentation/controllers/checkout_controller.dart';
 import 'package:cava_ecommerce/features/checkout/presentation/models/checkout_session_state.dart';
 import 'package:cava_ecommerce/features/categories/data/datasources/category_mock_datasource.dart';
@@ -17,33 +18,54 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../helpers/test_di.dart';
 
+const _homeAddress = AddressModel(
+  id: 'addr-home',
+  label: 'Home',
+  fullName: 'Urim Tusha',
+  phone: '+38344111222',
+  street: 'Rruga e Dielave 12',
+  city: 'Prishtinë',
+  country: 'Kosovë',
+  zip: '10000',
+  isDefault: true,
+);
+
+const _officeAddress = AddressModel(
+  id: 'addr-office',
+  label: 'Office',
+  fullName: 'Urim Tusha',
+  phone: '+38344333444',
+  street: 'Rruga B 5',
+  city: 'Prizren',
+  country: 'Kosovë',
+  zip: '20000',
+  isDefault: false,
+);
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late CheckoutMockDataSource checkoutDataSource;
+  late AddressesMockDataSource addressesDataSource;
   late CheckoutController checkoutController;
 
-  setUp(() async {
-    SharedPreferences.setMockInitialValues({});
-    CartStateNotifier.reset();
-    MockAuth.login();
+  Future<void> seedAddresses({bool includeOffice = false}) async {
+    await addressesDataSource.addAddress(MockAuth.currentUser.uid, _homeAddress);
+    if (includeOffice) {
+      await addressesDataSource.addAddress(
+        MockAuth.currentUser.uid,
+        _officeAddress,
+      );
+    }
+  }
 
-    checkoutDataSource = CheckoutMockDataSource();
-    final addressesDataSource = AddressesMockDataSource();
-    await addressesDataSource.addAddress(
-      MockAuth.currentUser.uid,
-      const AddressModel(
-        id: '',
-        label: 'Home',
-        fullName: 'Urim Tusha',
-        phone: '+38344111222',
-        street: 'Rruga e Dielave 12',
-        city: 'Prishtinë',
-        country: 'Kosovë',
-        zip: '10000',
-        isDefault: true,
-      ),
-    );
+  Future<void> configureCheckout({
+    CheckoutMockDataSource? checkoutSource,
+    bool includeOffice = false,
+  }) async {
+    checkoutDataSource = checkoutSource ?? CheckoutMockDataSource();
+    addressesDataSource = AddressesMockDataSource();
+    await seedAddresses(includeOffice: includeOffice);
 
     await configureTestDependencies(
       productDataSource: const ProductMockDataSource(),
@@ -58,6 +80,13 @@ void main() {
     );
 
     checkoutController = sl<CheckoutController>();
+  }
+
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    CartStateNotifier.reset();
+    MockAuth.login();
+    await configureCheckout();
   });
 
   tearDown(() async {
@@ -65,18 +94,86 @@ void main() {
     await tearDownTestDependencies();
   });
 
-  test('load exposes user address and cart totals', () async {
+  test('load exposes addresses without auto-selecting default', () async {
     await checkoutController.load();
 
     expect(checkoutController.isLoggedIn, isTrue);
+    expect(checkoutController.addresses, hasLength(1));
+    expect(checkoutController.selectedAddress, isNull);
     expect(checkoutController.customerInfo.email, MockAuth.userEmail);
-    expect(checkoutController.customerInfo.addressLine, contains('Rruga'));
+    expect(checkoutController.customerInfo.addressLine, isEmpty);
     expect(checkoutController.hasItems, isTrue);
     expect(checkoutController.total, greaterThan(0));
   });
 
+  test('selectAddress updates checkout and persists id', () async {
+    await checkoutController.load();
+    final address = checkoutController.addresses.first;
+
+    await checkoutController.selectAddress(address);
+
+    expect(checkoutController.selectedAddress?.id, address.id);
+    expect(checkoutController.customerInfo.addressLine, contains('Rruga'));
+    expect(checkoutController.customerInfo.city, 'Prishtinë');
+
+    final persistedId = await sl<CheckoutSelectedAddressStorage>().readAddressId();
+    expect(persistedId, address.id);
+  });
+
+  test('restores persisted address on next checkout load', () async {
+    await checkoutController.load();
+    await checkoutController.selectAddress(checkoutController.addresses.first);
+
+    checkoutController = sl<CheckoutController>();
+    await checkoutController.load();
+
+    expect(checkoutController.selectedAddress?.id, 'addr-home');
+    expect(checkoutController.customerInfo.addressLine, contains('Rruga'));
+  });
+
+  test('falls back when persisted address was deleted', () async {
+    await configureCheckout(includeOffice: true);
+    await checkoutController.load();
+    await checkoutController.selectAddress(
+      checkoutController.addresses.firstWhere((address) => address.id == 'addr-office'),
+    );
+
+    await addressesDataSource.deleteAddress(
+      MockAuth.currentUser.uid,
+      'addr-office',
+    );
+    await checkoutController.refreshAddresses();
+
+    expect(checkoutController.selectedAddress?.id, 'addr-home');
+    expect(
+      await sl<CheckoutSelectedAddressStorage>().readAddressId(),
+      'addr-home',
+    );
+  });
+
+  test('submitOrder uses selected address in payload', () async {
+    await configureCheckout(includeOffice: true);
+    await checkoutController.load();
+    await checkoutController.selectAddress(
+      checkoutController.addresses.firstWhere((address) => address.id == 'addr-office'),
+    );
+
+    final result = await checkoutController.submitOrder(
+      paymentMethod: 'cash',
+      termsAccepted: true,
+    );
+
+    expect(result.status, CheckoutSubmitStatus.success);
+    expect(
+      checkoutDataSource.lastPayload?['customer']['address'],
+      'Rruga B 5',
+    );
+    expect(checkoutDataSource.lastPayload?.containsKey('total'), isFalse);
+  });
+
   test('submitOrder clears cart only on success', () async {
     await checkoutController.load();
+    await checkoutController.selectAddress(checkoutController.addresses.first);
 
     final result = await checkoutController.submitOrder(
       paymentMethod: 'cash',
@@ -86,7 +183,6 @@ void main() {
     expect(result.status, CheckoutSubmitStatus.success);
     expect(result.order?.orderId, 'order-1');
     expect(CartStateNotifier.revision.value, 0);
-    expect(checkoutDataSource.lastPayload?.containsKey('total'), isFalse);
   });
 
   test('submitOrder does not clear cart on failure', () async {
@@ -98,33 +194,9 @@ void main() {
         throw const ServerFailure(message: 'fail', code: 'OUT_OF_STOCK');
       },
     );
-    final addressesDataSource = AddressesMockDataSource();
-    await addressesDataSource.addAddress(
-      MockAuth.currentUser.uid,
-      const AddressModel(
-        id: 'addr-1',
-        label: 'Home',
-        fullName: 'Urim Tusha',
-        phone: '+38344111222',
-        street: 'Rruga e Dielave 12',
-        city: 'Prishtinë',
-        country: 'Kosovë',
-        isDefault: true,
-      ),
-    );
-
-    await configureTestDependencies(
-      productDataSource: const ProductMockDataSource(),
-      categoryDataSource: const CategoryMockDataSource(),
-      checkoutDataSource: failingSource,
-      addressesDataSource: addressesDataSource,
-    );
-
-    await sl<AddToCartUseCase>()(
-      AddToCartParams(product: MockProducts.products.first, quantity: 2),
-    );
-    checkoutController = sl<CheckoutController>();
+    await configureCheckout(checkoutSource: failingSource);
     await checkoutController.load();
+    await checkoutController.selectAddress(checkoutController.addresses.first);
     final countBefore = CartStateNotifier.revision.value;
 
     final result = await checkoutController.submitOrder(
@@ -140,6 +212,7 @@ void main() {
   test('blocks order when cart is empty', () async {
     await sl<ClearCartUseCase>()();
     await checkoutController.load();
+    await checkoutController.selectAddress(checkoutController.addresses.first);
 
     final result = await checkoutController.submitOrder(
       paymentMethod: 'cash',
@@ -183,6 +256,18 @@ void main() {
       termsAccepted: true,
     );
 
-    expect(result.message, 'Shto një adresë para porosisë.');
+    expect(result.message, 'Shto ose zgjidh një adresë.');
+  });
+
+  test('blocks order when address exists but none selected', () async {
+    await checkoutController.load();
+
+    final result = await checkoutController.submitOrder(
+      paymentMethod: 'cash',
+      termsAccepted: true,
+    );
+
+    expect(result.status, CheckoutSubmitStatus.validationError);
+    expect(result.message, 'Shto ose zgjidh një adresë.');
   });
 }

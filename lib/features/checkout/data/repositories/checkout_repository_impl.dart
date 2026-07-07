@@ -33,7 +33,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
     }
 
     final items = await _loadCartItems();
-    final address = await _resolveDefaultAddress();
+    final address = await _resolveAddress(request.addressId);
 
     final payload = PlaceOrderPayloadMapper.toPayload(
       user: user,
@@ -51,18 +51,24 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
     return _cartRepository.getItems();
   }
 
-  Future<AddressEntity> _resolveDefaultAddress() async {
+  Future<AddressEntity> _resolveAddress(String addressId) async {
     final addresses = await _addressesRepository.getAddresses();
     if (addresses.isEmpty) {
       throw const ValidationFailure(
-        message: 'Shto një adresë para porosisë.',
+        message: 'Shto ose zgjidh një adresë.',
         code: 'ADDRESS_REQUIRED',
       );
     }
 
-    return addresses.firstWhere(
-      (address) => address.isDefault,
-      orElse: () => addresses.first,
+    for (final address in addresses) {
+      if (address.id == addressId) {
+        return address;
+      }
+    }
+
+    throw const ValidationFailure(
+      message: 'Shto ose zgjidh një adresë.',
+      code: 'ADDRESS_REQUIRED',
     );
   }
 }

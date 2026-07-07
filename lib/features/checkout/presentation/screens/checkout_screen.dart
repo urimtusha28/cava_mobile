@@ -10,6 +10,7 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/checkout_screen_header.dart';
 import '../controllers/checkout_controller.dart';
 import '../models/checkout_session_state.dart';
+import '../widgets/checkout_address_selector_bottom_sheet.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -64,6 +65,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
+  Future<void> _openAddressSelector() async {
+    await showCheckoutAddressSelectorBottomSheet(
+      context: context,
+      checkoutController: _controller,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
@@ -89,9 +97,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 children: [
                   _UserInfoCard(
                     email: _controller.customerInfo.email,
+                    hasAddresses: _controller.hasAddresses,
+                    hasSelectedAddress: _controller.hasSelectedAddress,
+                    label: _controller.customerInfo.label,
+                    fullName: _controller.customerInfo.fullName,
+                    phone: _controller.customerInfo.phone,
                     address: _controller.customerInfo.addressLine,
                     city: _controller.customerInfo.city,
-                    country: _controller.customerInfo.country,
+                    zip: _controller.customerInfo.zip,
+                    onChangeAddress: () => _openAddressSelector(),
+                    onAddAddress: () => _openAddressSelector(),
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _PaymentMethodsCard(
@@ -170,15 +185,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 class _UserInfoCard extends StatelessWidget {
   const _UserInfoCard({
     required this.email,
+    required this.hasAddresses,
+    required this.hasSelectedAddress,
+    required this.label,
+    required this.fullName,
+    required this.phone,
     required this.address,
     required this.city,
-    required this.country,
+    required this.zip,
+    required this.onChangeAddress,
+    required this.onAddAddress,
   });
 
   final String email;
+  final bool hasAddresses;
+  final bool hasSelectedAddress;
+  final String label;
+  final String fullName;
+  final String phone;
   final String address;
   final String city;
-  final String country;
+  final String zip;
+  final VoidCallback onChangeAddress;
+  final VoidCallback onAddAddress;
 
   @override
   Widget build(BuildContext context) {
@@ -187,31 +216,100 @@ class _UserInfoCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _InfoLine('Email:', email),
-          const SizedBox(height: AppSpacing.sm),
-          _InfoLine('Adresa:', address),
-          const SizedBox(height: AppSpacing.sm),
-          _InfoLine('Qyteti:', city),
-          const SizedBox(height: AppSpacing.sm),
-          _InfoLine('Shteti:', country),
-          const SizedBox(height: AppSpacing.md),
-          Align(
-            alignment: Alignment.centerRight,
-            child: OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.textPrimary,
-                backgroundColor: AppColors.surfaceMuted,
-                side: BorderSide(color: AppColors.textPrimary.withValues(alpha: 0.25)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+          const SizedBox(height: AppSpacing.lg),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  'Adresa e dorëzimit',
+                  style: AppTextStyles.h3,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
-              child: Text('Ndrysho', style: AppTextStyles.bodySmall),
-            ),
+              if (hasAddresses)
+                TextButton(
+                  onPressed: onChangeAddress,
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.burgundy,
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    'Ndrysho >',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.burgundy,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+            ],
           ),
+          const SizedBox(height: AppSpacing.sm),
+          if (!hasAddresses)
+            _DeliveryEmptyState(onAddAddress: onAddAddress)
+          else if (!hasSelectedAddress)
+            Text(
+              'Zgjidh adresën e dorëzimit.',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            )
+          else ...[
+            if (label.isNotEmpty) _InfoLine('Emri:', label),
+            if (label.isNotEmpty) const SizedBox(height: AppSpacing.sm),
+            _InfoLine('Marrësi:', fullName),
+            const SizedBox(height: AppSpacing.sm),
+            _InfoLine('Telefoni:', phone),
+            const SizedBox(height: AppSpacing.sm),
+            _InfoLine('Adresa:', address),
+            const SizedBox(height: AppSpacing.sm),
+            _InfoLine('Qyteti:', city),
+            if (zip.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.sm),
+              _InfoLine('Kodi postar:', zip),
+            ],
+          ],
         ],
       ),
+    );
+  }
+}
+
+class _DeliveryEmptyState extends StatelessWidget {
+  const _DeliveryEmptyState({required this.onAddAddress});
+
+  final VoidCallback onAddAddress;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(
+          Icons.location_on_outlined,
+          size: 40,
+          color: AppColors.textPrimary.withValues(alpha: 0.35),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          'Nuk ke asnjë adresë.',
+          style: AppTextStyles.bodySmall,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: AppSpacing.md),
+        OutlinedButton(
+          onPressed: onAddAddress,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.burgundy,
+            side: const BorderSide(color: AppColors.burgundy),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          ),
+          child: Text('Shto adresë', style: AppTextStyles.bodySmall),
+        ),
+      ],
     );
   }
 }

@@ -44,21 +44,33 @@ class CheckoutSubmitResult {
 class CheckoutCustomerInfo {
   const CheckoutCustomerInfo({
     required this.email,
+    required this.label,
+    required this.fullName,
+    required this.phone,
     required this.addressLine,
     required this.city,
     required this.country,
+    required this.zip,
   });
 
   final String email;
+  final String label;
+  final String fullName;
+  final String phone;
   final String addressLine;
   final String city;
   final String country;
+  final String zip;
 
   static const empty = CheckoutCustomerInfo(
     email: '',
+    label: '',
+    fullName: '',
+    phone: '',
     addressLine: '',
     city: '',
     country: '',
+    zip: '',
   );
 }
 

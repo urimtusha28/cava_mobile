@@ -14,7 +14,11 @@ void main() {
     repository = MockCheckoutRepository();
     useCase = PlaceOrderUseCase(repository);
     registerFallbackValue(
-      const PlaceOrderRequest(paymentMethod: 'cash', termsAccepted: true),
+      const PlaceOrderRequest(
+        paymentMethod: 'cash',
+        termsAccepted: true,
+        addressId: 'addr-1',
+      ),
     );
   });
 
@@ -29,7 +33,11 @@ void main() {
     );
 
     final result = await useCase(
-      const PlaceOrderRequest(paymentMethod: 'cash', termsAccepted: true),
+      const PlaceOrderRequest(
+        paymentMethod: 'cash',
+        termsAccepted: true,
+        addressId: 'addr-1',
+      ),
     );
 
     expect(result.isSuccess, isTrue);

@@ -64,6 +64,7 @@ import '../../features/checkout/data/repositories/checkout_repository_impl.dart'
 import '../../features/checkout/domain/repositories/checkout_repository.dart';
 import '../../features/checkout/domain/usecases/place_order.dart';
 import '../../features/checkout/presentation/controllers/order_success_controller.dart';
+import '../../features/checkout/data/local/checkout_selected_address_storage.dart';
 import '../../features/checkout/presentation/controllers/checkout_controller.dart';
 import '../../features/home/data/datasources/home_data_source.dart';
 import '../../features/home/data/datasources/home_mock_datasource.dart';
@@ -268,6 +269,9 @@ void _registerCheckout() {
     return;
   }
 
+  sl.registerLazySingleton<CheckoutSelectedAddressStorage>(
+    () => CheckoutSelectedAddressStorage(),
+  );
   sl.registerLazySingleton<FirebaseFunctionsGateway>(
     () => FirebaseFunctionsGatewayImpl(FirebaseFunctions.instance),
   );
@@ -463,6 +467,7 @@ void _registerControllers() {
       sl<IsLoggedInUseCase>(),
       sl<GetAddressesUseCase>(),
       sl<GetCurrentUserUseCase>(),
+      sl<CheckoutSelectedAddressStorage>(),
     ),
   );
 }
@@ -487,6 +492,11 @@ Future<void> resetDependencies() async {
   LocalWishlistStore.clear();
   try {
     await CartLocalStorage().clear();
+  } catch (_) {
+    // SharedPreferences may be unavailable before Flutter binding init.
+  }
+  try {
+    await CheckoutSelectedAddressStorage().clear();
   } catch (_) {
     // SharedPreferences may be unavailable before Flutter binding init.
   }
@@ -595,6 +605,11 @@ Future<void> configureTestDependencies({
   }
 
   if (checkoutDataSource != null) {
+    if (!sl.isRegistered<CheckoutSelectedAddressStorage>()) {
+      sl.registerLazySingleton<CheckoutSelectedAddressStorage>(
+        () => CheckoutSelectedAddressStorage(),
+      );
+    }
     sl.registerLazySingleton<CheckoutDataSource>(() => checkoutDataSource);
     sl.registerLazySingleton<CheckoutRepository>(
       () => CheckoutRepositoryImpl(

@@ -8,9 +8,11 @@ import '../../../account/domain/usecases/get_current_user.dart';
 import '../../../account/domain/usecases/is_logged_in.dart';
 import '../../../cart/domain/usecases/clear_cart.dart';
 import '../../../cart/presentation/controllers/cart_controller.dart';
+import '../../data/local/checkout_selected_address_storage.dart';
 import '../../data/utils/place_order_exception_mapper.dart';
 import '../../domain/repositories/checkout_repository.dart';
 import '../../domain/usecases/place_order.dart';
+import '../../domain/utils/checkout_address_resolver.dart';
 import '../models/checkout_session_state.dart';
 
 class CheckoutController extends BaseController {
@@ -21,6 +23,7 @@ class CheckoutController extends BaseController {
     this._isLoggedIn,
     this._getAddresses,
     this._getCurrentUser,
+    this._selectedAddressStorage,
   ) {
     _cartController.addListener(notifyListeners);
   }
@@ -31,13 +34,17 @@ class CheckoutController extends BaseController {
   final IsLoggedInUseCase _isLoggedIn;
   final GetAddressesUseCase _getAddresses;
   final GetCurrentUserUseCase _getCurrentUser;
+  final CheckoutSelectedAddressStorage _selectedAddressStorage;
 
   bool isSubmitting = false;
   bool isLoggedIn = false;
-  bool hasAddress = false;
   bool hasItems = false;
+  List<AddressEntity> addresses = const [];
+  AddressEntity? selectedAddress;
   CheckoutCustomerInfo customerInfo = CheckoutCustomerInfo.empty;
-  AddressEntity? defaultAddress;
+
+  bool get hasAddresses => addresses.isNotEmpty;
+  bool get hasSelectedAddress => selectedAddress != null;
 
   double get total => _cartController.total;
   double get subtotal => _cartController.subtotal;
@@ -48,6 +55,18 @@ class CheckoutController extends BaseController {
   Future<void> load() async {
     await runLoad(_cartController.load);
     await _refreshSession();
+    notifyListeners();
+  }
+
+  Future<void> refreshAddresses() async {
+    await _refreshSession();
+    notifyListeners();
+  }
+
+  Future<void> selectAddress(AddressEntity address) async {
+    selectedAddress = address;
+    await _selectedAddressStorage.writeAddressId(address.id);
+    _syncCustomerInfo();
     notifyListeners();
   }
 
@@ -68,6 +87,7 @@ class CheckoutController extends BaseController {
         PlaceOrderRequest(
           paymentMethod: paymentMethod,
           termsAccepted: termsAccepted,
+          addressId: selectedAddress!.id,
         ),
       );
 
@@ -109,8 +129,8 @@ class CheckoutController extends BaseController {
         ),
       );
     }
-    if (!hasAddress || defaultAddress == null) {
-      return 'Shto një adresë para porosisë.';
+    if (!hasAddresses || selectedAddress == null) {
+      return 'Shto ose zgjidh një adresë.';
     }
     if (customerInfo.email.trim().isEmpty) {
       return 'Kyçu për të vazhduar me porosinë.';
@@ -127,26 +147,40 @@ class CheckoutController extends BaseController {
     final user = isLoggedIn
         ? await unwrapFutureResult(_getCurrentUser(), fallback: null)
         : null;
-    final addresses = isLoggedIn
+    addresses = isLoggedIn
         ? await unwrapFutureResult(
             _getAddresses(),
             fallback: const <AddressEntity>[],
           )
         : const <AddressEntity>[];
-    defaultAddress = addresses.isEmpty
-        ? null
-        : addresses.firstWhere(
-            (address) => address.isDefault,
-            orElse: () => addresses.first,
-          );
-    hasAddress = defaultAddress != null;
-    hasItems = _cartController.items.isNotEmpty;
 
+    final persistedId = await _selectedAddressStorage.readAddressId();
+    selectedAddress = CheckoutAddressResolver.resolve(
+      addresses: addresses,
+      persistedAddressId: persistedId,
+    );
+
+    if (selectedAddress != null &&
+        persistedId != null &&
+        selectedAddress!.id != persistedId) {
+      await _selectedAddressStorage.writeAddressId(selectedAddress!.id);
+    }
+
+    hasItems = _cartController.items.isNotEmpty;
+    _syncCustomerInfo(userEmail: user?.email?.trim() ?? '');
+  }
+
+  void _syncCustomerInfo({String? userEmail}) {
+    final address = selectedAddress;
     customerInfo = CheckoutCustomerInfo(
-      email: user?.email?.trim() ?? '',
-      addressLine: defaultAddress?.street ?? '',
-      city: defaultAddress?.city ?? '',
-      country: defaultAddress?.country ?? '',
+      email: userEmail ?? customerInfo.email,
+      label: address?.label ?? '',
+      fullName: address?.fullName ?? '',
+      phone: address?.phone ?? '',
+      addressLine: address?.street ?? '',
+      city: address?.city ?? '',
+      country: address?.country ?? '',
+      zip: address?.zip ?? '',
     );
   }
 }
