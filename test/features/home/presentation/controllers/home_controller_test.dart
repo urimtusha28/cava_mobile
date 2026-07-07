@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cava_ecommerce/core/result/result.dart';
 import 'package:cava_ecommerce/features/categories/domain/entities/category_entity.dart';
 import 'package:cava_ecommerce/features/categories/domain/usecases/get_categories.dart';
@@ -56,6 +58,23 @@ void main() {
     await controller.load();
 
     expect(controller.categories.map((c) => c.id).toList(), ['wines', 'spirits']);
+  });
+
+  test('load sets isLoading while fetching data', () async {
+    final completer = Completer<List<CategoryEntity>>();
+    when(() => getCategories()).thenAnswer((_) async => Success(await completer.future));
+    when(() => getHomeSections())
+        .thenAnswer((_) async => Success([testHomeSectionEntity]));
+
+    final loadFuture = controller.load();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(controller.isLoading, isTrue);
+
+    completer.complete([testCategoryEntity]);
+    await loadFuture;
+
+    expect(controller.isLoading, isFalse);
   });
 
   test('sectionByType returns null when missing', () async {

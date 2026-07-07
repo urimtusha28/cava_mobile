@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
+import '../../../../core/widgets/cava_loading_overlay.dart';
 import '../../../../core/widgets/search_bar.dart';
 import '../../../../core/widgets/category_chip_bar.dart';
 import '../../../../core/widgets/visit_store_banner.dart';
@@ -63,8 +64,10 @@ class _HomeScreenState extends State<HomeScreen> {
             return Scaffold(
               backgroundColor: AppColors.background,
               appBar: const CavaAppBar(isLogo: true),
-              body: CustomScrollView(
-                slivers: [
+              body: CavaLoadingOverlay(
+                isLoading: _controller.isLoading,
+                child: CustomScrollView(
+                  slivers: [
                   const SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
@@ -113,6 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: SizedBox(height: AppSpacing.xxxl),
                   ),
                 ],
+                ),
               ),
             );
           },
