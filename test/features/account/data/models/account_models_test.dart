@@ -78,6 +78,27 @@ void main() {
       expect(model?.toEntity().displayOrderNumber, 'Porosia #123456');
     });
 
+    test('maps item imageUrl and productId', () {
+      final model = OrderMapper.fromFirestore('o1', {
+        'status': 'open',
+        'paymentStatus': 'paid',
+        'totals': {'total': 8.5},
+        'items': [
+          {
+            'name': 'Verë',
+            'quantity': 1,
+            'price': 8.5,
+            'total': 8.5,
+            'imageUrl': 'https://example.com/wine.jpg',
+            'productId': 'p1',
+          },
+        ],
+      });
+
+      expect(model?.items.single.imageUrl, 'https://example.com/wine.jpg');
+      expect(model?.items.single.productId, 'p1');
+    });
+
     test('maps customer and items without crash on missing fields', () {
       final model = OrderMapper.fromFirestore('o1', {
         'status': 'pending',

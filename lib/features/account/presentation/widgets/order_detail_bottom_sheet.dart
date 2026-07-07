@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/order_entity.dart';
 import '../utils/order_formatters.dart';
+import 'order_detail_item_row.dart';
 
 Future<void> showOrderDetailBottomSheet({
   required BuildContext context,
@@ -65,6 +65,7 @@ class _OrderDetailSheetBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final totals = order.totals;
+    final customer = order.customer;
 
     return Column(
       children: [
@@ -130,30 +131,7 @@ class _OrderDetailSheetBody extends StatelessWidget {
                 )
               else
                 ...order.items.map(
-                  (item) => Container(
-                    margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceMuted,
-                      borderRadius: BorderRadius.circular(AppRadius.lg),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(item.name, style: AppTextStyles.body),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${item.quantity} x ${formatOrderTotal(item.price)}',
-                          style: AppTextStyles.bodySmall,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          formatOrderTotal(item.lineTotal),
-                          style: AppTextStyles.price.copyWith(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ),
+                  (item) => OrderDetailItemRow(item: item),
                 ),
               const SizedBox(height: AppSpacing.lg),
               Text('Totali', style: AppTextStyles.h3),
@@ -183,16 +161,16 @@ class _OrderDetailSheetBody extends StatelessWidget {
                 value: formatOrderTotal(order.total),
                 emphasized: true,
               ),
-              if (order.customer?.hasInfo == true) ...[
+              if (customer?.hasInfo == true) ...[
                 const SizedBox(height: AppSpacing.lg),
                 Text('Klienti', style: AppTextStyles.h3),
                 const SizedBox(height: AppSpacing.sm),
-                if (order.customer!.name != null)
-                  _InfoRow(label: 'Emri', value: order.customer!.name!),
-                if (order.customer!.phone != null)
-                  _InfoRow(label: 'Telefoni', value: order.customer!.phone!),
-                if (order.customer!.address != null)
-                  _InfoRow(label: 'Adresa', value: order.customer!.address!),
+                if (_hasText(customer!.name))
+                  _InfoRow(label: 'Emri', value: customer.name!.trim()),
+                if (_hasText(customer.phone))
+                  _InfoRow(label: 'Telefoni', value: customer.phone!.trim()),
+                if (_hasText(customer.address))
+                  _InfoRow(label: 'Adresa', value: customer.address!.trim()),
               ],
               const SizedBox(height: AppSpacing.xl),
               Material(
@@ -216,6 +194,8 @@ class _OrderDetailSheetBody extends StatelessWidget {
       ],
     );
   }
+
+  bool _hasText(String? value) => value != null && value.trim().isNotEmpty;
 }
 
 class _InfoRow extends StatelessWidget {
@@ -257,17 +237,25 @@ class _TotalRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = emphasized ? AppTextStyles.price : AppTextStyles.body;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: style.copyWith(fontSize: emphasized ? 16 : 14)),
+          Text(
+            label,
+            style: emphasized
+                ? AppTextStyles.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  )
+                : AppTextStyles.body.copyWith(fontSize: 14),
+          ),
           Text(
             value,
-            style: style.copyWith(
-              fontSize: emphasized ? 16 : 14,
+            style: AppTextStyles.price.copyWith(
+              fontSize: emphasized ? 17 : 14,
+              fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
               color: emphasized ? AppColors.burgundy : AppColors.textPrimary,
             ),
           ),

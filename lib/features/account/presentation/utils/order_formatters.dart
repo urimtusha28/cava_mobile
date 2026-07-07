@@ -13,35 +13,55 @@ String formatOrderTotal(double total) {
 }
 
 String formatOrderStatus(String status) {
-  switch (status.toLowerCase()) {
+  switch (status.toLowerCase().trim()) {
+    case 'open':
+      return 'E hapur';
     case 'pending':
       return 'Në pritje';
     case 'processing':
-      return 'Duke u përpunuar';
+      return 'Në përpunim';
     case 'shipped':
     case 'in_transit':
       return 'Në rrugëtim';
     case 'delivered':
     case 'completed':
-      return 'Përfunduar';
+      return 'E dorëzuar';
     case 'cancelled':
-      return 'Anuluar';
+    case 'canceled':
+      return 'E anuluar';
     default:
-      return status;
+      return formatUnknownLabel(status);
   }
 }
 
 String formatPaymentStatus(String status) {
-  switch (status.toLowerCase()) {
+  switch (status.toLowerCase().trim()) {
     case 'paid':
       return 'E paguar';
+    case 'unpaid':
+      return 'E papaguar';
     case 'pending':
       return 'Në pritje';
     case 'failed':
-      return 'Dështoi';
+      return 'Dështuar';
     case 'refunded':
       return 'E rimbursuar';
     default:
-      return status.isEmpty ? '—' : status;
+      return status.isEmpty ? '—' : formatUnknownLabel(status);
   }
+}
+
+String formatUnknownLabel(String value) {
+  final cleaned = value.replaceAll('_', ' ').replaceAll('-', ' ').trim();
+  if (cleaned.isEmpty) {
+    return '—';
+  }
+  return cleaned
+      .split(RegExp(r'\s+'))
+      .map(
+        (word) => word.isEmpty
+            ? word
+            : '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}',
+      )
+      .join(' ');
 }

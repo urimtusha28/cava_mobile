@@ -107,12 +107,22 @@ abstract final class OrderMapper {
     final lineTotal = _parseDoubleOptional(
       item['total'] ?? item['lineTotal'] ?? item['line_total'],
     );
+    final imageUrl = _readString(item, [
+      'imageUrl',
+      'imageURL',
+      'image',
+      'thumbnail',
+      'photoUrl',
+    ]);
+    final productId = _readString(item, ['productId', 'product_id']);
 
     return OrderItemEntity(
       name: name,
       quantity: quantity,
       price: price,
       lineTotal: lineTotal ?? price * quantity,
+      imageUrl: imageUrl,
+      productId: productId,
     );
   }
 

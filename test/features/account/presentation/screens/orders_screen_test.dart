@@ -45,6 +45,7 @@ void main() {
           quantity: 1,
           price: 8.5,
           lineTotal: 8.5,
+          imageUrl: 'https://example.com/wine.jpg',
         ),
       ],
       totals: OrderTotalsEntity(total: 8.5, subtotal: 8.5),
@@ -74,7 +75,7 @@ void main() {
 
     expect(find.text('Detajet e porosisë'), findsOneWidget);
     expect(find.text('#CP-100'), findsOneWidget);
-    expect(find.text('Përfunduar'), findsOneWidget);
+    expect(find.text('E dorëzuar'), findsOneWidget);
     expect(find.text('E paguar'), findsOneWidget);
     expect(find.text('8,50 €'), findsWidgets);
     expect(find.text('Mbyll'), findsOneWidget);
