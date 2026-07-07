@@ -9,6 +9,7 @@ import '../router/app_routes.dart';
 import '../utils/formatters.dart';
 import '../../features/products/domain/entities/product_entity.dart';
 import 'product_image_view.dart';
+import 'product_wishlist_toggle.dart';
 
 class ProductGridCard extends StatelessWidget {
   const ProductGridCard({
@@ -139,26 +140,30 @@ class ProductGridCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         const Spacer(),
-        Align(
-          alignment: Alignment.bottomRight,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                Formatters.currency(product.price),
-                style: AppTextStyles.price.copyWith(fontSize: 15),
-              ),
-              if (product.oldPrice != null)
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            ProductWishlistToggle(product: product),
+            const Spacer(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 Text(
-                  Formatters.currency(product.oldPrice!),
-                  style: AppTextStyles.caption.copyWith(
-                    decoration: TextDecoration.lineThrough,
-                    fontSize: 10,
-                  ),
+                  Formatters.currency(product.price),
+                  style: AppTextStyles.price.copyWith(fontSize: 15),
                 ),
-            ],
-          ),
+                if (product.oldPrice != null)
+                  Text(
+                    Formatters.currency(product.oldPrice!),
+                    style: AppTextStyles.caption.copyWith(
+                      decoration: TextDecoration.lineThrough,
+                      fontSize: 10,
+                    ),
+                  ),
+              ],
+            ),
+          ],
         ),
       ],
     );

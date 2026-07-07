@@ -5,6 +5,7 @@ import '../../../../core/state/wishlist_state_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
+import '../../../../core/widgets/product_image_view.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
@@ -51,7 +52,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                   body: products.isEmpty
                       ? Center(
                           child: Text(
-                            'Wishlist është bosh',
+                            'Wishlist është bosh.',
                             style: AppTextStyles.bodySmall,
                           ),
                         )
@@ -97,6 +98,11 @@ class _WishlistItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = Color(product.placeholderColor ?? 0xFF6B1D2A);
+    final placeholder = Icon(
+      Icons.wine_bar_outlined,
+      color: color.withValues(alpha: 0.45),
+      size: 32,
+    );
 
     return Material(
       color: AppColors.surface,
@@ -121,10 +127,14 @@ class _WishlistItemCard extends StatelessWidget {
                     color: color.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
-                  child: Icon(
-                    Icons.wine_bar_outlined,
-                    color: color.withValues(alpha: 0.45),
-                    size: 32,
+                  clipBehavior: Clip.antiAlias,
+                  child: ProductImageView(
+                    imageUrl: product.imageUrl,
+                    width: 56,
+                    height: 72,
+                    fit: BoxFit.cover,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    placeholder: Center(child: placeholder),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.md),

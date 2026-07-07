@@ -53,7 +53,7 @@ import '../../features/products/domain/usecases/get_products_by_category.dart';
 import '../../features/products/domain/usecases/get_recommended_products.dart';
 import '../../features/products/presentation/controllers/product_detail_controller.dart';
 import '../../features/wishlist/data/datasources/wishlist_data_source.dart';
-import '../../features/wishlist/data/datasources/wishlist_mock_datasource.dart';
+import '../../features/wishlist/data/datasources/wishlist_local_datasource.dart';
 import '../../features/wishlist/data/repositories/wishlist_repository_impl.dart';
 import '../../features/wishlist/domain/repositories/wishlist_repository.dart';
 import '../../features/wishlist/domain/usecases/get_wishlist_count.dart';
@@ -65,6 +65,7 @@ import '../../features/wishlist/presentation/controllers/wishlist_controller.dar
 import '../state/auth_state_notifier.dart';
 import '../state/cart_state_notifier.dart';
 import '../state/wishlist_state_notifier.dart';
+import '../../features/wishlist/data/local/local_wishlist_store.dart';
 
 /// Global service locator.
 final GetIt sl = GetIt.instance;
@@ -155,7 +156,7 @@ void _registerWishlist() {
   }
 
   sl.registerLazySingleton<WishlistDataSource>(
-    () => const WishlistMockDataSource(),
+    () => const WishlistLocalDataSource(),
   );
   sl.registerLazySingleton<WishlistRepository>(
     () => WishlistRepositoryImpl(sl<WishlistDataSource>()),
@@ -309,6 +310,7 @@ Future<void> resetDependencies() async {
   _dependenciesConfigured = false;
   CartStateNotifier.reset();
   WishlistStateNotifier.reset();
+  LocalWishlistStore.clear();
   AuthStateNotifier.reset();
 }
 
