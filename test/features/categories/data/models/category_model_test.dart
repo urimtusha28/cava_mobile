@@ -11,9 +11,29 @@ void main() {
       expect(model.emoji, testCategoryEntity.emoji);
     });
 
-    test('fromJson and toJson round-trip', () {
+    test('legacy fromJson round-trips core fields', () {
       final model = CategoryModel.fromJson(testCategoryJson);
-      expect(model.toJson(), testCategoryJson);
+      expect(model.id, 'wines');
+      expect(model.label, 'Verërat');
+    });
+
+    group('web schema fromJson', () {
+      test('parses web Firebase category fields', () {
+        final model = CategoryModel.fromJson(testWebCategoryJson);
+        expect(model.id, 'cat-wines');
+        expect(model.name, 'Wines');
+        expect(model.slug, 'wines');
+        expect(model.type, 'main');
+        expect(model.order, 1);
+        expect(model.isActive, isTrue);
+        expect(model.isMainCategory, isTrue);
+      });
+
+      test('parses subcategory fields', () {
+        final model = CategoryModel.fromJson(testWebSubcategoryJson);
+        expect(model.isSubCategory, isTrue);
+        expect(model.parentId, 'cat-wines');
+      });
     });
   });
 }

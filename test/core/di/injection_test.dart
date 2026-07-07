@@ -10,6 +10,8 @@ import 'package:cava_ecommerce/features/categories/domain/repositories/category_
 import 'package:cava_ecommerce/features/home/data/repositories/home_repository_impl.dart';
 import 'package:cava_ecommerce/features/home/domain/repositories/home_repository.dart';
 import 'package:cava_ecommerce/features/home/presentation/controllers/home_controller.dart';
+import 'package:cava_ecommerce/features/categories/data/datasources/category_data_source.dart';
+import 'package:cava_ecommerce/features/categories/data/datasources/category_mock_datasource.dart';
 import 'package:cava_ecommerce/features/products/data/datasources/product_data_source.dart';
 import 'package:cava_ecommerce/features/products/data/datasources/product_mock_datasource.dart';
 import 'package:cava_ecommerce/features/products/data/repositories/product_repository_impl.dart';
@@ -28,12 +30,15 @@ void main() {
     test('registers ProductMockDataSource in tests via override', () async {
       await setUpTestDependencies();
       expect(sl<ProductDataSource>(), isA<ProductMockDataSource>());
+      expect(sl<CategoryDataSource>(), isA<CategoryMockDataSource>());
     });
 
-    test('Firebase flags enable Firestore products in DI wiring', () {
+    test('Firebase flags enable Firestore products and categories in DI', () {
       expect(FirebaseConfig.enabled, isTrue);
       expect(FirebaseConfig.useFirestoreProducts, isTrue);
+      expect(FirebaseConfig.useFirestoreCategories, isTrue);
       expect(FirebaseConfig.fallbackToMockProductsOnError, isFalse);
+      expect(FirebaseConfig.fallbackToMockCategoriesOnError, isFalse);
     });
 
     test('registers datasources as LazySingleton', () async {

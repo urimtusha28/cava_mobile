@@ -80,15 +80,17 @@ class ProductFirestoreDataSource implements ProductDataSource {
       operation: 'getProductsByCategory',
       request: () async {
         final snapshot = await _collection.get();
-        final normalized = category.toLowerCase();
         return _mapActiveDocuments(
           snapshot.docs.where((doc) {
             final docCategory = doc.data()['category'] as String?;
             if (docCategory == null) {
               return false;
             }
+            final normalizedCategory = category.toLowerCase();
             return docCategory == category ||
-                ProductModel.categorySlug(docCategory) == normalized;
+                docCategory.toLowerCase() == normalizedCategory ||
+                ProductModel.categorySlug(docCategory) ==
+                    ProductModel.categorySlug(category);
           }).toList(growable: false),
         );
       },

@@ -8,6 +8,12 @@ abstract final class FirebaseConfig {
   /// When `true` together with [enabled], products load from Firestore.
   static const bool useFirestoreProducts = true;
 
+  /// When `true` together with [enabled], categories load from Firestore.
+  static const bool useFirestoreCategories = true;
+
+  /// When `true`, Firestore category errors fall back to [CategoryMockDataSource].
+  static const bool fallbackToMockCategoriesOnError = false;
+
   /// When `true`, Firestore errors fall back to [ProductMockDataSource].
   static const bool fallbackToMockProductsOnError = false;
 

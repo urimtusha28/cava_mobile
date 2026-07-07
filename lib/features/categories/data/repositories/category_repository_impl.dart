@@ -11,21 +11,21 @@ class CategoryRepositoryImpl implements CategoryRepository {
   final CategoryDataSource _dataSource;
 
   @override
-  Future<List<CategoryEntity>> getAll() => Future.sync(() {
-        return CategoryMapper.toEntityList(_dataSource.getAllCategories());
-      });
+  Future<List<CategoryEntity>> getAll() async {
+    final models = await _dataSource.getAllCategories();
+    return CategoryMapper.toEntityList(models);
+  }
 
   @override
-  Future<CategoryEntity?> getById(String id) => Future.sync(() {
-        final model = _dataSource.getCategoryById(id);
-        return model == null ? null : CategoryMapper.toEntity(model);
-      });
+  Future<CategoryEntity?> getById(String id) async {
+    final model = await _dataSource.getCategoryById(id);
+    return model == null ? null : CategoryMapper.toEntity(model);
+  }
 
   @override
-  Future<List<SubcategoryEntity>> getSubcategories(String categoryId) =>
-      Future.sync(() {
-        return SubcategoryMapper.toEntityList(
-          _dataSource.getSubcategories(categoryId),
-        );
-      });
+  Future<List<SubcategoryEntity>> getSubcategories(String categoryId) async {
+    return SubcategoryMapper.toEntityList(
+      await _dataSource.getSubcategories(categoryId),
+    );
+  }
 }

@@ -24,6 +24,7 @@ import '../../features/cart/domain/usecases/remove_from_cart.dart';
 import '../../features/cart/domain/usecases/update_cart_quantity.dart';
 import '../../features/cart/presentation/controllers/cart_controller.dart';
 import '../../features/categories/data/datasources/category_data_source.dart';
+import '../../features/categories/data/datasources/category_firestore_datasource.dart';
 import '../../features/categories/data/datasources/category_mock_datasource.dart';
 import '../../features/categories/data/repositories/category_repository_impl.dart';
 import '../../features/categories/domain/repositories/category_repository.dart';
@@ -113,12 +114,17 @@ void _registerCategories() {
     return;
   }
 
-  sl.registerLazySingleton<CategoryDataSource>(
-    () => const CategoryMockDataSource(),
-  );
+  sl.registerLazySingleton<CategoryDataSource>(_createCategoryDataSource);
   sl.registerLazySingleton<CategoryRepository>(
     () => CategoryRepositoryImpl(sl<CategoryDataSource>()),
   );
+}
+
+CategoryDataSource _createCategoryDataSource() {
+  if (FirebaseConfig.enabled && FirebaseConfig.useFirestoreCategories) {
+    return CategoryFirestoreDataSource(FirebaseFirestore.instance);
+  }
+  return const CategoryMockDataSource();
 }
 
 void _registerHome() {

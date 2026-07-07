@@ -44,8 +44,11 @@ class CategoryProductsController extends BaseController {
         _getCategoryById(categoryId),
         fallback: null,
       );
+
+      final productCategoryKey = category?.name ?? categoryId;
+
       products = await unwrapFutureResult(
-        _getProductsByCategory(categoryId),
+        _getProductsByCategory(productCategoryKey),
         fallback: const [],
       );
       subcategories = await unwrapFutureResult(

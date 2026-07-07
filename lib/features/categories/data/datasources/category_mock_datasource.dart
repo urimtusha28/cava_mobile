@@ -13,13 +13,13 @@ class CategoryMockDataSource implements CategoryDataSource {
       .toList(growable: false);
 
   @override
-  List<CategoryModel> getAllCategories() =>
+  Future<List<CategoryModel>> getAllCategories() async =>
       List<CategoryModel>.from(_categories);
 
   @override
-  CategoryModel? getCategoryById(String id) {
+  Future<CategoryModel?> getCategoryById(String id) async {
     for (final model in _categories) {
-      if (model.id == id) {
+      if (model.id == id || model.slug == id) {
         return model;
       }
     }
@@ -27,7 +27,7 @@ class CategoryMockDataSource implements CategoryDataSource {
   }
 
   @override
-  List<SubcategoryModel> getSubcategories(String categoryId) {
+  Future<List<SubcategoryModel>> getSubcategories(String categoryId) async {
     return MockSubcategories.forCategory(categoryId)
         .map(SubcategoryModel.fromEntity)
         .toList(growable: false);

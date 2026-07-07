@@ -16,19 +16,22 @@ void main() {
   });
 
   test('getAll returns mapped categories', () async {
-    when(() => dataSource.getAllCategories()).thenReturn([testCategoryModel]);
+    when(() => dataSource.getAllCategories())
+        .thenAnswer((_) async => [testCategoryModel]);
     final result = await repository.getAll();
     expect(result.first.id, 'wines');
   });
 
   test('getById returns null when missing', () async {
-    when(() => dataSource.getCategoryById('x')).thenReturn(null);
+    when(() => dataSource.getCategoryById('x'))
+        .thenAnswer((_) async => null);
     expect(await repository.getById('x'), isNull);
   });
 
   test('getSubcategories maps models', () async {
     const model = SubcategoryModel(id: 'red', label: 'Red Wine');
-    when(() => dataSource.getSubcategories('wines')).thenReturn([model]);
+    when(() => dataSource.getSubcategories('wines'))
+        .thenAnswer((_) async => [model]);
     final result = await repository.getSubcategories('wines');
     expect(result.first.label, 'Red Wine');
   });

@@ -148,4 +148,35 @@ Map<String, dynamic> get testWebHiddenProductJson => {
 
 Map<String, dynamic> get testCategoryJson => testCategoryModel.toJson();
 
+/// Sample web Firebase `categories` document.
+Map<String, dynamic> get testWebCategoryJson => {
+      'id': 'cat-wines',
+      'name': 'Wines',
+      'slug': 'wines',
+      'parentId': null,
+      'type': 'main',
+      'order': 1,
+      'isActive': true,
+      'badgeColor': '#6B1D2A',
+    };
+
+Map<String, dynamic> get testWebSubcategoryJson => {
+      'id': 'cat-red',
+      'name': 'Red Wine',
+      'slug': 'red-wine',
+      'parentId': 'cat-wines',
+      'type': 'sub',
+      'order': 1,
+      'isActive': true,
+      'badgeColor': '#6B1D2A',
+    };
+
+Map<String, dynamic> get testWebInactiveCategoryJson => {
+      ...testWebCategoryJson,
+      'id': 'cat-inactive',
+      'slug': 'inactive',
+      'name': 'Inactive',
+      'isActive': false,
+    };
+
 Map<String, dynamic> get testHomeSectionJson => testHomeSectionModel.toJson();

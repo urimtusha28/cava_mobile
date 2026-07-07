@@ -49,10 +49,10 @@ void main() {
     expect(controller.subcategories.first.id, 'all');
   });
 
-  test('load category products for specific id', () async {
+    test('load category products for specific id', () async {
     when(() => getCategoryById('wines'))
         .thenAnswer((_) async => Success(testCategoryEntity));
-    when(() => getProductsByCategory('wines'))
+    when(() => getProductsByCategory('Wines'))
         .thenAnswer((_) async => Success([testProductEntity]));
     when(() => getSubcategories('wines'))
         .thenAnswer((_) async => Success([testSubcategoryEntity]));

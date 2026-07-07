@@ -3,10 +3,12 @@ import '../models/category_model.dart';
 
 abstract final class CategoryMapper {
   static CategoryEntity toEntity(CategoryModel model) {
+    final routeId =
+        model.slug.isNotEmpty ? model.slug : model.id;
     return CategoryEntity(
-      id: model.id,
+      id: routeId,
       name: model.name,
-      label: model.label,
+      label: model.label.isNotEmpty ? model.label : model.name,
       emoji: model.emoji,
     );
   }
