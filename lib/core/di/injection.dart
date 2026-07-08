@@ -33,6 +33,13 @@ import '../../features/account/domain/usecases/logout.dart';
 import '../../features/account/domain/usecases/register.dart';
 import '../../features/account/presentation/controllers/addresses_controller.dart';
 import '../../features/account/presentation/controllers/auth_controller.dart';
+import '../../features/account/data/datasources/user_profile_data_source.dart';
+import '../../features/account/data/datasources/user_profile_firebase_datasource.dart';
+import '../../features/account/data/datasources/user_profile_mock_datasource.dart';
+import '../../features/account/data/repositories/user_profile_repository_impl.dart';
+import '../../features/account/domain/repositories/user_profile_repository.dart';
+import '../../features/account/domain/usecases/user_profile_usecases.dart';
+import '../../features/account/presentation/controllers/profile_controller.dart';
 import '../../features/account/presentation/controllers/orders_controller.dart';
 import '../../features/cart/data/datasources/cart_firestore_datasource.dart';
 import '../../features/cart/data/datasources/cart_local_datasource.dart';
@@ -118,6 +125,7 @@ void configureDependencies() {
   _registerCategories();
   _registerHome();
   _registerAuth();
+  _registerUserProfile();
   _registerCart();
   _registerOrders();
   _registerAddresses();
@@ -253,6 +261,34 @@ AuthDataSource _createAuthDataSource() {
     );
   }
   return const AuthMockDataSource();
+}
+
+void _registerUserProfile({FirebaseFirestore? firestoreOverride}) {
+  if (sl.isRegistered<UserProfileRepository>()) {
+    return;
+  }
+
+  sl.registerLazySingleton<UserProfileDataSource>(
+    () => _createUserProfileDataSource(firestoreOverride: firestoreOverride),
+  );
+  sl.registerLazySingleton<UserProfileRepository>(
+    () => UserProfileRepositoryImpl(
+      sl<UserProfileDataSource>(),
+      sl<AuthRepository>(),
+    ),
+  );
+}
+
+UserProfileDataSource _createUserProfileDataSource({
+  FirebaseFirestore? firestoreOverride,
+}) {
+  if (firestoreOverride != null) {
+    return UserProfileFirebaseDataSource(firestoreOverride);
+  }
+  if (FirebaseConfig.enabled && FirebaseConfig.useFirebaseAuth) {
+    return UserProfileFirebaseDataSource(FirebaseFirestore.instance);
+  }
+  return UserProfileMockDataSource();
 }
 
 void _registerOrders() {
@@ -433,6 +469,17 @@ void _registerUseCases() {
   );
   sl.registerFactory<LogoutUseCase>(() => LogoutUseCase(sl<AuthRepository>()));
 
+  // User profile
+  sl.registerFactory<GetCurrentProfileUseCase>(
+    () => GetCurrentProfileUseCase(sl<UserProfileRepository>()),
+  );
+  sl.registerFactory<UpdateProfileUseCase>(
+    () => UpdateProfileUseCase(sl<UserProfileRepository>()),
+  );
+  sl.registerFactory<EnsureUserDocExistsUseCase>(
+    () => EnsureUserDocExistsUseCase(sl<UserProfileRepository>()),
+  );
+
   // Orders & Addresses
   sl.registerFactory<GetMyOrdersUseCase>(
     () => GetMyOrdersUseCase(sl<OrdersRepository>()),
@@ -489,6 +536,9 @@ void _registerControllers() {
   sl.registerFactory<AuthController>(
     () => AuthController(sl(), sl(), sl(), sl(), sl(), sl()),
   );
+  sl.registerFactory<ProfileController>(
+    () => ProfileController(sl(), sl(), sl(), sl()),
+  );
   sl.registerFactory<OrdersController>(
     () => OrdersController(sl(), sl()),
   );
@@ -519,6 +569,15 @@ Future<void> resetDependencies() async {
     } catch (_) {
       // Cart datasource not instantiated yet.
     }
+  }
+
+  if (sl.isRegistered<UserProfileDataSource>()) {
+    try {
+      final ds = sl<UserProfileDataSource>();
+      if (ds is UserProfileMockDataSource) {
+        ds.resetForTests();
+      }
+    } catch (_) {}
   }
 
   if (sl.isRegistered<WishlistLocalDataSource>()) {
@@ -562,8 +621,10 @@ Future<void> configureTestDependencies({
   OrdersDataSource? ordersDataSource,
   AddressesDataSource? addressesDataSource,
   CheckoutDataSource? checkoutDataSource,
+  UserProfileDataSource? userProfileDataSource,
   FirebaseFirestore? cartFirestore,
   FirebaseFirestore? wishlistFirestore,
+  FirebaseFirestore? userProfileFirestore,
 }) async {
   await resetDependencies();
 
@@ -603,6 +664,29 @@ Future<void> configureTestDependencies({
     sl.registerLazySingleton<AuthDataSource>(() => const AuthMockDataSource());
     sl.registerLazySingleton<AuthRepository>(
       () => AuthRepositoryImpl(sl<AuthDataSource>()),
+    );
+  }
+
+  if (userProfileDataSource != null) {
+    sl.registerLazySingleton<UserProfileDataSource>(() => userProfileDataSource);
+    sl.registerLazySingleton<UserProfileRepository>(
+      () => UserProfileRepositoryImpl(
+        sl<UserProfileDataSource>(),
+        sl<AuthRepository>(),
+      ),
+    );
+  } else if (userProfileFirestore != null) {
+    _registerUserProfile(firestoreOverride: userProfileFirestore);
+  } else {
+    // Tests default to mock — avoid FirebaseFirestore.instance without Firebase.initializeApp.
+    sl.registerLazySingleton<UserProfileDataSource>(
+      () => UserProfileMockDataSource(),
+    );
+    sl.registerLazySingleton<UserProfileRepository>(
+      () => UserProfileRepositoryImpl(
+        sl<UserProfileDataSource>(),
+        sl<AuthRepository>(),
+      ),
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/firebase/firebase_config.dart';
 import '../../domain/entities/auth_user_entity.dart';
+import '../../domain/utils/user_profile_name_splitter.dart';
 import '../firebase/firebase_auth_gateway.dart';
 import '../utils/auth_exception_mapper.dart';
 import 'auth_data_source.dart';
@@ -111,9 +112,18 @@ class AuthFirebaseDataSource implements AuthDataSource {
         .collection(FirebaseConfig.usersCollection)
         .doc(user.uid);
     final existing = await ref.get();
+
+    final split = _splitName(name ?? user.displayName);
+    final resolvedName = (name?.trim().isNotEmpty == true)
+        ? name!.trim()
+        : UserProfileNameSplitter.combine(split.$1, split.$2);
+
     final data = <String, dynamic>{
       'email': user.email,
-      'name': name ?? user.displayName ?? '',
+      'name': resolvedName,
+      'firstName': split.$1,
+      'lastName': split.$2,
+      'phone': null,
       'status': 'active',
       'updatedAt': FieldValue.serverTimestamp(),
     };
@@ -124,6 +134,10 @@ class AuthFirebaseDataSource implements AuthDataSource {
     }
 
     await ref.set(data, SetOptions(merge: true));
+  }
+
+  (String, String) _splitName(String? name) {
+    return UserProfileNameSplitter.split(name);
   }
 
   AuthUserEntity? _mapUser(User? user) {

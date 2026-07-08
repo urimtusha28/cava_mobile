@@ -99,6 +99,9 @@ void main() {
     expect(doc.exists, isTrue);
     expect(doc.data()?['email'], 'user@cava.test');
     expect(doc.data()?['name'], 'Urim');
+    expect(doc.data()?['firstName'], 'Urim');
+    expect(doc.data()?['lastName'], '');
+    expect(doc.data()?['phone'], isNull);
     expect(doc.data()?['role'], 'client');
     expect(doc.data()?['status'], 'active');
   });

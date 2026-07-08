@@ -9,8 +9,9 @@ import '../../../../core/widgets/cava_app_bar.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
-import '../controllers/auth_controller.dart';
+import '../controllers/profile_controller.dart';
 import '../widgets/auth_bottom_sheet.dart';
+import '../widgets/edit_profile_bottom_sheet.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -20,14 +21,58 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late final AuthController _controller;
+  late final ProfileController _controller;
   late final Future<void> _loadFuture;
 
   @override
   void initState() {
     super.initState();
-    _controller = createAuthController();
+    _controller = createProfileController();
     _loadFuture = _controller.load();
+  }
+
+  Future<void> _handleLoginTap() async {
+    if (FirebaseConfig.enabled && FirebaseConfig.useFirebaseAuth) {
+      await showAuthBottomSheet(
+        context: context,
+        controller: _controller.authController,
+      );
+      await _controller.refreshAfterAuth();
+    } else {
+      await _controller.authController.login();
+      await _controller.refreshAfterAuth();
+    }
+  }
+
+  Future<void> _onEditProfile() async {
+    final saved = await openEditProfileSheet(
+      context: context,
+      controller: _controller,
+    );
+    if (!mounted) return;
+    if (saved) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Profili u përditësua.',
+            style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
+          ),
+          backgroundColor: AppColors.burgundy,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else if (_controller.saveError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Profili nuk u përditësua. Provo përsëri.',
+            style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
+          ),
+          backgroundColor: AppColors.burgundy,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
@@ -41,6 +86,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             return ListenableBuilder(
               listenable: _controller,
               builder: (context, _) {
+                final loggedIn = isLoggedIn || _controller.isLoggedIn;
+                final phone = _controller.phone;
+
                 return Scaffold(
                   backgroundColor: AppColors.background,
                   appBar: const CavaAppBar(title: 'Profili'),
@@ -48,21 +96,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     padding: const EdgeInsets.all(AppSpacing.screen),
                     children: [
                       _ProfileHeader(
-                        isLoggedIn: isLoggedIn,
-                        userName: _controller.userName,
-                        onLoginTap: () {
-                          if (FirebaseConfig.enabled &&
-                              FirebaseConfig.useFirebaseAuth) {
-                            showAuthBottomSheet(
-                              context: context,
-                              controller: _controller,
-                            );
-                          } else {
-                            _controller.login();
-                          }
-                        },
+                        isLoggedIn: loggedIn,
+                        userName: _controller.displayName,
+                        email: loggedIn ? _controller.email : null,
+                        phone: loggedIn ? phone : null,
+                        onLoginTap: _handleLoginTap,
                       ),
                       const SizedBox(height: AppSpacing.xxl),
+                      if (loggedIn)
+                        _Tile(
+                          icon: Icons.edit_outlined,
+                          title: 'Edito profilin',
+                          onTap: _onEditProfile,
+                        ),
                       _Tile(
                         icon: Icons.shopping_bag_outlined,
                         title: 'Porositë e mia',
@@ -98,7 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         title: 'Politika e privatësisë',
                         onTap: () => context.push(AppRoutes.privacy),
                       ),
-                      if (isLoggedIn)
+                      if (loggedIn)
                         _Tile(
                           icon: Icons.logout,
                           title: 'Dil',
@@ -121,10 +167,14 @@ class _ProfileHeader extends StatelessWidget {
     required this.isLoggedIn,
     required this.userName,
     required this.onLoginTap,
+    this.email,
+    this.phone,
   });
 
   final bool isLoggedIn;
   final String userName;
+  final String? email;
+  final String? phone;
   final VoidCallback onLoginTap;
 
   @override
@@ -147,15 +197,44 @@ class _ProfileHeader extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.lg),
             Expanded(
-              child: Text(
-                isLoggedIn ? userName : 'Kyçu',
-                style: AppTextStyles.h2.copyWith(
-                  color: isLoggedIn ? AppColors.textPrimary : AppColors.burgundy,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isLoggedIn ? userName : 'Kyçu',
+                    style: AppTextStyles.h2.copyWith(
+                      color: isLoggedIn
+                          ? AppColors.textPrimary
+                          : AppColors.burgundy,
+                    ),
+                  ),
+                  if (isLoggedIn && email != null && email!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      email!,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                  if (isLoggedIn && phone != null && phone!.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      phone!,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
             if (!isLoggedIn)
-              const Icon(Icons.chevron_right, color: AppColors.textMuted, size: 22),
+              const Icon(
+                Icons.chevron_right,
+                color: AppColors.textMuted,
+                size: 22,
+              ),
           ],
         ),
       ),
