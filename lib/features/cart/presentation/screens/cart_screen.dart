@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/checkout_screen_header.dart';
+import '../../../../core/widgets/product_image_view.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
@@ -144,6 +145,11 @@ class _CartItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = item.product;
     final color = Color(product.placeholderColor ?? 0xFF6B1D2A);
+    final placeholder = Icon(
+      Icons.wine_bar_outlined,
+      color: color.withValues(alpha: 0.45),
+      size: 32,
+    );
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -163,10 +169,14 @@ class _CartItemCard extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.7),
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
-            child: Icon(
-              Icons.wine_bar_outlined,
-              color: color.withValues(alpha: 0.45),
-              size: 32,
+            clipBehavior: Clip.antiAlias,
+            child: ProductImageView(
+              imageUrl: product.imageUrl,
+              width: 56,
+              height: 72,
+              fit: BoxFit.cover,
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              placeholder: Center(child: placeholder),
             ),
           ),
           const SizedBox(width: AppSpacing.md),
@@ -220,7 +230,7 @@ class _CartItemCard extends StatelessWidget {
               ),
             ],
           ),
-        ],
+          ],
         ),
       ),
     );
