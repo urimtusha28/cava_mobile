@@ -17,6 +17,7 @@ Future<void> setUpTestDependencies({
     categoryDataSource: const CategoryMockDataSource(),
     checkoutDataSource: checkoutDataSource,
     wishlistFirestore: FakeFirebaseFirestore(),
+    cartFirestore: FakeFirebaseFirestore(),
   );
 }
 

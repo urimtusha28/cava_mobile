@@ -38,6 +38,7 @@ abstract final class FirebaseConfig {
   static const String usersCollection = 'users';
   static const String addressesSubcollection = 'addresses';
   static const String wishlistSubcollection = 'wishlist';
+  static const String cartSubcollection = 'cart';
 
   // Firebase Storage paths
   static const String productImagesPath = 'products';

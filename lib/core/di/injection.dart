@@ -34,7 +34,7 @@ import '../../features/account/domain/usecases/register.dart';
 import '../../features/account/presentation/controllers/addresses_controller.dart';
 import '../../features/account/presentation/controllers/auth_controller.dart';
 import '../../features/account/presentation/controllers/orders_controller.dart';
-import '../../features/cart/data/datasources/cart_data_source.dart';
+import '../../features/cart/data/datasources/cart_firestore_datasource.dart';
 import '../../features/cart/data/datasources/cart_local_datasource.dart';
 import '../../features/cart/data/local/cart_local_storage.dart';
 import '../../features/cart/data/repositories/cart_repository_impl.dart';
@@ -115,8 +115,8 @@ void configureDependencies() {
   _registerProducts();
   _registerCategories();
   _registerHome();
-  _registerCart();
   _registerAuth();
+  _registerCart();
   _registerOrders();
   _registerAddresses();
   _registerCheckout();
@@ -176,20 +176,31 @@ void _registerHome() {
   );
 }
 
-void _registerCart() {
+void _registerCart({FirebaseFirestore? firestoreOverride}) {
   if (sl.isRegistered<CartRepository>()) {
     return;
   }
 
   sl.registerLazySingleton<CartLocalStorage>(() => CartLocalStorage());
-  sl.registerLazySingleton<CartDataSource>(
+  sl.registerLazySingleton<CartLocalDataSource>(
     () => CartLocalDataSource(
       sl<CartLocalStorage>(),
       sl<ProductRepository>(),
     ),
   );
+  sl.registerLazySingleton<CartFirestoreDataSource>(
+    () => CartFirestoreDataSource(
+      firestoreOverride ?? FirebaseFirestore.instance,
+      sl<AuthRepository>(),
+      sl<ProductRepository>(),
+    ),
+  );
   sl.registerLazySingleton<CartRepository>(
-    () => CartRepositoryImpl(sl<CartDataSource>()),
+    () => CartRepositoryImpl(
+      sl<CartLocalDataSource>(),
+      sl<CartFirestoreDataSource>(),
+      sl<AuthRepository>(),
+    ),
   );
 }
 
@@ -491,14 +502,11 @@ void _registerControllers() {
 
 /// Resets all registrations and ephemeral global state — use in test tearDown.
 Future<void> resetDependencies() async {
-  if (sl.isRegistered<CartDataSource>()) {
+  if (sl.isRegistered<CartLocalDataSource>()) {
     try {
-      final cartDataSource = sl<CartDataSource>();
-      if (cartDataSource is CartLocalDataSource) {
-        cartDataSource.resetForTests();
-      }
+      sl<CartLocalDataSource>().resetForTests();
     } catch (_) {
-      // Cart datasource not instantiated yet or dependencies unavailable.
+      // Cart datasource not instantiated yet.
     }
   }
 
@@ -538,12 +546,12 @@ Future<void> configureTestDependencies({
   ProductDataSource? productDataSource,
   CategoryDataSource? categoryDataSource,
   HomeDataSource? homeDataSource,
-  CartDataSource? cartDataSource,
   WishlistDataSource? wishlistDataSource,
   AuthDataSource? authDataSource,
   OrdersDataSource? ordersDataSource,
   AddressesDataSource? addressesDataSource,
   CheckoutDataSource? checkoutDataSource,
+  FirebaseFirestore? cartFirestore,
   FirebaseFirestore? wishlistFirestore,
 }) async {
   await resetDependencies();
@@ -575,15 +583,6 @@ Future<void> configureTestDependencies({
     _registerHome();
   }
 
-  if (cartDataSource != null) {
-    sl.registerLazySingleton<CartDataSource>(() => cartDataSource);
-    sl.registerLazySingleton<CartRepository>(
-      () => CartRepositoryImpl(sl<CartDataSource>()),
-    );
-  } else {
-    _registerCart();
-  }
-
   if (authDataSource != null) {
     sl.registerLazySingleton<AuthDataSource>(() => authDataSource);
     sl.registerLazySingleton<AuthRepository>(
@@ -595,6 +594,8 @@ Future<void> configureTestDependencies({
       () => AuthRepositoryImpl(sl<AuthDataSource>()),
     );
   }
+
+  _registerCart(firestoreOverride: cartFirestore);
 
   if (wishlistDataSource != null) {
     sl.registerLazySingleton<WishlistGuestStorage>(() => WishlistGuestStorage());

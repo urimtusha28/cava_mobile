@@ -180,6 +180,32 @@ class CartLocalDataSource implements CartDataSource {
     await _storage.writeItems(stored);
   }
 
+  Future<void> clearAll() async {
+    _items.clear();
+    _metadataByProductId.clear();
+    _isHydrated = true;
+    await _storage.clear();
+  }
+
+  Future<List<StoredCartItemModel>> readStoredEntries() async {
+    if (_isHydrated) {
+      return _items
+          .map((item) {
+            final meta = _metadataByProductId[item.product.id];
+            return StoredCartItemModel(
+              productId: item.product.id,
+              quantity: item.quantity,
+              selectedVariant: meta?.selectedVariant,
+              addedAt: meta?.addedAt ??
+                  DateTime.now().toUtc().toIso8601String(),
+            );
+          })
+          .toList(growable: false);
+    }
+
+    return _storage.readItems();
+  }
+
   /// Test helper — resets hydration and in-memory state.
   void resetForTests() {
     _items.clear();

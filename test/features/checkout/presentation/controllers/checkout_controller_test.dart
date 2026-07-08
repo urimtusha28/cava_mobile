@@ -1,3 +1,4 @@
+import 'package:cava_ecommerce/core/firebase/firebase_config.dart';
 import 'package:cava_ecommerce/core/di/injection.dart';
 import 'package:cava_ecommerce/core/error/failures.dart';
 import 'package:cava_ecommerce/core/state/cart_state_notifier.dart';
@@ -74,6 +75,7 @@ void main() {
       checkoutDataSource: checkoutDataSource,
       addressesDataSource: addressesDataSource,
       wishlistFirestore: FakeFirebaseFirestore(),
+      cartFirestore: FakeFirebaseFirestore(),
     );
 
     final addToCart = sl<AddToCartUseCase>();
@@ -237,6 +239,44 @@ void main() {
     expect(result.message, 'Kyçu për të vazhduar me porosinë.');
   });
 
+  test('load reads active Firestore cart when logged in', () async {
+    await tearDownTestDependencies();
+    MockAuth.login();
+
+    final firestore = FakeFirebaseFirestore();
+    final product = MockProducts.products.first;
+    await firestore
+        .collection(FirebaseConfig.usersCollection)
+        .doc(MockAuth.currentUser.uid)
+        .collection(FirebaseConfig.cartSubcollection)
+        .doc(product.id)
+        .set({
+      'productId': product.id,
+      'quantity': 2,
+      'addedAt': DateTime.utc(2026, 1, 1),
+      'updatedAt': DateTime.utc(2026, 1, 1),
+    });
+
+    checkoutDataSource = CheckoutMockDataSource();
+    addressesDataSource = AddressesMockDataSource();
+    await seedAddresses();
+
+    await configureTestDependencies(
+      productDataSource: const ProductMockDataSource(),
+      categoryDataSource: const CategoryMockDataSource(),
+      checkoutDataSource: checkoutDataSource,
+      addressesDataSource: addressesDataSource,
+      wishlistFirestore: FakeFirebaseFirestore(),
+      cartFirestore: firestore,
+    );
+
+    checkoutController = sl<CheckoutController>();
+    await checkoutController.load();
+
+    expect(checkoutController.hasItems, isTrue);
+    expect(checkoutController.subtotal, product.price * 2);
+  });
+
   test('blocks order when no address exists', () async {
     await tearDownTestDependencies();
     MockAuth.login();
@@ -245,6 +285,7 @@ void main() {
       categoryDataSource: const CategoryMockDataSource(),
       checkoutDataSource: checkoutDataSource,
       wishlistFirestore: FakeFirebaseFirestore(),
+      cartFirestore: FakeFirebaseFirestore(),
     );
 
     final addToCart = sl<AddToCartUseCase>();

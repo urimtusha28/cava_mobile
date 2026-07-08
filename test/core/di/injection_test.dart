@@ -101,6 +101,7 @@ void main() {
         productDataSource: const ProductMockDataSource(),
         categoryDataSource: const CategoryMockDataSource(),
         wishlistFirestore: FakeFirebaseFirestore(),
+      cartFirestore: FakeFirebaseFirestore(),
       );
       final second = sl<CartController>();
       expect(first, isNot(same(second)));

@@ -8,6 +8,7 @@ import 'package:cava_ecommerce/features/products/presentation/screens/product_de
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../helpers/test_di.dart';
@@ -87,6 +88,8 @@ void main() {
     await configureTestDependencies(
       productDataSource: const _OutOfStockProductMockDataSource(),
       categoryDataSource: const CategoryMockDataSource(),
+      cartFirestore: FakeFirebaseFirestore(),
+      wishlistFirestore: FakeFirebaseFirestore(),
     );
 
     await pumpDetail(tester, productId: 'wine-oos');

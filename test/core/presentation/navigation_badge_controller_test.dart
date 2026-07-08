@@ -44,6 +44,7 @@ void main() {
     await configureTestDependencies(
       productDataSource: MockProductDataSource(),
       wishlistFirestore: FakeFirebaseFirestore(),
+      cartFirestore: FakeFirebaseFirestore(),
     );
     if (sl.isRegistered<ProductRepository>()) {
       sl.unregister<ProductRepository>();
