@@ -99,11 +99,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     email: _controller.customerInfo.email,
                     hasAddresses: _controller.hasAddresses,
                     hasSelectedAddress: _controller.hasSelectedAddress,
-                    label: _controller.customerInfo.label,
                     fullName: _controller.customerInfo.fullName,
                     phone: _controller.customerInfo.phone,
                     address: _controller.customerInfo.addressLine,
                     city: _controller.customerInfo.city,
+                    country: _controller.customerInfo.country,
                     zip: _controller.customerInfo.zip,
                     onChangeAddress: () => _openAddressSelector(),
                     onAddAddress: () => _openAddressSelector(),
@@ -187,11 +187,11 @@ class _UserInfoCard extends StatelessWidget {
     required this.email,
     required this.hasAddresses,
     required this.hasSelectedAddress,
-    required this.label,
     required this.fullName,
     required this.phone,
     required this.address,
     required this.city,
+    required this.country,
     required this.zip,
     required this.onChangeAddress,
     required this.onAddAddress,
@@ -200,23 +200,29 @@ class _UserInfoCard extends StatelessWidget {
   final String email;
   final bool hasAddresses;
   final bool hasSelectedAddress;
-  final String label;
   final String fullName;
   final String phone;
   final String address;
   final String city;
+  final String country;
   final String zip;
   final VoidCallback onChangeAddress;
   final VoidCallback onAddAddress;
 
   @override
   Widget build(BuildContext context) {
+    final trimmedName = fullName.trim();
+    final trimmedEmail = email.trim();
+    final trimmedPhone = phone.trim();
+    final trimmedAddress = address.trim();
+    final trimmedCity = city.trim();
+    final trimmedCountry = country.trim();
+    final trimmedZip = zip.trim();
+
     return _BorderedCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _InfoLine('Email:', email),
-          const SizedBox(height: AppSpacing.lg),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -256,19 +262,31 @@ class _UserInfoCard extends StatelessWidget {
               ),
             )
           else ...[
-            if (label.isNotEmpty) _InfoLine('Emri:', label),
-            if (label.isNotEmpty) const SizedBox(height: AppSpacing.sm),
-            _InfoLine('Marrësi:', fullName),
-            const SizedBox(height: AppSpacing.sm),
-            _InfoLine('Telefoni:', phone),
-            const SizedBox(height: AppSpacing.sm),
-            _InfoLine('Adresa:', address),
-            const SizedBox(height: AppSpacing.sm),
-            _InfoLine('Qyteti:', city),
-            if (zip.isNotEmpty) ...[
+            if (trimmedName.isNotEmpty) ...[
+              _InfoLine('Emri:', trimmedName),
               const SizedBox(height: AppSpacing.sm),
-              _InfoLine('Kodi postar:', zip),
             ],
+            if (trimmedEmail.isNotEmpty) ...[
+              _InfoLine('Email:', trimmedEmail),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+            if (trimmedAddress.isNotEmpty) ...[
+              _InfoLine('Adresa:', trimmedAddress),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+            if (trimmedCity.isNotEmpty) ...[
+              _InfoLine('Qyteti:', trimmedCity),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+            if (trimmedCountry.isNotEmpty) ...[
+              _InfoLine('Shteti:', trimmedCountry),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+            if (trimmedPhone.isNotEmpty) ...[
+              _InfoLine('Telefoni:', trimmedPhone),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+            if (trimmedZip.isNotEmpty) _InfoLine('Kodi postar:', trimmedZip),
           ],
         ],
       ),
@@ -328,7 +346,7 @@ class _InfoLine extends StatelessWidget {
         children: [
           TextSpan(text: label, style: AppTextStyles.bodySmall),
           const TextSpan(text: ' '),
-          TextSpan(text: value.isEmpty ? ' ' : value),
+          TextSpan(text: value),
         ],
       ),
     );
