@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/checkout_screen_header.dart';
+import '../../../../core/widgets/footer_action_button.dart';
 import '../../../../core/widgets/product_image_view.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
@@ -357,17 +358,9 @@ class _CartFooter extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          Material(
-            color: AppColors.burgundy,
-            borderRadius: BorderRadius.circular(12),
-            child: InkWell(
-              onTap: onContinue,
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                child: Text('Vazhdo', style: AppTextStyles.button),
-              ),
-            ),
+          FooterActionButton(
+            label: 'Vazhdo',
+            onTap: onContinue,
           ),
         ],
       ),

@@ -9,6 +9,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_checkbox.dart';
 import '../../../../core/widgets/checkout_screen_header.dart';
+import '../../../../core/widgets/footer_action_button.dart';
 import '../controllers/checkout_controller.dart';
 import '../models/checkout_session_state.dart';
 import '../widgets/checkout_address_selector_bottom_sheet.dart';
@@ -115,12 +116,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     onChanged: (value) => setState(() => _payment = value),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: CavaCheckbox(
+                  // Match payment-card content inset so Terms checkbox
+                  // shares the same X as payment method checkboxes.
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CavaCheckbox(
                           value: _acceptedTerms,
                           onChanged: _controller.isSubmitting
                               ? null
@@ -128,35 +133,37 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                     () => _acceptedTerms = value ?? false,
                                   ),
                         ),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text.rich(
-                          TextSpan(
-                            style: AppTextStyles.bodySmall.copyWith(height: 1.5),
-                            children: const [
-                              TextSpan(text: 'Pajtohem me '),
-                              TextSpan(
-                                text: 'Kushtet & Rregullat',
-                                style: TextStyle(
-                                  color: AppColors.burgundy,
-                                  decoration: TextDecoration.underline,
-                                ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Text.rich(
+                            TextSpan(
+                              style: AppTextStyles.bodySmall.copyWith(
+                                height: 1.5,
                               ),
-                              TextSpan(text: ' dhe '),
-                              TextSpan(
-                                text: 'Politikën e Kthimit',
-                                style: TextStyle(
-                                  color: AppColors.burgundy,
-                                  decoration: TextDecoration.underline,
+                              children: const [
+                                TextSpan(text: 'Pajtohem me '),
+                                TextSpan(
+                                  text: 'Kushtet & Rregullat',
+                                  style: TextStyle(
+                                    color: AppColors.burgundy,
+                                    decoration: TextDecoration.underline,
+                                  ),
                                 ),
-                              ),
-                              TextSpan(text: '.'),
-                            ],
+                                TextSpan(text: ' dhe '),
+                                TextSpan(
+                                  text: 'Politikën e Kthimit',
+                                  style: TextStyle(
+                                    color: AppColors.burgundy,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                                TextSpan(text: '.'),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 100),
                 ],
@@ -492,26 +499,11 @@ class _CheckoutFooter extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          Material(
-            color: enabled ? AppColors.burgundy : AppColors.textMuted,
-            borderRadius: BorderRadius.circular(12),
-            child: InkWell(
-              onTap: enabled ? onBuy : null,
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 14),
-                child: isLoading
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text('Bli', style: AppTextStyles.button),
-              ),
-            ),
+          FooterActionButton(
+            label: 'Bli',
+            onTap: onBuy,
+            enabled: enabled,
+            isLoading: isLoading,
           ),
         ],
       ),
