@@ -1,49 +1,127 @@
+import 'dart:async';
+
 import '../../../../core/state/wishlist_state_notifier.dart';
+import '../../../account/domain/repositories/auth_repository.dart';
 import '../../../products/domain/entities/product_entity.dart';
 import '../../domain/repositories/wishlist_repository.dart';
 import '../datasources/wishlist_data_source.dart';
+import '../datasources/wishlist_firestore_datasource.dart';
+import '../datasources/wishlist_local_datasource.dart';
 
 class WishlistRepositoryImpl implements WishlistRepository {
-  WishlistRepositoryImpl(this._dataSource);
+  WishlistRepositoryImpl(
+    this._localDataSource,
+    this._firestoreDataSource,
+    this._authRepository,
+  ) {
+    _authSubscription = _authRepository.watchAuthState().listen((loggedIn) async {
+      if (loggedIn) {
+        await _mergeGuestWishlistIfNeeded();
+      } else {
+        _mergedForUserId = null;
+      }
+      await _refreshBadge();
+    });
+  }
 
-  final WishlistDataSource _dataSource;
+  final WishlistLocalDataSource _localDataSource;
+  final WishlistFirestoreDataSource _firestoreDataSource;
+  final AuthRepository _authRepository;
 
-  void _notifyChange() {
-    WishlistStateNotifier.update(_dataSource.getCount());
+  StreamSubscription<bool>? _authSubscription;
+  String? _mergedForUserId;
+
+  Future<WishlistDataSource> _activeDataSource() async {
+    final loggedIn = await _authRepository.isLoggedIn();
+    if (!loggedIn) {
+      return _localDataSource;
+    }
+
+    await _mergeGuestWishlistIfNeeded();
+    return _firestoreDataSource;
+  }
+
+  Future<void> _mergeGuestWishlistIfNeeded() async {
+    final userId = await _authRepository.getCurrentUserId();
+    if (userId == null || userId.isEmpty) {
+      return;
+    }
+    if (_mergedForUserId == userId) {
+      return;
+    }
+
+    final guestEntries = await _localDataSource.readStoredEntries();
+    for (final entry in guestEntries) {
+      DateTime? createdAt;
+      try {
+        createdAt = DateTime.parse(entry.addedAt).toUtc();
+      } catch (_) {
+        createdAt = null;
+      }
+
+      await _firestoreDataSource.addEntry(
+        productId: entry.productId,
+        createdAt: createdAt,
+      );
+    }
+
+    await _localDataSource.clearAll();
+    _mergedForUserId = userId;
+  }
+
+  Future<void> _refreshBadge() async {
+    final dataSource = await _activeDataSource();
+    WishlistStateNotifier.update(await dataSource.getCount());
+  }
+
+  void _notifyChange(int count) {
+    WishlistStateNotifier.update(count);
   }
 
   @override
-  Future<List<ProductEntity>> getItems() => Future.sync(() {
-        _notifyChange();
-        return _dataSource.getItems();
-      });
+  Future<List<ProductEntity>> getItems() async {
+    final dataSource = await _activeDataSource();
+    final items = await dataSource.getItems();
+    _notifyChange(items.length);
+    return items;
+  }
 
   @override
-  Future<int> getCount() => Future.sync(_dataSource.getCount);
+  Future<int> getCount() async {
+    final dataSource = await _activeDataSource();
+    final count = await dataSource.getCount();
+    _notifyChange(count);
+    return count;
+  }
 
   @override
-  Future<bool> isInWishlist(String productId) =>
-      Future.sync(() => _dataSource.isInWishlist(productId));
+  Future<bool> isInWishlist(String productId) async {
+    final dataSource = await _activeDataSource();
+    return dataSource.isInWishlist(productId);
+  }
 
   @override
-  Future<void> add(ProductEntity product) => Future.sync(() {
-        _dataSource.add(product);
-        _notifyChange();
-      });
+  Future<void> add(ProductEntity product) async {
+    final dataSource = await _activeDataSource();
+    await dataSource.add(product);
+    _notifyChange(await dataSource.getCount());
+  }
 
   @override
-  Future<void> remove(String productId) => Future.sync(() {
-        _dataSource.remove(productId);
-        _notifyChange();
-      });
+  Future<void> remove(String productId) async {
+    final dataSource = await _activeDataSource();
+    await dataSource.remove(productId);
+    _notifyChange(await dataSource.getCount());
+  }
 
   @override
-  Future<void> toggle(ProductEntity product) => Future.sync(() {
-        if (_dataSource.isInWishlist(product.id)) {
-          _dataSource.remove(product.id);
-        } else {
-          _dataSource.add(product);
-        }
-        _notifyChange();
-      });
+  Future<void> toggle(ProductEntity product) async {
+    final dataSource = await _activeDataSource();
+    await dataSource.toggle(product);
+    _notifyChange(await dataSource.getCount());
+  }
+
+  void dispose() {
+    _authSubscription?.cancel();
+  }
 }

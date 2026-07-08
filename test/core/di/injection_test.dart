@@ -22,6 +22,7 @@ import 'package:cava_ecommerce/features/products/domain/usecases/get_recommended
 import 'package:cava_ecommerce/features/wishlist/data/repositories/wishlist_repository_impl.dart';
 import 'package:cava_ecommerce/features/wishlist/domain/repositories/wishlist_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 
 import '../../helpers/test_di.dart';
 
@@ -99,6 +100,7 @@ void main() {
       await configureTestDependencies(
         productDataSource: const ProductMockDataSource(),
         categoryDataSource: const CategoryMockDataSource(),
+        wishlistFirestore: FakeFirebaseFirestore(),
       );
       final second = sl<CartController>();
       expect(first, isNot(same(second)));

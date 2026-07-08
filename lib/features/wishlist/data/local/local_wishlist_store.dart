@@ -1,27 +1,34 @@
-import '../../../products/domain/entities/product_entity.dart';
+import '../models/stored_wishlist_entry_model.dart';
 
-/// In-memory guest wishlist — real [ProductEntity] items only, no mock seed data.
+/// In-memory guest wishlist entries (product ids only) until persisted/synced.
 abstract final class LocalWishlistStore {
-  static final List<ProductEntity> _items = <ProductEntity>[];
+  static final List<StoredWishlistEntryModel> _entries =
+      <StoredWishlistEntryModel>[];
 
-  static List<ProductEntity> snapshot() =>
-      List<ProductEntity>.unmodifiable(_items);
+  static List<StoredWishlistEntryModel> snapshot() =>
+      List<StoredWishlistEntryModel>.unmodifiable(_entries);
 
-  static int get count => _items.length;
+  static int get count => _entries.length;
 
-  static void clear() => _items.clear();
+  static void clear() => _entries.clear();
+
+  static void replaceAll(List<StoredWishlistEntryModel> entries) {
+    _entries
+      ..clear()
+      ..addAll(entries);
+  }
 
   static bool contains(String productId) =>
-      _items.any((product) => product.id == productId);
+      _entries.any((entry) => entry.productId == productId);
 
-  static void add(ProductEntity product) {
-    if (contains(product.id)) {
+  static void addEntry(StoredWishlistEntryModel entry) {
+    if (contains(entry.productId)) {
       return;
     }
-    _items.add(product);
+    _entries.add(entry);
   }
 
   static void remove(String productId) {
-    _items.removeWhere((product) => product.id == productId);
+    _entries.removeWhere((entry) => entry.productId == productId);
   }
 }

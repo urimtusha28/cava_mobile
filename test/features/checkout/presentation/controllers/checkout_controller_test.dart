@@ -14,6 +14,7 @@ import 'package:cava_ecommerce/features/categories/data/datasources/category_moc
 import 'package:cava_ecommerce/features/products/data/datasources/product_mock_datasource.dart';
 import 'package:cava_ecommerce/features/products/data/mock/mock_products.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../helpers/test_di.dart';
@@ -72,6 +73,7 @@ void main() {
       categoryDataSource: const CategoryMockDataSource(),
       checkoutDataSource: checkoutDataSource,
       addressesDataSource: addressesDataSource,
+      wishlistFirestore: FakeFirebaseFirestore(),
     );
 
     final addToCart = sl<AddToCartUseCase>();
@@ -242,6 +244,7 @@ void main() {
       productDataSource: const ProductMockDataSource(),
       categoryDataSource: const CategoryMockDataSource(),
       checkoutDataSource: checkoutDataSource,
+      wishlistFirestore: FakeFirebaseFirestore(),
     );
 
     final addToCart = sl<AddToCartUseCase>();

@@ -85,7 +85,9 @@ import '../../features/products/domain/usecases/get_products_by_category.dart';
 import '../../features/products/domain/usecases/get_recommended_products.dart';
 import '../../features/products/presentation/controllers/product_detail_controller.dart';
 import '../../features/wishlist/data/datasources/wishlist_data_source.dart';
+import '../../features/wishlist/data/datasources/wishlist_firestore_datasource.dart';
 import '../../features/wishlist/data/datasources/wishlist_local_datasource.dart';
+import '../../features/wishlist/data/local/wishlist_guest_storage.dart';
 import '../../features/wishlist/data/repositories/wishlist_repository_impl.dart';
 import '../../features/wishlist/domain/repositories/wishlist_repository.dart';
 import '../../features/wishlist/domain/usecases/get_wishlist_count.dart';
@@ -114,11 +116,11 @@ void configureDependencies() {
   _registerCategories();
   _registerHome();
   _registerCart();
-  _registerWishlist();
   _registerAuth();
   _registerOrders();
   _registerAddresses();
   _registerCheckout();
+  _registerWishlist();
   _registerControllers();
   _dependenciesConfigured = true;
 }
@@ -191,16 +193,31 @@ void _registerCart() {
   );
 }
 
-void _registerWishlist() {
+void _registerWishlist({FirebaseFirestore? firestoreOverride}) {
   if (sl.isRegistered<WishlistRepository>()) {
     return;
   }
 
-  sl.registerLazySingleton<WishlistDataSource>(
-    () => const WishlistLocalDataSource(),
+  sl.registerLazySingleton<WishlistGuestStorage>(() => WishlistGuestStorage());
+  sl.registerLazySingleton<WishlistLocalDataSource>(
+    () => WishlistLocalDataSource(
+      sl<WishlistGuestStorage>(),
+      sl<ProductRepository>(),
+    ),
+  );
+  sl.registerLazySingleton<WishlistFirestoreDataSource>(
+    () => WishlistFirestoreDataSource(
+      firestoreOverride ?? FirebaseFirestore.instance,
+      sl<AuthRepository>(),
+      sl<ProductRepository>(),
+    ),
   );
   sl.registerLazySingleton<WishlistRepository>(
-    () => WishlistRepositoryImpl(sl<WishlistDataSource>()),
+    () => WishlistRepositoryImpl(
+      sl<WishlistLocalDataSource>(),
+      sl<WishlistFirestoreDataSource>(),
+      sl<AuthRepository>(),
+    ),
   );
 }
 
@@ -485,6 +502,14 @@ Future<void> resetDependencies() async {
     }
   }
 
+  if (sl.isRegistered<WishlistLocalDataSource>()) {
+    try {
+      sl<WishlistLocalDataSource>().resetForTests();
+    } catch (_) {
+      // Wishlist datasource not instantiated yet.
+    }
+  }
+
   await sl.reset(dispose: true);
   _dependenciesConfigured = false;
   CartStateNotifier.reset();
@@ -497,6 +522,11 @@ Future<void> resetDependencies() async {
   }
   try {
     await CheckoutSelectedAddressStorage().clear();
+  } catch (_) {
+    // SharedPreferences may be unavailable before Flutter binding init.
+  }
+  try {
+    await WishlistGuestStorage().clear();
   } catch (_) {
     // SharedPreferences may be unavailable before Flutter binding init.
   }
@@ -514,6 +544,7 @@ Future<void> configureTestDependencies({
   OrdersDataSource? ordersDataSource,
   AddressesDataSource? addressesDataSource,
   CheckoutDataSource? checkoutDataSource,
+  FirebaseFirestore? wishlistFirestore,
 }) async {
   await resetDependencies();
 
@@ -553,15 +584,6 @@ Future<void> configureTestDependencies({
     _registerCart();
   }
 
-  if (wishlistDataSource != null) {
-    sl.registerLazySingleton<WishlistDataSource>(() => wishlistDataSource);
-    sl.registerLazySingleton<WishlistRepository>(
-      () => WishlistRepositoryImpl(sl<WishlistDataSource>()),
-    );
-  } else {
-    _registerWishlist();
-  }
-
   if (authDataSource != null) {
     sl.registerLazySingleton<AuthDataSource>(() => authDataSource);
     sl.registerLazySingleton<AuthRepository>(
@@ -572,6 +594,36 @@ Future<void> configureTestDependencies({
     sl.registerLazySingleton<AuthRepository>(
       () => AuthRepositoryImpl(sl<AuthDataSource>()),
     );
+  }
+
+  if (wishlistDataSource != null) {
+    sl.registerLazySingleton<WishlistGuestStorage>(() => WishlistGuestStorage());
+    if (wishlistDataSource is WishlistLocalDataSource) {
+      sl.registerLazySingleton<WishlistLocalDataSource>(() => wishlistDataSource);
+    } else {
+      sl.registerLazySingleton<WishlistLocalDataSource>(
+        () => WishlistLocalDataSource(
+          sl<WishlistGuestStorage>(),
+          sl<ProductRepository>(),
+        ),
+      );
+    }
+    sl.registerLazySingleton<WishlistFirestoreDataSource>(
+      () => WishlistFirestoreDataSource(
+        wishlistFirestore ?? FirebaseFirestore.instance,
+        sl<AuthRepository>(),
+        sl<ProductRepository>(),
+      ),
+    );
+    sl.registerLazySingleton<WishlistRepository>(
+      () => WishlistRepositoryImpl(
+        sl<WishlistLocalDataSource>(),
+        sl<WishlistFirestoreDataSource>(),
+        sl<AuthRepository>(),
+      ),
+    );
+  } else {
+    _registerWishlist(firestoreOverride: wishlistFirestore);
   }
 
   if (ordersDataSource != null) {

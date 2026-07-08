@@ -4,8 +4,10 @@ import 'package:cava_ecommerce/core/state/cart_state_notifier.dart';
 import 'package:cava_ecommerce/core/state/wishlist_state_notifier.dart';
 import 'package:cava_ecommerce/features/cart/data/local/cart_local_storage.dart';
 import 'package:cava_ecommerce/features/cart/data/models/stored_cart_item_model.dart';
-import 'package:cava_ecommerce/features/wishlist/data/local/local_wishlist_store.dart';
+import 'package:cava_ecommerce/features/wishlist/data/local/wishlist_guest_storage.dart';
+import 'package:cava_ecommerce/features/wishlist/domain/repositories/wishlist_repository.dart';
 import 'package:cava_ecommerce/features/products/domain/repositories/product_repository.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,7 +23,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await CartLocalStorage().clear();
-    LocalWishlistStore.clear();
+    await WishlistGuestStorage().clear();
     CartStateNotifier.reset();
     WishlistStateNotifier.reset();
 
@@ -41,6 +43,7 @@ void main() {
 
     await configureTestDependencies(
       productDataSource: MockProductDataSource(),
+      wishlistFirestore: FakeFirebaseFirestore(),
     );
     if (sl.isRegistered<ProductRepository>()) {
       sl.unregister<ProductRepository>();
@@ -64,5 +67,14 @@ void main() {
     await NavigationBadgeController.syncBadges();
 
     expect(CartStateNotifier.revision.value, 2);
+  });
+
+  test('syncBadges hydrates guest wishlist count', () async {
+    final repository = sl<WishlistRepository>();
+    await repository.add(testProductEntity);
+
+    await NavigationBadgeController.syncBadges();
+
+    expect(WishlistStateNotifier.revision.value, 1);
   });
 }
