@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import '../../../products/domain/entities/product_entity.dart';
 import '../../../products/domain/repositories/product_repository.dart';
 import '../../domain/entities/cart_item_entity.dart';
@@ -85,7 +83,7 @@ class CartLocalDataSource implements CartDataSource {
   double getTotal() => getSubtotal() + getVat() + getShipping();
 
   @override
-  void addProduct(ProductEntity product, {int quantity = 1}) {
+  Future<void> addProduct(ProductEntity product, {int quantity = 1}) async {
     if (quantity <= 0) {
       return;
     }
@@ -116,11 +114,11 @@ class CartLocalDataSource implements CartDataSource {
     }
 
     _isHydrated = true;
-    unawaited(_persistAsync());
+    await _persistAsync();
   }
 
   @override
-  void updateQuantity(int index, int quantity) {
+  Future<void> updateQuantity(int index, int quantity) async {
     if (index < 0 || index >= _items.length) {
       return;
     }
@@ -138,11 +136,11 @@ class CartLocalDataSource implements CartDataSource {
       addedAt: meta?.addedAt ?? DateTime.now().toUtc().toIso8601String(),
     );
 
-    unawaited(_persistAsync());
+    await _persistAsync();
   }
 
   @override
-  void removeAt(int index) {
+  Future<void> removeAt(int index) async {
     if (index < 0 || index >= _items.length) {
       return;
     }
@@ -150,15 +148,15 @@ class CartLocalDataSource implements CartDataSource {
     final productId = _items[index].product.id;
     _items.removeAt(index);
     _metadataByProductId.remove(productId);
-    unawaited(_persistAsync());
+    await _persistAsync();
   }
 
   @override
-  void clear() {
+  Future<void> clear() async {
     _items.clear();
     _metadataByProductId.clear();
     _isHydrated = true;
-    unawaited(_persistAsync(clearStorage: true));
+    await _persistAsync(clearStorage: true);
   }
 
   Future<void> _persistAsync({bool clearStorage = false}) async {

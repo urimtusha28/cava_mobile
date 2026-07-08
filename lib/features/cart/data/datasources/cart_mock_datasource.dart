@@ -28,18 +28,22 @@ class CartMockDataSource implements CartDataSource {
   double getTotal() => MockCart.total;
 
   @override
-  void addProduct(ProductEntity product, {int quantity = 1}) =>
-      MockCart.addProduct(product, quantity: quantity);
+  Future<void> addProduct(ProductEntity product, {int quantity = 1}) async {
+    MockCart.addProduct(product, quantity: quantity);
+  }
 
   @override
-  void updateQuantity(int index, int quantity) =>
-      MockCart.updateQuantity(index, quantity);
+  Future<void> updateQuantity(int index, int quantity) async {
+    MockCart.updateQuantity(index, quantity);
+  }
 
   @override
-  void removeAt(int index) => MockCart.removeAt(index);
+  Future<void> removeAt(int index) async {
+    MockCart.removeAt(index);
+  }
 
   @override
-  void clear() {
+  Future<void> clear() async {
     MockCart.items.clear();
     MockCart.revision.value = MockCart.itemCount;
   }

@@ -60,11 +60,16 @@ void main() {
     expect(controller.items, isEmpty);
   });
 
-  test('addToCart delegates to use case with quantity 1', () async {
+  test('addToCart delegates to use case with quantity 1 and removes on success',
+      () async {
     when(() => addToCart(any())).thenAnswer((_) async => const Success(null));
+    when(() => removeFromWishlist(testProductEntity.id))
+        .thenAnswer((_) async => const Success(null));
+    when(() => getWishlistItems()).thenAnswer((_) async => const Success([]));
 
     await controller.addToCart(testProductEntity);
 
     verify(() => addToCart(any())).called(1);
+    verify(() => removeFromWishlist(testProductEntity.id)).called(1);
   });
 }

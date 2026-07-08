@@ -41,8 +41,7 @@ void main() {
   test('addProduct writes users/{uid}/cart/{productId}', () async {
     MockAuth.login();
     await dataSource.loadPersistedCart();
-    dataSource.addProduct(testProductEntity, quantity: 2);
-    await Future<void>.delayed(Duration.zero);
+    await dataSource.addProduct(testProductEntity, quantity: 2);
 
     final doc = await firestore
         .collection(FirebaseConfig.usersCollection)
@@ -101,11 +100,9 @@ void main() {
   test('updateQuantity and removeAt persist to Firestore', () async {
     MockAuth.login();
     await dataSource.loadPersistedCart();
-    dataSource.addProduct(testProductEntity);
-    await Future<void>.delayed(Duration.zero);
+    await dataSource.addProduct(testProductEntity);
 
-    dataSource.updateQuantity(0, 4);
-    await Future<void>.delayed(Duration.zero);
+    await dataSource.updateQuantity(0, 4);
 
     var doc = await firestore
         .collection(FirebaseConfig.usersCollection)
@@ -115,8 +112,7 @@ void main() {
         .get();
     expect(doc.data()?['quantity'], 4);
 
-    dataSource.removeAt(0);
-    await Future<void>.delayed(Duration.zero);
+    await dataSource.removeAt(0);
 
     doc = await firestore
         .collection(FirebaseConfig.usersCollection)
@@ -130,10 +126,8 @@ void main() {
   test('clear removes all Firestore cart documents', () async {
     MockAuth.login();
     await dataSource.loadPersistedCart();
-    dataSource.addProduct(testProductEntity);
-    await Future<void>.delayed(Duration.zero);
-    dataSource.clear();
-    await Future<void>.delayed(Duration.zero);
+    await dataSource.addProduct(testProductEntity);
+    await dataSource.clear();
 
     final docs = await firestore
         .collection(FirebaseConfig.usersCollection)
@@ -147,9 +141,39 @@ void main() {
   test('getItemCount sums line quantities', () async {
     MockAuth.login();
     await dataSource.loadPersistedCart();
-    dataSource.addProduct(testProductEntity, quantity: 2);
-    await Future<void>.delayed(Duration.zero);
+    await dataSource.addProduct(testProductEntity, quantity: 2);
 
     expect(dataSource.getItemCount(), 2);
+  });
+
+  test('addProduct succeeds via document write when collection list is denied',
+      () async {
+    MockAuth.login();
+    // Seed an existing line via direct doc write, then add without list hydrate.
+    await firestore
+        .collection(FirebaseConfig.usersCollection)
+        .doc(MockAuth.currentUser.uid)
+        .collection(FirebaseConfig.cartSubcollection)
+        .doc('p1')
+        .set({
+      'productId': 'p1',
+      'quantity': 1,
+      'addedAt': DateTime.utc(2026, 1, 1),
+      'updatedAt': DateTime.utc(2026, 1, 1),
+    });
+
+    // Empty cache simulating failed collection hydrate.
+    dataSource.invalidateCache();
+    await dataSource.addProduct(testProductEntity, quantity: 2);
+
+    expect(dataSource.getItemCount(), 3);
+    final doc = await firestore
+        .collection(FirebaseConfig.usersCollection)
+        .doc(MockAuth.currentUser.uid)
+        .collection(FirebaseConfig.cartSubcollection)
+        .doc('p1')
+        .get();
+    expect(doc.exists, isTrue);
+    expect(doc.data()?['quantity'], 3);
   });
 }

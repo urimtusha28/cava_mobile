@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../../../core/state/cart_state_notifier.dart';
 import '../../../account/domain/repositories/auth_repository.dart';
 import '../../../products/domain/entities/product_entity.dart';
@@ -10,6 +12,7 @@ import '../../domain/utils/cart_merge_resolver.dart';
 import '../datasources/cart_data_source.dart';
 import '../datasources/cart_firestore_datasource.dart';
 import '../datasources/cart_local_datasource.dart';
+import '../models/stored_cart_item_model.dart';
 
 class CartRepositoryImpl implements CartRepository {
   CartRepositoryImpl(
@@ -87,7 +90,7 @@ class CartRepositoryImpl implements CartRepository {
       return;
     }
 
-    final cloudEntries = await _firestoreDataSource.readStoredEntries();
+    final cloudEntries = await _readCloudEntriesForMerge(guestEntries);
     final merged = CartMergeResolver.merge(
       guestEntries: guestEntries,
       cloudEntries: cloudEntries,
@@ -96,6 +99,23 @@ class CartRepositoryImpl implements CartRepository {
     await _firestoreDataSource.replaceAllEntries(merged);
     await _localDataSource.clearAll();
     _mergedForUserId = userId;
+  }
+
+  /// Prefers full collection read; if denied, merges using document reads for
+  /// guest product ids only so add-to-cart is not blocked by list queries.
+  Future<List<StoredCartItemModel>> _readCloudEntriesForMerge(
+    List<StoredCartItemModel> guestEntries,
+  ) async {
+    try {
+      return await _firestoreDataSource.readStoredEntries();
+    } on FirebaseException catch (error) {
+      if (error.code != 'permission-denied') {
+        rethrow;
+      }
+      return _firestoreDataSource.readStoredEntriesForProductIds(
+        guestEntries.map((entry) => entry.productId),
+      );
+    }
   }
 
   Future<void> _refreshBadge() async {
@@ -183,29 +203,33 @@ class CartRepositoryImpl implements CartRepository {
   @override
   Future<void> addProduct(ProductEntity product, {int quantity = 1}) async {
     final dataSource = await _activeDataSource();
-    await dataSource.loadPersistedCart();
-    dataSource.addProduct(product, quantity: quantity);
+    // Firestore add hydrates the target product document itself — avoid forcing
+    // a full collection list that security rules may deny.
+    if (dataSource is! CartFirestoreDataSource) {
+      await dataSource.loadPersistedCart();
+    }
+    await dataSource.addProduct(product, quantity: quantity);
     _notifyChange(dataSource.getItemCount());
   }
 
   @override
   Future<void> updateQuantity(int index, int quantity) async {
     final dataSource = await _hydratedDataSource();
-    dataSource.updateQuantity(index, quantity);
+    await dataSource.updateQuantity(index, quantity);
     _notifyChange(dataSource.getItemCount());
   }
 
   @override
   Future<void> removeAt(int index) async {
     final dataSource = await _hydratedDataSource();
-    dataSource.removeAt(index);
+    await dataSource.removeAt(index);
     _notifyChange(dataSource.getItemCount());
   }
 
   @override
   Future<void> clear() async {
     final dataSource = await _hydratedDataSource();
-    dataSource.clear();
+    await dataSource.clear();
     _notifyChange(0);
   }
 

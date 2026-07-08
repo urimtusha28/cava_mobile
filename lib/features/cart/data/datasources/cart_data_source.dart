@@ -16,13 +16,13 @@ abstract class CartDataSource {
 
   double getTotal();
 
-  void addProduct(ProductEntity product, {int quantity = 1});
+  Future<void> addProduct(ProductEntity product, {int quantity = 1});
 
-  void updateQuantity(int index, int quantity);
+  Future<void> updateQuantity(int index, int quantity);
 
-  void removeAt(int index);
+  Future<void> removeAt(int index);
 
-  void clear();
+  Future<void> clear();
 
   /// Loads guest cart lines from local storage and hydrates products.
   Future<void> loadPersistedCart();

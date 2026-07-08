@@ -43,7 +43,14 @@ class WishlistController extends BaseController {
       final result = await _addToCart(
         AddToCartParams(product: product, quantity: 1),
       );
-      return result.isSuccess ? AddToCartResult.success : AddToCartResult.failure;
+      if (!result.isSuccess) {
+        return AddToCartResult.failure;
+      }
+
+      // Remove only after a confirmed cart write; leave wishlist intact on failure.
+      await _removeFromWishlist(product.id);
+      await _refreshItems();
+      return AddToCartResult.success;
     } catch (_) {
       return AddToCartResult.failure;
     }

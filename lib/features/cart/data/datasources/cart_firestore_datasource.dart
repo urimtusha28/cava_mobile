@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/firebase/firebase_config.dart';
@@ -12,6 +10,10 @@ import '../models/stored_cart_item_model.dart';
 import 'cart_data_source.dart';
 
 /// Firestore cart at `users/{uid}/cart/{productId}`.
+///
+/// Mutations use **document-scoped** reads/writes so add/update succeed even when
+/// a full collection list query is denied by security rules (same class of issue
+/// as categories `collection.get()` without matching filters).
 class CartFirestoreDataSource implements CartDataSource {
   CartFirestoreDataSource(
     this._firestore,
@@ -26,6 +28,7 @@ class CartFirestoreDataSource implements CartDataSource {
   final List<CartItemEntity> _items = [];
   final Map<String, StoredCartItemModel> _metadataByProductId = {};
   bool _isHydrated = false;
+  bool _collectionHydrated = false;
 
   CollectionReference<Map<String, dynamic>> _collection(String userId) {
     return _firestore
@@ -57,27 +60,72 @@ class CartFirestoreDataSource implements CartDataSource {
     return entries;
   }
 
-  Future<void> replaceAllEntries(List<StoredCartItemModel> entries) async {
+  /// Reads only the given product docs (no collection list query).
+  Future<List<StoredCartItemModel>> readStoredEntriesForProductIds(
+    Iterable<String> productIds,
+  ) async {
     final userId = await _requireUserId();
-    final mergedIds = entries.map((entry) => entry.productId).toSet();
-    final snapshot = await _collection(userId).get();
-    final batch = _firestore.batch();
+    final entries = <StoredCartItemModel>[];
 
-    for (final doc in snapshot.docs) {
-      if (!mergedIds.contains(doc.id)) {
-        batch.delete(doc.reference);
+    for (final productId in productIds) {
+      if (productId.trim().isEmpty) {
+        continue;
+      }
+      final doc = await _collection(userId).doc(productId).get();
+      if (!doc.exists) {
+        continue;
+      }
+      final data = doc.data();
+      if (data == null) {
+        continue;
+      }
+      final entry = CartFirestoreMapper.fromDocument(doc.id, data);
+      if (entry != null) {
+        entries.add(entry);
       }
     }
 
-    for (final entry in entries) {
-      batch.set(
-        _collection(userId).doc(entry.productId),
-        CartFirestoreMapper.toFirestore(entry),
-        SetOptions(merge: true),
-      );
+    return entries;
+  }
+
+  Future<void> replaceAllEntries(List<StoredCartItemModel> entries) async {
+    final userId = await _requireUserId();
+    final mergedIds = entries.map((entry) => entry.productId).toSet();
+
+    // Prefer document deletes for known ids to avoid collection list when possible.
+    // Collection list is still used to prune orphan cloud-only docs.
+    try {
+      final snapshot = await _collection(userId).get();
+      final batch = _firestore.batch();
+
+      for (final doc in snapshot.docs) {
+        if (!mergedIds.contains(doc.id)) {
+          batch.delete(doc.reference);
+        }
+      }
+
+      for (final entry in entries) {
+        batch.set(
+          _collection(userId).doc(entry.productId),
+          CartFirestoreMapper.toFirestore(entry),
+          SetOptions(merge: true),
+        );
+      }
+
+      await batch.commit();
+    } on FirebaseException catch (error) {
+      if (error.code != 'permission-denied') {
+        rethrow;
+      }
+      // Fallback: upsert guest/merged docs by id without listing the collection.
+      for (final entry in entries) {
+        await _collection(userId).doc(entry.productId).set(
+              CartFirestoreMapper.toFirestore(entry),
+              SetOptions(merge: true),
+            );
+      }
     }
 
-    await batch.commit();
     invalidateCache();
   }
 
@@ -85,51 +133,99 @@ class CartFirestoreDataSource implements CartDataSource {
     _items.clear();
     _metadataByProductId.clear();
     _isHydrated = false;
+    _collectionHydrated = false;
   }
 
-  @override
-  Future<void> loadPersistedCart() async {
-    if (_isHydrated) {
+  Future<void> _hydrateDocument(String productId) async {
+    if (_metadataByProductId.containsKey(productId)) {
       return;
     }
 
     final userId = await _requireUserId();
-    final snapshot = await _collection(userId).get();
-    final rebuilt = <CartItemEntity>[];
-    final validEntries = <StoredCartItemModel>[];
-
-    for (final doc in snapshot.docs) {
-      final entry = CartFirestoreMapper.fromDocument(doc.id, doc.data());
-      if (entry == null) {
-        await _collection(userId).doc(doc.id).delete();
-        continue;
-      }
-
-      final product = await _productRepository.getById(entry.productId);
-      if (product == null) {
-        await _collection(userId).doc(doc.id).delete();
-        continue;
-      }
-
-      rebuilt.add(CartItemEntity(product: product, quantity: entry.quantity));
-      validEntries.add(entry);
-      _metadataByProductId[entry.productId] = entry;
+    final doc = await _collection(userId).doc(productId).get();
+    if (!doc.exists) {
+      return;
     }
 
-    _items
-      ..clear()
-      ..addAll(rebuilt);
-    _isHydrated = true;
+    final data = doc.data();
+    if (data == null) {
+      return;
+    }
+
+    final entry = CartFirestoreMapper.fromDocument(doc.id, data);
+    if (entry == null) {
+      await _collection(userId).doc(doc.id).delete();
+      return;
+    }
+
+    final product = await _productRepository.getById(entry.productId);
+    if (product == null) {
+      await _collection(userId).doc(doc.id).delete();
+      return;
+    }
+
+    _items.removeWhere((item) => item.product.id == productId);
+    _items.add(CartItemEntity(product: product, quantity: entry.quantity));
+    _metadataByProductId[entry.productId] = entry;
+  }
+
+  @override
+  Future<void> loadPersistedCart() async {
+    if (_isHydrated && _collectionHydrated) {
+      return;
+    }
+
+    final userId = await _requireUserId();
+
+    try {
+      final snapshot = await _collection(userId).get();
+      final rebuilt = <CartItemEntity>[];
+      final validEntries = <StoredCartItemModel>[];
+
+      for (final doc in snapshot.docs) {
+        final entry = CartFirestoreMapper.fromDocument(doc.id, doc.data());
+        if (entry == null) {
+          await _collection(userId).doc(doc.id).delete();
+          continue;
+        }
+
+        final product = await _productRepository.getById(entry.productId);
+        if (product == null) {
+          await _collection(userId).doc(doc.id).delete();
+          continue;
+        }
+
+        rebuilt.add(CartItemEntity(product: product, quantity: entry.quantity));
+        validEntries.add(entry);
+        _metadataByProductId[entry.productId] = entry;
+      }
+
+      _items
+        ..clear()
+        ..addAll(rebuilt);
+      _isHydrated = true;
+      _collectionHydrated = true;
+    } on FirebaseException catch (error) {
+      if (error.code != 'permission-denied') {
+        rethrow;
+      }
+      // Collection list denied — keep any document-scoped cache; mark hydrated
+      // so mutate paths that use document reads can proceed.
+      _isHydrated = true;
+      _collectionHydrated = false;
+    }
   }
 
   @override
   List<CartItemEntity> getItems() => List<CartItemEntity>.unmodifiable(_items);
 
   @override
-  int getItemCount() => _items.fold(0, (sum, item) => sum + item.quantity);
+  int getItemCount() =>
+      _items.fold(0, (total, item) => total + item.quantity);
 
   @override
-  double getSubtotal() => _items.fold(0, (sum, item) => sum + item.lineTotal);
+  double getSubtotal() =>
+      _items.fold(0, (total, item) => total + item.lineTotal);
 
   @override
   double getDiscount() => 0;
@@ -144,10 +240,13 @@ class CartFirestoreDataSource implements CartDataSource {
   double getTotal() => getSubtotal() + getVat() + getShipping();
 
   @override
-  void addProduct(ProductEntity product, {int quantity = 1}) {
+  Future<void> addProduct(ProductEntity product, {int quantity = 1}) async {
     if (quantity <= 0) {
       return;
     }
+
+    // Document-scoped hydrate — no collection list required for a successful add.
+    await _hydrateDocument(product.id);
 
     final index = _items.indexWhere((item) => item.product.id == product.id);
     if (index >= 0) {
@@ -171,17 +270,17 @@ class CartFirestoreDataSource implements CartDataSource {
     }
 
     _isHydrated = true;
-    unawaited(_persistProduct(product.id));
+    await _persistProduct(product.id);
   }
 
   @override
-  void updateQuantity(int index, int quantity) {
+  Future<void> updateQuantity(int index, int quantity) async {
     if (index < 0 || index >= _items.length) {
       return;
     }
 
     if (quantity <= 0) {
-      removeAt(index);
+      await removeAt(index);
       return;
     }
 
@@ -198,11 +297,11 @@ class CartFirestoreDataSource implements CartDataSource {
       addedAt: meta?.addedAt ?? DateTime.now().toUtc().toIso8601String(),
     );
 
-    unawaited(_persistProduct(productId));
+    await _persistProduct(productId);
   }
 
   @override
-  void removeAt(int index) {
+  Future<void> removeAt(int index) async {
     if (index < 0 || index >= _items.length) {
       return;
     }
@@ -210,16 +309,16 @@ class CartFirestoreDataSource implements CartDataSource {
     final productId = _items[index].product.id;
     _items.removeAt(index);
     _metadataByProductId.remove(productId);
-    unawaited(_deleteProduct(productId));
+    await _deleteProduct(productId);
   }
 
   @override
-  void clear() {
+  Future<void> clear() async {
     final productIds = _items.map((item) => item.product.id).toList();
     _items.clear();
     _metadataByProductId.clear();
     _isHydrated = true;
-    unawaited(_clearAll(productIds));
+    await _clearAll(productIds);
   }
 
   Future<void> _persistProduct(String productId) async {
