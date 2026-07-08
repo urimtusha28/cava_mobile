@@ -18,13 +18,13 @@ abstract final class MockCart {
   static double get subtotal =>
       items.fold(0, (sum, i) => sum + i.lineTotal);
 
-  static const double discount = 5.0;
+  static const double discount = 0;
 
   static const double vat = 0;
 
   static const double shipping = 0;
 
-  static double get total => subtotal - discount + vat + shipping;
+  static double get total => subtotal + vat + shipping;
 
   static void _notify() => revision.value = itemCount;
 

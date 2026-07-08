@@ -274,8 +274,10 @@ class _OrderSummaryCard extends StatelessWidget {
           _SummaryRow('TVSH', Formatters.currency(controller.vat)),
           const SizedBox(height: AppSpacing.sm),
           _SummaryRow('Transporti', Formatters.currency(controller.shipping)),
-          const SizedBox(height: AppSpacing.sm),
-          _SummaryRow('Zbritja', Formatters.currency(controller.discount)),
+          if (controller.discount > 0) ...[
+            const SizedBox(height: AppSpacing.sm),
+            _SummaryRow('Zbritja', Formatters.currency(controller.discount)),
+          ],
           const Padding(
             padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
             child: Divider(height: 1, color: AppColors.border),

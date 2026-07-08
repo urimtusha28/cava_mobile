@@ -25,7 +25,7 @@ void main() {
     when(() => dataSource.getItems()).thenReturn([testCartItem]);
     when(() => dataSource.getItemCount()).thenReturn(2);
     when(() => dataSource.getSubtotal()).thenReturn(50.0);
-    when(() => dataSource.getDiscount()).thenReturn(5.0);
+    when(() => dataSource.getDiscount()).thenReturn(0.0);
     when(() => dataSource.getVat()).thenReturn(10.0);
     when(() => dataSource.getShipping()).thenReturn(2.0);
     when(() => dataSource.getTotal()).thenReturn(57.0);
@@ -34,6 +34,7 @@ void main() {
 
     expect(summary, isA<CartSummaryEntity>());
     expect(summary.itemCount, 2);
+    expect(summary.discount, 0);
     expect(summary.total, 57.0);
   });
 

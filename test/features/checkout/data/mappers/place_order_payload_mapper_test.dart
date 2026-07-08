@@ -38,6 +38,8 @@ void main() {
     expect(payload['paymentMethod'], 'cash');
     expect(payload['termsAccepted'], isTrue);
     expect(payload.containsKey('total'), isFalse);
+    expect(payload.containsKey('discount'), isFalse);
+    expect(payload.containsKey('coupon'), isFalse);
 
     final customer = payload['customer'] as Map<String, dynamic>;
     expect(customer['firstName'], 'Urim');

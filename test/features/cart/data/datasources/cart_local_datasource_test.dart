@@ -165,4 +165,26 @@ void main() {
 
     expect(dataSource.getSubtotal(), 198);
   });
+
+  test('discount is always zero', () async {
+    when(() => productRepository.getById('p1'))
+        .thenAnswer((_) async => testProductEntity);
+
+    final dataSource = CartLocalDataSource(storage, productRepository);
+    dataSource.addProduct(testProductEntity, quantity: 2);
+
+    expect(dataSource.getDiscount(), 0);
+  });
+
+  test('total equals subtotal without fake discount', () async {
+    when(() => productRepository.getById('p1'))
+        .thenAnswer((_) async => testProductEntity);
+
+    final dataSource = CartLocalDataSource(storage, productRepository);
+    dataSource.addProduct(testProductEntity, quantity: 2);
+
+    expect(dataSource.getSubtotal(), 50);
+    expect(dataSource.getTotal(), 50);
+    expect(dataSource.getTotal(), dataSource.getSubtotal());
+  });
 }

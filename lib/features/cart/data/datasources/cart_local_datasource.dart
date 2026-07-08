@@ -18,8 +18,6 @@ class CartLocalDataSource implements CartDataSource {
   final Map<String, StoredCartItemModel> _metadataByProductId = {};
   bool _isHydrated = false;
 
-  static const double _discount = 5.0;
-
   @override
   Future<void> loadPersistedCart() async {
     if (_isHydrated) {
@@ -75,7 +73,7 @@ class CartLocalDataSource implements CartDataSource {
       _items.fold(0, (sum, item) => sum + item.lineTotal);
 
   @override
-  double getDiscount() => _items.isEmpty ? 0 : _discount;
+  double getDiscount() => 0;
 
   @override
   double getVat() => 0;
@@ -84,7 +82,7 @@ class CartLocalDataSource implements CartDataSource {
   double getShipping() => 0;
 
   @override
-  double getTotal() => getSubtotal() - getDiscount() + getVat() + getShipping();
+  double getTotal() => getSubtotal() + getVat() + getShipping();
 
   @override
   void addProduct(ProductEntity product, {int quantity = 1}) {
