@@ -115,8 +115,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     onChanged: (value) => setState(() => _payment = value),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  _PaymentDetailsCard(payment: _payment),
-                  const SizedBox(height: AppSpacing.lg),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -427,44 +425,6 @@ class _PaymentOption extends StatelessWidget {
           Icon(icon, size: 22, color: AppColors.textPrimary),
           const SizedBox(width: AppSpacing.sm),
           Expanded(child: Text(title, style: AppTextStyles.body)),
-        ],
-      ),
-    );
-  }
-}
-
-class _PaymentDetailsCard extends StatelessWidget {
-  const _PaymentDetailsCard({required this.payment});
-
-  final String payment;
-
-  @override
-  Widget build(BuildContext context) {
-    final details = switch (payment) {
-      'cash' => (
-        title: 'Pagesa me para në dorë',
-        body: 'Pagesa kryhet kur ta pranoni porosinë.',
-      ),
-      'card' => (
-        title: 'Pagesa me kartë',
-        body: 'Do të ridrejtoheni në pagesën e sigurt online.',
-      ),
-      _ => (
-        title: 'Transfer bankar',
-        body: 'Detajet e llogarisë bankare do t\'ju dërgohen me email.',
-      ),
-    };
-
-    return _BorderedCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(details.title, style: AppTextStyles.h3),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            details.body,
-            style: AppTextStyles.bodySmall.copyWith(height: 1.5),
-          ),
         ],
       ),
     );
