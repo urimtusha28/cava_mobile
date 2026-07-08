@@ -7,6 +7,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/cava_checkbox.dart';
 import '../../../../core/widgets/checkout_screen_header.dart';
 import '../controllers/checkout_controller.dart';
 import '../models/checkout_session_state.dart';
@@ -119,17 +120,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: Checkbox(
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: CavaCheckbox(
                           value: _acceptedTerms,
                           onChanged: _controller.isSubmitting
                               ? null
-                              : (value) =>
-                                  setState(() => _acceptedTerms = value ?? false),
-                          activeColor: AppColors.burgundy,
-                          side: const BorderSide(color: AppColors.textPrimary),
+                              : (value) => setState(
+                                    () => _acceptedTerms = value ?? false,
+                                  ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -420,20 +419,9 @@ class _PaymentOption extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: Row(
         children: [
-          Container(
-            width: 18,
-            height: 18,
-            decoration: BoxDecoration(
-              color: selected ? AppColors.burgundy : Colors.transparent,
-              border: Border.all(
-                color: selected ? AppColors.burgundy : AppColors.textPrimary,
-                width: 1.5,
-              ),
-              borderRadius: BorderRadius.circular(3),
-            ),
-            child: selected
-                ? const Icon(Icons.check, size: 12, color: Colors.white)
-                : null,
+          CavaCheckbox(
+            value: selected,
+            onChanged: (_) => onChanged(value),
           ),
           const SizedBox(width: AppSpacing.md),
           Icon(icon, size: 22, color: AppColors.textPrimary),
