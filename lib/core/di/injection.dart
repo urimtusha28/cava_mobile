@@ -72,6 +72,8 @@ import '../../features/home/data/repositories/home_repository_impl.dart';
 import '../../features/home/domain/repositories/home_repository.dart';
 import '../../features/home/domain/usecases/get_home_sections.dart';
 import '../../features/home/presentation/controllers/home_controller.dart';
+import '../../features/search/data/local/recent_search_storage.dart';
+import '../../features/search/presentation/controllers/search_controller.dart';
 import '../../features/products/data/datasources/product_data_source.dart';
 import '../../features/products/data/datasources/product_firestore_datasource.dart';
 import '../../features/products/data/datasources/product_mock_datasource.dart';
@@ -359,6 +361,15 @@ void _registerUseCases() {
   // Home
   sl.registerFactory<GetHomeSectionsUseCase>(
     () => GetHomeSectionsUseCase(sl<HomeRepository>()),
+  );
+
+  // Search
+  sl.registerLazySingleton<RecentSearchStorage>(() => RecentSearchStorage());
+  sl.registerFactory<SearchController>(
+    () => SearchController(
+      sl<GetAllProductsUseCase>(),
+      sl<RecentSearchStorage>(),
+    ),
   );
 
   // Cart

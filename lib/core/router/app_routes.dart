@@ -17,6 +17,7 @@ abstract final class AppRoutes {
   static const String currency = '/currency';
   static const String terms = '/terms';
   static const String privacy = '/privacy';
+  static const String search = '/search';
 
   static String category(String id) => '/category/$id';
   static String product(String id) => '/product/$id';

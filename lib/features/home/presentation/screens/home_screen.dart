@@ -4,7 +4,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
 import '../../../../core/widgets/cava_loading_overlay.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../../../core/widgets/search_bar.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/category_chip_bar.dart';
 import '../../../../core/widgets/visit_store_banner.dart';
 import '../../../../core/widgets/product_section.dart';
@@ -68,15 +71,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 isLoading: _controller.isLoading,
                 child: CustomScrollView(
                   slivers: [
-                  const SliverToBoxAdapter(
+                  SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(
+                      padding: const EdgeInsets.fromLTRB(
                         AppSpacing.screen,
                         AppSpacing.md,
                         AppSpacing.screen,
                         0,
                       ),
-                      child: CavaSearchBar(),
+                      child: CavaSearchBar(
+                        onTap: () => context.push(AppRoutes.search),
+                      ),
                     ),
                   ),
                   const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
