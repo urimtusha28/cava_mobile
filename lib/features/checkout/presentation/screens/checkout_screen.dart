@@ -116,61 +116,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     onChanged: (value) => setState(() => _payment = value),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  // Match payment-card content inset so Terms checkbox
-                  // shares the same X as payment method checkboxes.
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CavaCheckbox(
-                          value: _acceptedTerms,
-                          onChanged: _controller.isSubmitting
-                              ? null
-                              : (value) => setState(
-                                    () => _acceptedTerms = value ?? false,
-                                  ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Text.rich(
-                            TextSpan(
-                              style: AppTextStyles.bodySmall.copyWith(
-                                height: 1.5,
-                              ),
-                              children: const [
-                                TextSpan(text: 'Pajtohem me '),
-                                TextSpan(
-                                  text: 'Kushtet & Rregullat',
-                                  style: TextStyle(
-                                    color: AppColors.burgundy,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                                TextSpan(text: ' dhe '),
-                                TextSpan(
-                                  text: 'Politikën e Kthimit',
-                                  style: TextStyle(
-                                    color: AppColors.burgundy,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                                TextSpan(text: '.'),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 100),
                 ],
               ),
             ),
             _CheckoutFooter(
               total: _controller.total,
+              termsAccepted: _acceptedTerms,
+              onTermsChanged: _controller.isSubmitting
+                  ? null
+                  : (value) => setState(() => _acceptedTerms = value ?? false),
               enabled: _acceptedTerms && !_controller.isSubmitting,
               isLoading: _controller.isSubmitting,
               onBuy: _handlePlaceOrder,
@@ -369,6 +323,10 @@ class _PaymentMethodsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _BorderedCard(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.xxl,
+      ),
       child: Column(
         children: [
           _PaymentOption(
@@ -378,15 +336,15 @@ class _PaymentMethodsCard extends StatelessWidget {
             title: 'Paguaj me para në dorë',
             onChanged: onChanged,
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.xl),
           _PaymentOption(
             value: 'card',
             groupValue: selected,
             icon: Icons.credit_card_outlined,
-            title: 'VISA / MasterCard',
+            title: 'Paguaj me kartel',
             onChanged: onChanged,
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.xl),
           _PaymentOption(
             value: 'bank',
             groupValue: selected,
@@ -422,32 +380,40 @@ class _PaymentOption extends StatelessWidget {
     return InkWell(
       onTap: () => onChanged(value),
       borderRadius: BorderRadius.circular(8),
-      child: Row(
-        children: [
-          CavaCheckbox(
-            value: selected,
-            onChanged: (_) => onChanged(value),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Icon(icon, size: 22, color: AppColors.textPrimary),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(child: Text(title, style: AppTextStyles.body)),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CavaCheckbox(
+              value: selected,
+              onChanged: (_) => onChanged(value),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Icon(icon, size: 22, color: AppColors.textPrimary),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: Text(title, style: AppTextStyles.body)),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _BorderedCard extends StatelessWidget {
-  const _BorderedCard({required this.child});
+  const _BorderedCard({
+    required this.child,
+    this.padding = const EdgeInsets.all(AppSpacing.lg),
+  });
 
   final Widget child;
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: padding,
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -461,12 +427,16 @@ class _BorderedCard extends StatelessWidget {
 class _CheckoutFooter extends StatelessWidget {
   const _CheckoutFooter({
     required this.total,
+    required this.termsAccepted,
+    required this.onTermsChanged,
     required this.enabled,
     required this.isLoading,
     required this.onBuy,
   });
 
   final double total;
+  final bool termsAccepted;
+  final ValueChanged<bool?>? onTermsChanged;
   final bool enabled;
   final bool isLoading;
   final VoidCallback onBuy;
@@ -482,28 +452,73 @@ class _CheckoutFooter extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: AppColors.background,
-        border: Border(top: BorderSide(color: AppColors.border.withValues(alpha: 0.6))),
+        border: Border(
+          top: BorderSide(color: AppColors.border.withValues(alpha: 0.6)),
+        ),
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text.rich(
-            TextSpan(
-              text: 'Totali: ',
-              style: AppTextStyles.body,
-              children: [
-                TextSpan(
-                  text: Formatters.currency(total),
-                  style: AppTextStyles.h3,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CavaCheckbox(
+                value: termsAccepted,
+                onChanged: onTermsChanged,
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Text.rich(
+                  TextSpan(
+                    style: AppTextStyles.bodySmall.copyWith(height: 1.5),
+                    children: const [
+                      TextSpan(text: 'Pajtohem me '),
+                      TextSpan(
+                        text: 'Kushtet & Rregullat',
+                        style: TextStyle(
+                          color: AppColors.burgundy,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                      TextSpan(text: ' dhe '),
+                      TextSpan(
+                        text: 'Politikën e Kthimit',
+                        style: TextStyle(
+                          color: AppColors.burgundy,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                      TextSpan(text: '.'),
+                    ],
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const Spacer(),
-          FooterActionButton(
-            label: 'Bli',
-            onTap: onBuy,
-            enabled: enabled,
-            isLoading: isLoading,
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              Text.rich(
+                TextSpan(
+                  text: 'Totali: ',
+                  style: AppTextStyles.body,
+                  children: [
+                    TextSpan(
+                      text: Formatters.currency(total),
+                      style: AppTextStyles.h3,
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              FooterActionButton(
+                label: 'Bli',
+                onTap: onBuy,
+                enabled: enabled,
+                isLoading: isLoading,
+              ),
+            ],
           ),
         ],
       ),
