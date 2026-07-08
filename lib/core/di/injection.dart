@@ -106,6 +106,7 @@ import '../../features/wishlist/domain/usecases/remove_from_wishlist.dart';
 import '../../features/wishlist/domain/usecases/toggle_wishlist.dart';
 import '../../features/wishlist/presentation/controllers/wishlist_controller.dart';
 import '../state/auth_state_notifier.dart';
+import '../state/bottom_nav_scroll_notifier.dart';
 import '../state/cart_state_notifier.dart';
 import '../state/wishlist_state_notifier.dart';
 import '../../features/wishlist/data/local/local_wishlist_store.dart';
@@ -607,6 +608,7 @@ Future<void> resetDependencies() async {
   _dependenciesConfigured = false;
   CartStateNotifier.reset();
   WishlistStateNotifier.reset();
+  BottomNavScrollNotifier.reset();
   LocalWishlistStore.clear();
   try {
     await CartLocalStorage().clear();

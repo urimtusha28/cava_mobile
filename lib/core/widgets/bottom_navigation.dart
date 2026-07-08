@@ -7,6 +7,7 @@ import '../constants/app_spacing.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../presentation/navigation_badge_controller.dart';
+import '../state/bottom_nav_scroll_notifier.dart';
 import '../state/cart_state_notifier.dart';
 import '../state/wishlist_state_notifier.dart';
 import '../router/app_routes.dart';
@@ -35,6 +36,13 @@ class _BottomNavigationState extends State<BottomNavigation> {
     (asset: AppAssets.navProfile, label: 'Profili'),
   ];
 
+  static const double _fullScale = 1.0;
+  static const double _compactScale = 0.92;
+  static const double _fullIconSize = 24;
+  static const double _compactIconSize = 22;
+  static const double _fullBottomPadding = AppSpacing.lg;
+  static const double _compactBottomPadding = AppSpacing.md;
+
   @override
   void initState() {
     super.initState();
@@ -56,74 +64,94 @@ class _BottomNavigationState extends State<BottomNavigation> {
   @override
   Widget build(BuildContext context) {
     const horizontalPadding = AppSpacing.sm;
-    const bottomPadding = AppSpacing.lg;
     final screenWidth = MediaQuery.sizeOf(context).width;
     final barWidth = screenWidth - horizontalPadding * 2;
 
-    return ValueListenableBuilder<int>(
-      valueListenable: CartStateNotifier.revision,
-      builder: (context, _, child) {
-        return ValueListenableBuilder<int>(
-          valueListenable: WishlistStateNotifier.revision,
-          builder: (context, _, child) {
-            final wishlistCount = NavigationBadgeController.wishlistCount;
-            final cartCount = NavigationBadgeController.cartCount;
+    return ValueListenableBuilder<double>(
+      valueListenable: BottomNavScrollNotifier.compactness,
+      builder: (context, compactness, _) {
+        final t = compactness.clamp(0.0, 1.0);
+        final scale = _fullScale + (_compactScale - _fullScale) * t;
+        final iconSize =
+            _fullIconSize + (_compactIconSize - _fullIconSize) * t;
+        final bottomPadding =
+            _fullBottomPadding + (_compactBottomPadding - _fullBottomPadding) * t;
 
-            return SafeArea(
-              minimum: const EdgeInsets.fromLTRB(
-                horizontalPadding,
-                0,
-                horizontalPadding,
-                bottomPadding,
-              ),
-              child: MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                  size: Size(barWidth, MediaQuery.sizeOf(context).height),
-                ),
-                child: AnimatedNotchBottomBar(
-                  notchBottomBarController: _controller,
-                  color: AppColors.surface,
-                  showLabel: true,
-                  textOverflow: TextOverflow.ellipsis,
-                  maxLine: 1,
-                  showShadow: true,
-                  shadowElevation: 2,
-                  kBottomRadius: 24,
-                  notchColor: AppColors.burgundy,
-                  removeMargins: false,
-                  bottomBarWidth: barWidth,
-                  durationInMilliSeconds: 300,
-                  itemLabelStyle: AppTextStyles.navLabel,
-                  elevation: 0,
-                  kIconSize: 24,
-                  bottomBarItems: [
-                    for (var i = 0; i < _items.length; i++)
-                      BottomBarItem(
-                        inActiveItem: _NavIcon(
-                          asset: _items[i].asset,
-                          color: AppColors.textMuted,
-                          badgeCount: switch (i) {
-                            1 => wishlistCount,
-                            2 => cartCount,
-                            _ => null,
-                          },
+        return ValueListenableBuilder<int>(
+          valueListenable: CartStateNotifier.revision,
+          builder: (context, _, child) {
+            return ValueListenableBuilder<int>(
+              valueListenable: WishlistStateNotifier.revision,
+              builder: (context, _, child) {
+                final wishlistCount = NavigationBadgeController.wishlistCount;
+                final cartCount = NavigationBadgeController.cartCount;
+
+                return Transform.scale(
+                  alignment: Alignment.bottomCenter,
+                  scale: scale,
+                  child: SafeArea(
+                    minimum: EdgeInsets.fromLTRB(
+                      horizontalPadding,
+                      0,
+                      horizontalPadding,
+                      bottomPadding,
+                    ),
+                    child: MediaQuery(
+                      data: MediaQuery.of(context).copyWith(
+                        size: Size(
+                          barWidth,
+                          MediaQuery.sizeOf(context).height,
                         ),
-                        activeItem: _NavIcon(
-                          asset: _items[i].asset,
-                          color: Colors.white,
-                          badgeCount: switch (i) {
-                            1 => wishlistCount,
-                            2 => cartCount,
-                            _ => null,
-                          },
-                          onBurgundy: true,
-                        ),
-                        itemLabel: _items[i].label,
                       ),
-                  ],
-                  onTap: widget.onTap,
-                ),
-              ),
+                      child: AnimatedNotchBottomBar(
+                        notchBottomBarController: _controller,
+                        color: AppColors.surface,
+                        showLabel: true,
+                        textOverflow: TextOverflow.ellipsis,
+                        maxLine: 1,
+                        showShadow: true,
+                        shadowElevation: 2,
+                        kBottomRadius: 24,
+                        notchColor: AppColors.burgundy,
+                        removeMargins: false,
+                        bottomBarWidth: barWidth,
+                        durationInMilliSeconds: 300,
+                        itemLabelStyle: AppTextStyles.navLabel,
+                        elevation: 0,
+                        kIconSize: iconSize,
+                        bottomBarItems: [
+                          for (var i = 0; i < _items.length; i++)
+                            BottomBarItem(
+                              inActiveItem: _NavIcon(
+                                asset: _items[i].asset,
+                                color: AppColors.textMuted,
+                                size: iconSize,
+                                badgeCount: switch (i) {
+                                  1 => wishlistCount,
+                                  2 => cartCount,
+                                  _ => null,
+                                },
+                              ),
+                              activeItem: _NavIcon(
+                                asset: _items[i].asset,
+                                color: Colors.white,
+                                size: iconSize,
+                                badgeCount: switch (i) {
+                                  1 => wishlistCount,
+                                  2 => cartCount,
+                                  _ => null,
+                                },
+                                onBurgundy: true,
+                              ),
+                              itemLabel: _items[i].label,
+                            ),
+                        ],
+                        onTap: widget.onTap,
+                      ),
+                    ),
+                  ),
+                );
+              },
             );
           },
         );
@@ -136,12 +164,14 @@ class _NavIcon extends StatelessWidget {
   const _NavIcon({
     required this.asset,
     required this.color,
+    required this.size,
     this.badgeCount,
     this.onBurgundy = false,
   });
 
   final String asset;
   final Color color;
+  final double size;
   final int? badgeCount;
   final bool onBurgundy;
 
@@ -149,8 +179,8 @@ class _NavIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final iconWidget = Image.asset(
       asset,
-      width: 24,
-      height: 24,
+      width: size,
+      height: size,
       fit: BoxFit.contain,
       color: color,
       colorBlendMode: BlendMode.srcIn,
@@ -158,7 +188,7 @@ class _NavIcon extends StatelessWidget {
       errorBuilder: (_, _, _) => Icon(
         Icons.image_not_supported_outlined,
         color: color,
-        size: 24,
+        size: size,
       ),
     );
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../widgets/bottom_navigation.dart';
 import 'app_routes.dart';
+import 'shell_scaffold.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/categories/presentation/screens/categories_screen.dart';
 import '../../features/products/presentation/screens/product_detail_screen.dart';
@@ -57,19 +57,9 @@ final GoRouter appRouter = GoRouter(
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {
-        final isCart = state.matchedLocation == AppRoutes.cart;
-        return Scaffold(
-          extendBody: true,
-          body: Padding(
-            padding: EdgeInsets.only(bottom: isCart ? 0 : 88),
-            child: child,
-          ),
-          bottomNavigationBar: isCart
-              ? null
-              : BottomNavigation(
-                  currentIndex: bottomNavIndexForLocation(state.matchedLocation),
-                  onTap: (i) => navigateToBottomNavTab(context, i),
-                ),
+        return ShellScaffold(
+          location: state.matchedLocation,
+          child: child,
         );
       },
       routes: [
