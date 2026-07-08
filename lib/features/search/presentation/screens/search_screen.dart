@@ -5,9 +5,12 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cava_loading_overlay.dart';
+import '../../../../core/widgets/product_filter_bottom_sheet.dart';
+import '../../../../core/widgets/product_filter_button.dart';
 import '../../../../core/widgets/product_grid_card.dart';
 import '../../../../core/widgets/search_bar.dart';
 import '../../../products/domain/entities/product_entity.dart';
+import '../../../products/domain/filtering/product_filter_options.dart';
 import '../controllers/search_controller.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -52,6 +55,21 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+  Future<void> _openFilters() async {
+    final source = _controller.rawSearchResults;
+    if (source.isEmpty) return;
+
+    final options = ProductFilterOptions.fromProducts(source);
+    final result = await showProductFilterSheet(
+      context: context,
+      initial: _controller.filter,
+      options: options,
+    );
+    if (result != null) {
+      _controller.applyFilter(result);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,6 +84,13 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         titleSpacing: 0,
         title: _buildSearchField(),
+        actions: [
+          if (_controller.query.length >= 2)
+            ProductFilterButton(
+              activeCount: _controller.filter.activeCount,
+              onPressed: _openFilters,
+            ),
+        ],
       ),
       body: CavaLoadingOverlay(
         isLoading: _controller.isSearching && !_controller.hasLoadedProducts,
@@ -139,12 +164,26 @@ class _SearchScreenState extends State<SearchScreen> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.screen),
-          child: Text(
-            'Nuk u gjet asnjë produkt.',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondary,
-            ),
-            textAlign: TextAlign.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _controller.filter.isActive
+                    ? 'Nuk u gjet asnjë produkt me këto filtra.'
+                    : 'Nuk u gjet asnjë produkt.',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              if (_controller.filter.isActive) ...[
+                const SizedBox(height: AppSpacing.md),
+                OutlinedButton(
+                  onPressed: _controller.clearFilter,
+                  child: const Text('Pastro filtrat'),
+                ),
+              ],
+            ],
           ),
         ),
       );
@@ -241,4 +280,3 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 }
-

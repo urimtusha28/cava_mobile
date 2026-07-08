@@ -8,10 +8,15 @@ import '../../../../core/widgets/search_bar.dart';
 import '../../../../core/widgets/subcategory_chip_bar.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/widgets/category_card.dart';
+import '../../../../core/widgets/product_filter_bottom_sheet.dart';
+import '../../../../core/widgets/product_filter_button.dart';
 import '../../../../core/widgets/product_grid_card.dart';
 import '../../domain/entities/subcategory_entity.dart';
 import '../../domain/subcategory_filter.dart';
 import '../../../products/domain/entities/product_entity.dart';
+import '../../../products/domain/filtering/product_filter_engine.dart';
+import '../../../products/domain/filtering/product_filter_options.dart';
+import '../../../products/domain/filtering/product_filter_state.dart';
 import '../controllers/categories_controller.dart';
 import '../controllers/category_products_controller.dart';
 
@@ -81,6 +86,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
   final _searchController = TextEditingController();
   String _selectedSubId = 'all';
   String _searchQuery = '';
+  ProductFilterState _filter = ProductFilterState.empty;
 
   @override
   void initState() {
@@ -88,13 +94,14 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
     _controller = createCategoryProductsController();
     _loadFuture = _controller.load(widget.categoryId);
   }
+
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
 
-  List<ProductEntity> _filteredProducts(
+  List<ProductEntity> _baseFiltered(
     List<ProductEntity> products,
     SubcategoryEntity selectedSub,
   ) {
@@ -102,6 +109,18 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
       return SubcategoryFilter.matches(product, selectedSub) &&
           SubcategoryFilter.matchesSearch(product, _searchQuery);
     }).toList();
+  }
+
+  Future<void> _openFilters(List<ProductEntity> sourceProducts) async {
+    final options = ProductFilterOptions.fromProducts(sourceProducts);
+    final result = await showProductFilterSheet(
+      context: context,
+      initial: _filter,
+      options: options,
+    );
+    if (result != null && mounted) {
+      setState(() => _filter = result);
+    }
   }
 
   @override
@@ -122,12 +141,17 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                     (sub) => sub.id == _selectedSubId,
                     orElse: () => subcategories.first,
                   );
-            final filteredProducts = _filteredProducts(products, selectedSub);
+            final base = _baseFiltered(products, selectedSub);
+            final filteredProducts = ProductFilterEngine.apply(
+              products: base,
+              filter: _filter,
+            );
 
             return Scaffold(
               backgroundColor: AppColors.background,
               appBar: CavaAppBar(
-                title: isAllProducts ? 'All Products' : category?.label ?? 'Produktet',
+                title:
+                    isAllProducts ? 'All Products' : category?.label ?? 'Produktet',
                 showBack: true,
               ),
               body: Column(
@@ -137,15 +161,26 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                     padding: const EdgeInsets.fromLTRB(
                       AppSpacing.screen,
                       AppSpacing.md,
-                      AppSpacing.screen,
+                      AppSpacing.sm,
                       AppSpacing.sm,
                     ),
-                    child: CavaSearchBar(
-                      hint: isAllProducts
-                          ? 'Kërko të gjitha produktet…'
-                          : 'Kërko në ${category?.label ?? 'kategori'}…',
-                      controller: _searchController,
-                      onChanged: (value) => setState(() => _searchQuery = value),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: CavaSearchBar(
+                            hint: isAllProducts
+                                ? 'Kërko të gjitha produktet…'
+                                : 'Kërko në ${category?.label ?? 'kategori'}…',
+                            controller: _searchController,
+                            onChanged: (value) =>
+                                setState(() => _searchQuery = value),
+                          ),
+                        ),
+                        ProductFilterButton(
+                          activeCount: _filter.activeCount,
+                          onPressed: () => _openFilters(products),
+                        ),
+                      ],
                     ),
                   ),
                   if (subcategories.length > 1) ...[
@@ -194,10 +229,30 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
 
     if (filteredProducts.isEmpty) {
       return Center(
-        child: Text(
-          'Nuk u gjet asnjë produkt.',
-          style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.textSecondary,
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.screen),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _filter.isActive
+                    ? 'Nuk u gjet asnjë produkt me këto filtra.'
+                    : 'Nuk u gjet asnjë produkt.',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              if (_filter.isActive) ...[
+                const SizedBox(height: AppSpacing.md),
+                OutlinedButton(
+                  onPressed: () => setState(() {
+                    _filter = ProductFilterState.empty;
+                  }),
+                  child: const Text('Pastro filtrat'),
+                ),
+              ],
+            ],
           ),
         ),
       );
@@ -217,8 +272,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
         mainAxisSpacing: AppSpacing.md,
       ),
       itemCount: filteredProducts.length,
-      itemBuilder: (_, i) =>
-          ProductGridCard(product: filteredProducts[i]),
+      itemBuilder: (_, i) => ProductGridCard(product: filteredProducts[i]),
     );
   }
 }

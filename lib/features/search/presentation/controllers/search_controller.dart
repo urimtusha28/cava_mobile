@@ -4,6 +4,8 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/presentation/base_controller.dart';
 import '../../../../core/presentation/result_extensions.dart';
 import '../../../products/domain/entities/product_entity.dart';
+import '../../../products/domain/filtering/product_filter_engine.dart';
+import '../../../products/domain/filtering/product_filter_state.dart';
 import '../../../products/domain/usecases/get_all_products.dart';
 import '../../data/local/recent_search_storage.dart';
 
@@ -16,13 +18,19 @@ class SearchController extends BaseController {
   static const Duration debounceDuration = Duration(milliseconds: 300);
 
   final List<ProductEntity> _allProducts = [];
+  final List<ProductEntity> _rawResults = [];
   final List<ProductEntity> results = [];
   String query = '';
   bool hasLoadedProducts = false;
   bool isSearching = false;
   List<String> recentSearches = const [];
+  ProductFilterState filter = ProductFilterState.empty;
 
   Timer? _debounceTimer;
+
+  /// Unfiltered search matches — used to build filter facet options.
+  List<ProductEntity> get rawSearchResults =>
+      List<ProductEntity>.unmodifiable(_rawResults);
 
   Future<void> loadInitial() async {
     await _loadRecentSearches();
@@ -55,6 +63,7 @@ class SearchController extends BaseController {
     _debounceTimer?.cancel();
 
     if (query.length < 2) {
+      _rawResults.clear();
       results.clear();
       notifyListeners();
       return;
@@ -66,8 +75,19 @@ class SearchController extends BaseController {
     });
   }
 
+  void applyFilter(ProductFilterState next) {
+    filter = next;
+    _applyFiltersToResults();
+  }
+
+  void clearFilter() {
+    filter = ProductFilterState.empty;
+    _applyFiltersToResults();
+  }
+
   void _applySearch() {
     if (query.length < 2) {
+      _rawResults.clear();
       results.clear();
       notifyListeners();
       return;
@@ -84,9 +104,20 @@ class SearchController extends BaseController {
     }
 
     scored.sort((a, b) => b.$2.compareTo(a.$2));
-    results
+    _rawResults
       ..clear()
       ..addAll(scored.map((tuple) => tuple.$1));
+    _applyFiltersToResults();
+  }
+
+  void _applyFiltersToResults() {
+    final filtered = ProductFilterEngine.apply(
+      products: _rawResults,
+      filter: filter,
+    );
+    results
+      ..clear()
+      ..addAll(filtered);
     notifyListeners();
   }
 
