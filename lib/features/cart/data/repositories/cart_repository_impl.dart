@@ -22,6 +22,7 @@ class CartRepositoryImpl implements CartRepository {
         await _mergeGuestCartIfNeeded();
       } else {
         _mergedForUserId = null;
+        _mergeInFlight = null;
         _firestoreDataSource.invalidateCache();
       }
       await _refreshBadge();
@@ -34,6 +35,7 @@ class CartRepositoryImpl implements CartRepository {
 
   StreamSubscription<bool>? _authSubscription;
   String? _mergedForUserId;
+  Future<void>? _mergeInFlight;
 
   Future<CartDataSource> _activeDataSource() async {
     final loggedIn = await _authRepository.isLoggedIn();
@@ -54,7 +56,37 @@ class CartRepositoryImpl implements CartRepository {
       return;
     }
 
+    final inFlight = _mergeInFlight;
+    if (inFlight != null) {
+      await inFlight;
+      return;
+    }
+
+    final mergeFuture = _runMerge(userId);
+    _mergeInFlight = mergeFuture;
+    try {
+      await mergeFuture;
+    } finally {
+      if (identical(_mergeInFlight, mergeFuture)) {
+        _mergeInFlight = null;
+      }
+    }
+  }
+
+  Future<void> _runMerge(String userId) async {
+    // Re-check after awaiting any prior race window.
+    if (_mergedForUserId == userId) {
+      return;
+    }
+
     final guestEntries = await _localDataSource.readStoredEntries();
+
+    if (guestEntries.isEmpty) {
+      // Nothing to merge — mark done so auth events don't rewrite cloud cart.
+      _mergedForUserId = userId;
+      return;
+    }
+
     final cloudEntries = await _firestoreDataSource.readStoredEntries();
     final merged = CartMergeResolver.merge(
       guestEntries: guestEntries,
@@ -179,5 +211,6 @@ class CartRepositoryImpl implements CartRepository {
 
   void dispose() {
     _authSubscription?.cancel();
+    _authSubscription = null;
   }
 }

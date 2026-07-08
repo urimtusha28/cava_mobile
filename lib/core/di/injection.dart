@@ -211,6 +211,11 @@ void _registerCart({FirebaseFirestore? firestoreOverride}) {
       sl<CartFirestoreDataSource>(),
       sl<AuthRepository>(),
     ),
+    dispose: (repo) {
+      if (repo is CartRepositoryImpl) {
+        repo.dispose();
+      }
+    },
   );
 }
 
@@ -239,6 +244,11 @@ void _registerWishlist({FirebaseFirestore? firestoreOverride}) {
       sl<WishlistFirestoreDataSource>(),
       sl<AuthRepository>(),
     ),
+    dispose: (repo) {
+      if (repo is WishlistRepositoryImpl) {
+        repo.dispose();
+      }
+    },
   );
 }
 
@@ -250,6 +260,11 @@ void _registerAuth() {
   sl.registerLazySingleton<AuthDataSource>(_createAuthDataSource);
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(sl<AuthDataSource>()),
+    dispose: (repo) {
+      if (repo is AuthRepositoryImpl) {
+        repo.dispose();
+      }
+    },
   );
 }
 
@@ -659,11 +674,21 @@ Future<void> configureTestDependencies({
     sl.registerLazySingleton<AuthDataSource>(() => authDataSource);
     sl.registerLazySingleton<AuthRepository>(
       () => AuthRepositoryImpl(sl<AuthDataSource>()),
+      dispose: (repo) {
+        if (repo is AuthRepositoryImpl) {
+          repo.dispose();
+        }
+      },
     );
   } else {
     sl.registerLazySingleton<AuthDataSource>(() => const AuthMockDataSource());
     sl.registerLazySingleton<AuthRepository>(
       () => AuthRepositoryImpl(sl<AuthDataSource>()),
+      dispose: (repo) {
+        if (repo is AuthRepositoryImpl) {
+          repo.dispose();
+        }
+      },
     );
   }
 
@@ -717,6 +742,11 @@ Future<void> configureTestDependencies({
         sl<WishlistFirestoreDataSource>(),
         sl<AuthRepository>(),
       ),
+      dispose: (repo) {
+        if (repo is WishlistRepositoryImpl) {
+          repo.dispose();
+        }
+      },
     );
   } else {
     _registerWishlist(firestoreOverride: wishlistFirestore);

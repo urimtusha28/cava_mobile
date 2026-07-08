@@ -19,6 +19,7 @@ class WishlistRepositoryImpl implements WishlistRepository {
         await _mergeGuestWishlistIfNeeded();
       } else {
         _mergedForUserId = null;
+        _mergeInFlight = null;
       }
       await _refreshBadge();
     });
@@ -30,6 +31,7 @@ class WishlistRepositoryImpl implements WishlistRepository {
 
   StreamSubscription<bool>? _authSubscription;
   String? _mergedForUserId;
+  Future<void>? _mergeInFlight;
 
   Future<WishlistDataSource> _activeDataSource() async {
     final loggedIn = await _authRepository.isLoggedIn();
@@ -50,7 +52,34 @@ class WishlistRepositoryImpl implements WishlistRepository {
       return;
     }
 
+    final inFlight = _mergeInFlight;
+    if (inFlight != null) {
+      await inFlight;
+      return;
+    }
+
+    final mergeFuture = _runMerge(userId);
+    _mergeInFlight = mergeFuture;
+    try {
+      await mergeFuture;
+    } finally {
+      if (identical(_mergeInFlight, mergeFuture)) {
+        _mergeInFlight = null;
+      }
+    }
+  }
+
+  Future<void> _runMerge(String userId) async {
+    if (_mergedForUserId == userId) {
+      return;
+    }
+
     final guestEntries = await _localDataSource.readStoredEntries();
+    if (guestEntries.isEmpty) {
+      _mergedForUserId = userId;
+      return;
+    }
+
     for (final entry in guestEntries) {
       DateTime? createdAt;
       try {
@@ -59,6 +88,7 @@ class WishlistRepositoryImpl implements WishlistRepository {
         createdAt = null;
       }
 
+      // Deterministic doc id = productId + merge:true → no duplicates.
       await _firestoreDataSource.addEntry(
         productId: entry.productId,
         createdAt: createdAt,
@@ -123,5 +153,6 @@ class WishlistRepositoryImpl implements WishlistRepository {
 
   void dispose() {
     _authSubscription?.cancel();
+    _authSubscription = null;
   }
 }
