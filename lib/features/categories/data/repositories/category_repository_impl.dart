@@ -1,6 +1,7 @@
 import '../../domain/entities/category_entity.dart';
 import '../../domain/entities/subcategory_entity.dart';
 import '../../domain/repositories/category_repository.dart';
+import '../../domain/utils/subcategory_chip_order.dart';
 import '../datasources/category_data_source.dart';
 import '../mappers/category_mapper.dart';
 import '../mappers/subcategory_mapper.dart';
@@ -24,8 +25,9 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
   @override
   Future<List<SubcategoryEntity>> getSubcategories(String categoryId) async {
-    return SubcategoryMapper.toEntityList(
+    final entities = SubcategoryMapper.toEntityList(
       await _dataSource.getSubcategories(categoryId),
     );
+    return applySubcategoryChipOrder(entities);
   }
 }
