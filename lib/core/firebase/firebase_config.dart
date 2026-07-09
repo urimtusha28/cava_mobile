@@ -29,6 +29,10 @@ abstract final class FirebaseConfig {
   /// In-memory cache TTL for Firestore product/category reads.
   static const Duration firestoreCacheTtl = Duration(minutes: 5);
 
+  /// Cloud Functions region for callable HTTPS (must match deploy).
+  /// Default Gen1 callables without `.region()` → `us-central1`.
+  static const String functionsRegion = 'us-central1';
+
   // Firestore collections
   static const String productsCollection = 'products';
   static const String categoriesCollection = 'categories';

@@ -9,6 +9,7 @@ import 'package:cava_ecommerce/features/cart/domain/usecases/add_to_cart.dart';
 import 'package:cava_ecommerce/features/cart/domain/usecases/clear_cart.dart';
 import 'package:cava_ecommerce/features/checkout/data/datasources/checkout_mock_datasource.dart';
 import 'package:cava_ecommerce/features/checkout/data/local/checkout_selected_address_storage.dart';
+import 'package:cava_ecommerce/features/checkout/domain/entities/guest_checkout_customer.dart';
 import 'package:cava_ecommerce/features/checkout/presentation/controllers/checkout_controller.dart';
 import 'package:cava_ecommerce/features/checkout/presentation/models/checkout_session_state.dart';
 import 'package:cava_ecommerce/features/categories/data/datasources/category_mock_datasource.dart';
@@ -227,8 +228,40 @@ void main() {
     expect(result.message, 'Shporta është bosh.');
   });
 
-  test('blocks guest checkout', () async {
+  test('blocks order when terms not accepted', () async {
+    await checkoutController.load();
+    await checkoutController.selectAddress(checkoutController.addresses.first);
+
+    final result = await checkoutController.submitOrder(
+      paymentMethod: 'cash',
+      termsAccepted: false,
+    );
+
+    expect(result.status, CheckoutSubmitStatus.validationError);
+    expect(result.message, 'Duhet të pranosh kushtet.');
+  });
+
+  test('logged in user with cash does not get login snackbar message', () async {
+    await checkoutController.load();
+    await checkoutController.selectAddress(checkoutController.addresses.first);
+
+    final result = await checkoutController.submitOrder(
+      paymentMethod: 'cash',
+      termsAccepted: true,
+    );
+
+    expect(result.status, CheckoutSubmitStatus.success);
+    expect(result.message, isNot(contains('Kyçu')));
+    expect(checkoutDataSource.lastPayload?['customerType'], 'user');
+    expect(checkoutDataSource.lastPayload?['userId'], MockAuth.currentUser.uid);
+    expect(checkoutDataSource.lastPayload?['paymentMethod'], 'cash');
+  });
+
+  test('blocks guest checkout without guest info', () async {
     MockAuth.logout();
+    await sl<AddToCartUseCase>()(
+      AddToCartParams(product: MockProducts.products.first, quantity: 1),
+    );
     await checkoutController.load();
 
     final result = await checkoutController.submitOrder(
@@ -236,7 +269,97 @@ void main() {
       termsAccepted: true,
     );
 
-    expect(result.message, 'Kyçu për të vazhduar me porosinë.');
+    expect(result.status, CheckoutSubmitStatus.validationError);
+    expect(result.message, 'Plotëso të dhënat për dorëzim.');
+  });
+
+  test('guest submit sends customerType guest and does not require login',
+      () async {
+    MockAuth.logout();
+    await sl<AddToCartUseCase>()(
+      AddToCartParams(product: MockProducts.products.first, quantity: 1),
+    );
+    await checkoutController.load();
+    await checkoutController.saveGuestCustomer(
+      const GuestCheckoutCustomer(
+        firstName: 'Ana',
+        lastName: 'Krasniqi',
+        email: 'ana@cava.test',
+        phone: '+38344111222',
+        address: 'Rruga A 1',
+        city: 'Prishtinë',
+        country: 'Kosovë',
+        zip: '10000',
+      ),
+    );
+
+    final result = await checkoutController.submitOrder(
+      paymentMethod: 'cash',
+      termsAccepted: true,
+    );
+
+    expect(result.status, CheckoutSubmitStatus.success);
+    expect(checkoutDataSource.lastPayload?['customerType'], 'guest');
+    expect(checkoutDataSource.lastPayload?['userId'], isNull);
+    expect(
+      checkoutDataSource.lastPayload?['customer']['email'],
+      'ana@cava.test',
+    );
+  });
+
+  test('logged-in submit sends customerType user with userId', () async {
+    await checkoutController.load();
+    await checkoutController.selectAddress(checkoutController.addresses.first);
+
+    final result = await checkoutController.submitOrder(
+      paymentMethod: 'cash',
+      termsAccepted: true,
+    );
+
+    expect(result.status, CheckoutSubmitStatus.success);
+    expect(checkoutDataSource.lastPayload?['customerType'], 'user');
+    expect(checkoutDataSource.lastPayload?['userId'], MockAuth.currentUser.uid);
+  });
+
+  test('submitOrder refreshes auth and does not treat logged-in user as guest',
+      () async {
+    await checkoutController.load();
+    await checkoutController.selectAddress(checkoutController.addresses.first);
+
+    // Stale cached flag must not block submit when AuthRepository still has user.
+    checkoutController.isLoggedIn = false;
+
+    final result = await checkoutController.submitOrder(
+      paymentMethod: 'cash',
+      termsAccepted: true,
+    );
+
+    expect(result.status, CheckoutSubmitStatus.success);
+    expect(result.message, isNull);
+    expect(checkoutController.isLoggedIn, isTrue);
+    expect(checkoutDataSource.lastPayload?['userId'], MockAuth.currentUser.uid);
+    expect(
+      checkoutDataSource.lastPayload?['customer']['email'],
+      MockAuth.userEmail,
+    );
+  });
+
+  test('submit after logout without guest info asks for delivery details',
+      () async {
+    await checkoutController.load();
+    await checkoutController.selectAddress(checkoutController.addresses.first);
+    expect(checkoutController.isLoggedIn, isTrue);
+
+    MockAuth.logout();
+
+    final result = await checkoutController.submitOrder(
+      paymentMethod: 'cash',
+      termsAccepted: true,
+    );
+
+    expect(result.status, CheckoutSubmitStatus.validationError);
+    expect(result.message, 'Plotëso të dhënat për dorëzim.');
+    expect(checkoutDataSource.lastPayload, isNull);
   });
 
   test('load reads active Firestore cart when logged in', () async {

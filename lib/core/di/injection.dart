@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 
@@ -72,6 +71,7 @@ import '../../features/checkout/domain/repositories/checkout_repository.dart';
 import '../../features/checkout/domain/usecases/place_order.dart';
 import '../../features/checkout/presentation/controllers/order_success_controller.dart';
 import '../../features/checkout/data/local/checkout_selected_address_storage.dart';
+import '../../features/checkout/data/local/guest_checkout_customer_storage.dart';
 import '../../features/checkout/presentation/controllers/checkout_controller.dart';
 import '../../features/home/data/datasources/home_data_source.dart';
 import '../../features/home/data/datasources/home_mock_datasource.dart';
@@ -354,8 +354,11 @@ void _registerCheckout() {
   sl.registerLazySingleton<CheckoutSelectedAddressStorage>(
     () => CheckoutSelectedAddressStorage(),
   );
+  sl.registerLazySingleton<GuestCheckoutCustomerStorage>(
+    () => GuestCheckoutCustomerStorage(),
+  );
   sl.registerLazySingleton<FirebaseFunctionsGateway>(
-    () => FirebaseFunctionsGatewayImpl(FirebaseFunctions.instance),
+    () => FirebaseFunctionsGatewayImpl.createDefault(),
   );
   sl.registerLazySingleton<CheckoutDataSource>(
     () => CheckoutFirebaseDataSource(sl<FirebaseFunctionsGateway>()),
@@ -366,6 +369,7 @@ void _registerCheckout() {
       sl<AuthRepository>(),
       sl<AddressesRepository>(),
       sl<CartRepository>(),
+      sl<ProductRepository>(),
     ),
   );
 }
@@ -569,10 +573,10 @@ void _registerControllers() {
       sl<CartController>(),
       sl<PlaceOrderUseCase>(),
       sl<ClearCartUseCase>(),
-      sl<IsLoggedInUseCase>(),
       sl<GetAddressesUseCase>(),
       sl<GetCurrentUserUseCase>(),
       sl<CheckoutSelectedAddressStorage>(),
+      sl<GuestCheckoutCustomerStorage>(),
     ),
   );
 }
@@ -617,6 +621,11 @@ Future<void> resetDependencies() async {
   }
   try {
     await CheckoutSelectedAddressStorage().clear();
+  } catch (_) {
+    // SharedPreferences may be unavailable before Flutter binding init.
+  }
+  try {
+    await GuestCheckoutCustomerStorage().clear();
   } catch (_) {
     // SharedPreferences may be unavailable before Flutter binding init.
   }
@@ -790,6 +799,11 @@ Future<void> configureTestDependencies({
         () => CheckoutSelectedAddressStorage(),
       );
     }
+    if (!sl.isRegistered<GuestCheckoutCustomerStorage>()) {
+      sl.registerLazySingleton<GuestCheckoutCustomerStorage>(
+        () => GuestCheckoutCustomerStorage(),
+      );
+    }
     sl.registerLazySingleton<CheckoutDataSource>(() => checkoutDataSource);
     sl.registerLazySingleton<CheckoutRepository>(
       () => CheckoutRepositoryImpl(
@@ -797,6 +811,7 @@ Future<void> configureTestDependencies({
         sl<AuthRepository>(),
         sl<AddressesRepository>(),
         sl<CartRepository>(),
+        sl<ProductRepository>(),
       ),
     );
   } else {

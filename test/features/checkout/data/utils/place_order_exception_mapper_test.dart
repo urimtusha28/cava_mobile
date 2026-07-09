@@ -30,6 +30,24 @@ void main() {
     );
     expect(
       PlaceOrderExceptionMapper.toUserMessage(
+        const ValidationFailure(message: 'x', code: 'GUEST_INFO_REQUIRED'),
+      ),
+      'Plotëso të dhënat për dorëzim.',
+    );
+    expect(
+      PlaceOrderExceptionMapper.toUserMessage(
+        const ServerFailure(message: 'x', code: 'AUTH_USER_MISMATCH'),
+      ),
+      'Sesioni i llogarisë nuk përputhet. Dil dhe kyçu përsëri.',
+    );
+    expect(
+      PlaceOrderExceptionMapper.toUserMessage(
+        const ServerFailure(message: 'x', code: 'INVALID_PAYMENT_METHOD'),
+      ),
+      contains('pagesës'),
+    );
+    expect(
+      PlaceOrderExceptionMapper.toUserMessage(
         const ServerFailure(message: 'x', code: 'RATE_LIMITED'),
       ),
       'Provo përsëri më vonë.',

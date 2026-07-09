@@ -7,9 +7,12 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../data/utils/auth_form_validator.dart';
 import '../controllers/auth_controller.dart';
 
+enum AuthBottomSheetMode { login, register }
+
 Future<void> showAuthBottomSheet({
   required BuildContext context,
   required AuthController controller,
+  AuthBottomSheetMode initialMode = AuthBottomSheetMode.login,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -43,6 +46,7 @@ Future<void> showAuthBottomSheet({
                 child: _AuthSheetBody(
                   controller: controller,
                   scrollController: scrollController,
+                  initialMode: initialMode,
                 ),
               ),
             );
@@ -59,17 +63,22 @@ class _AuthSheetBody extends StatefulWidget {
   const _AuthSheetBody({
     required this.controller,
     required this.scrollController,
+    required this.initialMode,
   });
 
   final AuthController controller;
   final ScrollController scrollController;
+  final AuthBottomSheetMode initialMode;
 
   @override
   State<_AuthSheetBody> createState() => _AuthSheetBodyState();
 }
 
 class _AuthSheetBodyState extends State<_AuthSheetBody> {
-  _AuthSheetMode _mode = _AuthSheetMode.login;
+  late _AuthSheetMode _mode = switch (widget.initialMode) {
+    AuthBottomSheetMode.login => _AuthSheetMode.login,
+    AuthBottomSheetMode.register => _AuthSheetMode.register,
+  };
 
   final _loginEmailController = TextEditingController();
   final _loginPasswordController = TextEditingController();

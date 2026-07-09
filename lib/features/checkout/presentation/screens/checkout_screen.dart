@@ -10,9 +10,12 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_checkbox.dart';
 import '../../../../core/widgets/checkout_screen_header.dart';
 import '../../../../core/widgets/footer_action_button.dart';
+import '../../../account/presentation/controllers/auth_controller.dart';
+import '../../../account/presentation/widgets/auth_bottom_sheet.dart';
 import '../controllers/checkout_controller.dart';
 import '../models/checkout_session_state.dart';
 import '../widgets/checkout_address_selector_bottom_sheet.dart';
+import '../widgets/guest_checkout_info_bottom_sheet.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -23,6 +26,7 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   late final CheckoutController _controller;
+  late final AuthController _authController;
   late final Future<void> _loadFuture;
 
   String _payment = 'cash';
@@ -32,6 +36,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   void initState() {
     super.initState();
     _controller = createCheckoutController();
+    _authController = createAuthController();
     _loadFuture = _controller.load();
   }
 
@@ -74,6 +79,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
+  Future<void> _openGuestInfoSheet() async {
+    await showGuestCheckoutInfoBottomSheet(
+      context: context,
+      checkoutController: _controller,
+    );
+  }
+
+  Future<void> _openAuth(AuthBottomSheetMode mode) async {
+    await showAuthBottomSheet(
+      context: context,
+      controller: _authController,
+      initialMode: mode,
+    );
+    if (!mounted) {
+      return;
+    }
+    await _controller.load();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
@@ -83,55 +107,66 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           listenable: _controller,
           builder: (context, _) {
             return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const CheckoutScreenHeader(
-              scriptTitle: 'Finalizo',
-              boldTitle: 'Porosinë',
-              showBack: true,
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-                children: [
-                  _UserInfoCard(
-                    email: _controller.customerInfo.email,
-                    hasAddresses: _controller.hasAddresses,
-                    hasSelectedAddress: _controller.hasSelectedAddress,
-                    fullName: _controller.customerInfo.fullName,
-                    phone: _controller.customerInfo.phone,
-                    address: _controller.customerInfo.addressLine,
-                    city: _controller.customerInfo.city,
-                    country: _controller.customerInfo.country,
-                    zip: _controller.customerInfo.zip,
-                    onChangeAddress: () => _openAddressSelector(),
-                    onAddAddress: () => _openAddressSelector(),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  _PaymentMethodsCard(
-                    selected: _payment,
-                    onChanged: (value) => setState(() => _payment = value),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                ],
+              backgroundColor: AppColors.background,
+              body: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const CheckoutScreenHeader(
+                      scriptTitle: 'Finalizo',
+                      boldTitle: 'Porosinë',
+                      showBack: true,
+                    ),
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.screen,
+                        ),
+                        children: [
+                          _UserInfoCard(
+                            isLoggedIn: _controller.isLoggedIn,
+                            email: _controller.customerInfo.email,
+                            hasAddresses: _controller.hasAddresses,
+                            hasSelectedAddress: _controller.hasSelectedAddress,
+                            hasGuestCustomer: _controller.hasGuestCustomer,
+                            fullName: _controller.customerInfo.fullName,
+                            phone: _controller.customerInfo.phone,
+                            address: _controller.customerInfo.addressLine,
+                            city: _controller.customerInfo.city,
+                            country: _controller.customerInfo.country,
+                            zip: _controller.customerInfo.zip,
+                            onChangeAddress: () => _openAddressSelector(),
+                            onAddAddress: () => _openAddressSelector(),
+                            onGuestCheckout: () => _openGuestInfoSheet(),
+                            onEditGuestInfo: () => _openGuestInfoSheet(),
+                            onLogin: () => _openAuth(AuthBottomSheetMode.login),
+                            onRegister: () =>
+                                _openAuth(AuthBottomSheetMode.register),
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          _PaymentMethodsCard(
+                            selected: _payment,
+                            onChanged: (value) =>
+                                setState(() => _payment = value),
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                        ],
+                      ),
+                    ),
+                    _CheckoutFooter(
+                      total: _controller.total,
+                      termsAccepted: _acceptedTerms,
+                      onTermsChanged: _controller.isSubmitting
+                          ? null
+                          : (value) =>
+                              setState(() => _acceptedTerms = value ?? false),
+                      enabled: _acceptedTerms && !_controller.isSubmitting,
+                      isLoading: _controller.isSubmitting,
+                      onBuy: _handlePlaceOrder,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            _CheckoutFooter(
-              total: _controller.total,
-              termsAccepted: _acceptedTerms,
-              onTermsChanged: _controller.isSubmitting
-                  ? null
-                  : (value) => setState(() => _acceptedTerms = value ?? false),
-              enabled: _acceptedTerms && !_controller.isSubmitting,
-              isLoading: _controller.isSubmitting,
-              onBuy: _handlePlaceOrder,
-            ),
-          ],
-        ),
-      ),
             );
           },
         );
@@ -142,9 +177,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
 class _UserInfoCard extends StatelessWidget {
   const _UserInfoCard({
+    required this.isLoggedIn,
     required this.email,
     required this.hasAddresses,
     required this.hasSelectedAddress,
+    required this.hasGuestCustomer,
     required this.fullName,
     required this.phone,
     required this.address,
@@ -153,11 +190,17 @@ class _UserInfoCard extends StatelessWidget {
     required this.zip,
     required this.onChangeAddress,
     required this.onAddAddress,
+    required this.onGuestCheckout,
+    required this.onEditGuestInfo,
+    required this.onLogin,
+    required this.onRegister,
   });
 
+  final bool isLoggedIn;
   final String email;
   final bool hasAddresses;
   final bool hasSelectedAddress;
+  final bool hasGuestCustomer;
   final String fullName;
   final String phone;
   final String address;
@@ -166,6 +209,10 @@ class _UserInfoCard extends StatelessWidget {
   final String zip;
   final VoidCallback onChangeAddress;
   final VoidCallback onAddAddress;
+  final VoidCallback onGuestCheckout;
+  final VoidCallback onEditGuestInfo;
+  final VoidCallback onLogin;
+  final VoidCallback onRegister;
 
   @override
   Widget build(BuildContext context) {
@@ -176,6 +223,11 @@ class _UserInfoCard extends StatelessWidget {
     final trimmedCity = city.trim();
     final trimmedCountry = country.trim();
     final trimmedZip = zip.trim();
+
+    final showGuestActions = !isLoggedIn && !hasGuestCustomer;
+    final showDeliveryDetails = isLoggedIn
+        ? (hasAddresses && hasSelectedAddress)
+        : hasGuestCustomer;
 
     return _BorderedCard(
       child: Column(
@@ -190,9 +242,26 @@ class _UserInfoCard extends StatelessWidget {
                   style: AppTextStyles.h3,
                 ),
               ),
-              if (hasAddresses)
+              if (isLoggedIn && hasAddresses)
                 TextButton(
                   onPressed: onChangeAddress,
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.burgundy,
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    'Ndrysho >',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.burgundy,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                )
+              else if (!isLoggedIn && hasGuestCustomer)
+                TextButton(
+                  onPressed: onEditGuestInfo,
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.burgundy,
                     padding: EdgeInsets.zero,
@@ -210,16 +279,22 @@ class _UserInfoCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          if (!hasAddresses)
+          if (showGuestActions)
+            _GuestAuthActions(
+              onGuestCheckout: onGuestCheckout,
+              onLogin: onLogin,
+              onRegister: onRegister,
+            )
+          else if (isLoggedIn && !hasAddresses)
             _DeliveryEmptyState(onAddAddress: onAddAddress)
-          else if (!hasSelectedAddress)
+          else if (isLoggedIn && !hasSelectedAddress)
             Text(
               'Zgjidh adresën e dorëzimit.',
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppColors.textSecondary,
               ),
             )
-          else ...[
+          else if (showDeliveryDetails) ...[
             if (trimmedName.isNotEmpty) ...[
               _InfoLine('Emri:', trimmedName),
               const SizedBox(height: AppSpacing.sm),
@@ -247,6 +322,109 @@ class _UserInfoCard extends StatelessWidget {
             if (trimmedZip.isNotEmpty) _InfoLine('Kodi postar:', trimmedZip),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _GuestAuthActions extends StatelessWidget {
+  const _GuestAuthActions({
+    required this.onGuestCheckout,
+    required this.onLogin,
+    required this.onRegister,
+  });
+
+  final VoidCallback onGuestCheckout;
+  final VoidCallback onLogin;
+  final VoidCallback onRegister;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Nuk je i kyçur.',
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textSecondary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        _CheckoutActionButton(
+          label: 'Bli pa u regjistruar',
+          filled: true,
+          onPressed: onGuestCheckout,
+        ),
+        const SizedBox(height: AppSpacing.md),
+        _CheckoutActionButton(
+          label: 'Hyr',
+          onPressed: onLogin,
+        ),
+        const SizedBox(height: AppSpacing.md),
+        _CheckoutActionButton(
+          label: 'Regjistrohu',
+          onPressed: onRegister,
+        ),
+      ],
+    );
+  }
+}
+
+class _CheckoutActionButton extends StatelessWidget {
+  const _CheckoutActionButton({
+    required this.label,
+    required this.onPressed,
+    this.filled = false,
+  });
+
+  final String label;
+  final VoidCallback onPressed;
+  final bool filled;
+
+  @override
+  Widget build(BuildContext context) {
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    );
+
+    if (filled) {
+      return SizedBox(
+        height: 48,
+        child: FilledButton(
+          onPressed: onPressed,
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.burgundy,
+            foregroundColor: Colors.white,
+            shape: shape,
+          ),
+          child: Text(
+            label,
+            style: AppTextStyles.body.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 48,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.burgundy,
+          side: const BorderSide(color: AppColors.burgundy),
+          shape: shape,
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.body.copyWith(
+            color: AppColors.burgundy,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }

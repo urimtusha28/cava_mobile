@@ -3,6 +3,7 @@ import 'package:cava_ecommerce/features/account/domain/entities/address_entity.d
 import 'package:cava_ecommerce/features/account/domain/entities/auth_user_entity.dart';
 import 'package:cava_ecommerce/features/checkout/data/datasources/checkout_mock_datasource.dart';
 import 'package:cava_ecommerce/features/checkout/data/repositories/checkout_repository_impl.dart';
+import 'package:cava_ecommerce/features/checkout/domain/entities/guest_checkout_customer.dart';
 import 'package:cava_ecommerce/features/checkout/domain/repositories/checkout_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -26,6 +27,7 @@ void main() {
   late MockAuthRepository authRepository;
   late MockAddressesRepository addressesRepository;
   late MockCartRepository cartRepository;
+  late MockProductRepository productRepository;
   late CheckoutMockDataSource checkoutDataSource;
   late CheckoutRepositoryImpl repository;
 
@@ -33,6 +35,7 @@ void main() {
     authRepository = MockAuthRepository();
     addressesRepository = MockAddressesRepository();
     cartRepository = MockCartRepository();
+    productRepository = MockProductRepository();
     checkoutDataSource = CheckoutMockDataSource();
 
     repository = CheckoutRepositoryImpl(
@@ -40,6 +43,7 @@ void main() {
       authRepository,
       addressesRepository,
       cartRepository,
+      productRepository,
     );
 
     when(() => authRepository.getCurrentUser()).thenAnswer(
@@ -51,6 +55,14 @@ void main() {
     );
     when(() => cartRepository.hydrateFromStorage()).thenAnswer((_) async {});
     when(() => cartRepository.getItems()).thenAnswer((_) async => [testCartItem]);
+    when(() => cartRepository.getSubtotal()).thenAnswer((_) async => 50.0);
+    when(() => cartRepository.getVat()).thenAnswer((_) async => 0.0);
+    when(() => cartRepository.getShipping()).thenAnswer((_) async => 0.0);
+    when(() => cartRepository.getDiscount()).thenAnswer((_) async => 0.0);
+    when(() => cartRepository.getTotal()).thenAnswer((_) async => 50.0);
+    when(() => productRepository.getById(any())).thenAnswer(
+      (_) async => testProductEntity,
+    );
     when(() => addressesRepository.getAddresses()).thenAnswer(
       (_) async => [testAddressEntity, testOfficeAddressEntity],
     );
@@ -67,7 +79,13 @@ void main() {
 
     expect(checkoutDataSource.lastPayload, isNotNull);
     expect(checkoutDataSource.lastPayload!.containsKey('total'), isFalse);
+    expect(checkoutDataSource.lastPayload!['userId'], 'user-1');
+    expect(checkoutDataSource.lastPayload!['customerType'], 'user');
     expect(checkoutDataSource.lastPayload!['items'], isNotEmpty);
+
+    final items = checkoutDataSource.lastPayload!['items'] as List<dynamic>;
+    expect(items.first['price'], 25.0);
+    verify(() => productRepository.getById('p1')).called(1);
   });
 
   test('placeOrder uses selected address instead of default', () async {
@@ -120,6 +138,54 @@ void main() {
           paymentMethod: 'cash',
           termsAccepted: true,
           addressId: 'missing-id',
+        ),
+      ),
+      throwsA(isA<ValidationFailure>()),
+    );
+  });
+
+  test('placeOrder guest payload uses customerType guest', () async {
+    when(() => authRepository.getCurrentUser()).thenAnswer((_) async => null);
+
+    await repository.placeOrder(
+      PlaceOrderRequest.guest(
+        paymentMethod: 'cash',
+        termsAccepted: true,
+        guestCustomer: const GuestCheckoutCustomer(
+          firstName: 'Ana',
+          lastName: 'Krasniqi',
+          email: 'ana@cava.test',
+          phone: '+38344111222',
+          address: 'Rruga A 1',
+          city: 'Prishtinë',
+          country: 'Kosovë',
+          zip: '10000',
+        ),
+      ),
+    );
+
+    expect(checkoutDataSource.lastPayload?['customerType'], 'guest');
+    expect(checkoutDataSource.lastPayload?['userId'], isNull);
+    expect(checkoutDataSource.lastPayload?['customer']['firstName'], 'Ana');
+  });
+
+  test('throws when guest info incomplete', () async {
+    when(() => authRepository.getCurrentUser()).thenAnswer((_) async => null);
+
+    expect(
+      () => repository.placeOrder(
+        PlaceOrderRequest.guest(
+          paymentMethod: 'cash',
+          termsAccepted: true,
+          guestCustomer: const GuestCheckoutCustomer(
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            address: '',
+            city: '',
+            country: '',
+          ),
         ),
       ),
       throwsA(isA<ValidationFailure>()),

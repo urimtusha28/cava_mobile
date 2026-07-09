@@ -10,6 +10,14 @@ abstract final class PlaceOrderExceptionMapper {
       'PRICE_MISMATCH' => 'Çmimi i një produkti ka ndryshuar. Rifresko shportën.',
       'TERMS_REQUIRED' => 'Duhet të pranosh kushtet.',
       'UNAUTHENTICATED' => 'Kyçu për të vazhduar.',
+      'GUEST_INFO_REQUIRED' => 'Plotëso të dhënat për dorëzim.',
+      'AUTH_USER_MISMATCH' =>
+          'Sesioni i llogarisë nuk përputhet. Dil dhe kyçu përsëri.',
+      'INVALID_PAYMENT_METHOD' =>
+          'Metoda e pagesës nuk është e vlefshme. Zgjidh para në dorë ose bankë.',
+      'INVALID_CUSTOMER' => 'Të dhënat e dorëzimit nuk janë të vlefshme.',
+      'INVALID_ITEMS' => 'Shporta nuk është e vlefshme. Rifresko dhe provo përsëri.',
+      'PERMISSION_DENIED' => defaultMessage,
       'RATE_LIMITED' => 'Provo përsëri më vonë.',
       _ => failure.message.trim().isNotEmpty ? failure.message : defaultMessage,
     };
@@ -21,6 +29,10 @@ abstract final class PlaceOrderExceptionMapper {
       'OUT_OF_STOCK',
       'PRICE_MISMATCH',
       'TERMS_REQUIRED',
+      'AUTH_USER_MISMATCH',
+      'INVALID_PAYMENT_METHOD',
+      'INVALID_CUSTOMER',
+      'INVALID_ITEMS',
       'UNAUTHENTICATED',
       'RATE_LIMITED',
     ]) {
