@@ -85,11 +85,10 @@ class _SearchScreenState extends State<SearchScreen> {
         titleSpacing: 0,
         title: _buildSearchField(),
         actions: [
-          if (_controller.query.length >= 2)
-            ProductFilterButton(
-              activeCount: _controller.filter.activeCount,
-              onPressed: _openFilters,
-            ),
+          ProductFilterButton(
+            activeCount: _controller.filter.activeCount,
+            onPressed: _openFilters,
+          ),
         ],
       ),
       body: CavaLoadingOverlay(
@@ -100,6 +99,8 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildSearchField() {
+    final hasQuery = _controller.query.isNotEmpty;
+
     return Row(
       children: [
         Expanded(
@@ -109,19 +110,22 @@ class _SearchScreenState extends State<SearchScreen> {
             onChanged: _controller.updateQuery,
           ),
         ),
-        if (_controller.query.isNotEmpty)
-          TextButton(
-            onPressed: () {
-              _textController.clear();
-              _controller.updateQuery('');
-            },
-            child: Text(
-              'Fshij',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
-              ),
+        TextButton(
+          onPressed: hasQuery
+              ? () {
+                  _textController.clear();
+                  _controller.updateQuery('');
+                }
+              : null,
+          child: Text(
+            'Fshij',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: hasQuery
+                  ? AppColors.textSecondary
+                  : AppColors.textSecondary.withValues(alpha: 0.45),
             ),
           ),
+        ),
       ],
     );
   }
@@ -197,9 +201,7 @@ class _SearchScreenState extends State<SearchScreen> {
           padding: const EdgeInsets.all(AppSpacing.screen),
           child: Text(
             'Kërko produktet e Cava Premium.',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondary,
-            ),
+            style: AppTextStyles.emptyState,
             textAlign: TextAlign.center,
           ),
         ),
