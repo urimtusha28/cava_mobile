@@ -86,29 +86,49 @@ class _CartScreenState extends State<CartScreen> {
                         onBack: () => context.go(AppRoutes.home),
                       ),
                       Expanded(
-                        child: ListView(
-                          padding: const EdgeInsets.fromLTRB(
-                            AppSpacing.screen,
-                            0,
-                            AppSpacing.screen,
-                            AppSpacing.md,
-                          ),
+                        child: Column(
                           children: [
-                            for (var i = 0; i < items.length; i++)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                                child: _CartItemCard(
-                                  item: items[i],
-                                  onDecrease: items[i].quantity > 1
-                                      ? () => _updateQuantity(i, items[i].quantity - 1)
-                                      : null,
-                                  onIncrease: () =>
-                                      _updateQuantity(i, items[i].quantity + 1),
-                                  onRemove: () => _removeItem(i),
+                            Expanded(
+                              child: ListView.builder(
+                                padding: const EdgeInsets.fromLTRB(
+                                  AppSpacing.screen,
+                                  0,
+                                  AppSpacing.screen,
+                                  AppSpacing.md,
                                 ),
+                                itemCount: items.length,
+                                itemBuilder: (context, i) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: AppSpacing.md,
+                                    ),
+                                    child: _CartItemCard(
+                                      item: items[i],
+                                      onDecrease: items[i].quantity > 1
+                                          ? () => _updateQuantity(
+                                                i,
+                                                items[i].quantity - 1,
+                                              )
+                                          : null,
+                                      onIncrease: () => _updateQuantity(
+                                        i,
+                                        items[i].quantity + 1,
+                                      ),
+                                      onRemove: () => _removeItem(i),
+                                    ),
+                                  );
+                                },
                               ),
-                            const SizedBox(height: AppSpacing.lg),
-                            _OrderSummaryCard(controller: _controller),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                AppSpacing.screen,
+                                0,
+                                AppSpacing.screen,
+                                AppSpacing.md,
+                              ),
+                              child: _OrderSummaryCard(controller: _controller),
+                            ),
                           ],
                         ),
                       ),
