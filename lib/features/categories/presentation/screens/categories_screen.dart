@@ -238,9 +238,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                 _filter.isActive
                     ? 'Nuk u gjet asnjë produkt me këto filtra.'
                     : 'Nuk u gjet asnjë produkt.',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                style: AppTextStyles.emptyState,
                 textAlign: TextAlign.center,
               ),
               if (_filter.isActive) ...[

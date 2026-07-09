@@ -232,7 +232,7 @@ class _EmptyState extends StatelessWidget {
     return Center(
       child: Text(
         message,
-        style: AppTextStyles.body,
+        style: AppTextStyles.emptyState,
         textAlign: TextAlign.center,
       ),
     );

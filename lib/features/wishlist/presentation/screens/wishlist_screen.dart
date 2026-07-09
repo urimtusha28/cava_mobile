@@ -78,7 +78,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       ? Center(
                           child: Text(
                             'Wishlist është bosh.',
-                            style: AppTextStyles.bodySmall,
+                            style: AppTextStyles.emptyState,
                           ),
                         )
                       : ListView.separated(

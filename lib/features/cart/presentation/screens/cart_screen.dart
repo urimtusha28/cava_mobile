@@ -70,7 +70,7 @@ class _CartScreenState extends State<CartScreen> {
                         child: Center(
                           child: Text(
                             'Shporta është bosh',
-                            style: AppTextStyles.bodySmall,
+                            style: AppTextStyles.emptyState,
                           ),
                         ),
                       ),

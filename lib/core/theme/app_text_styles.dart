@@ -52,6 +52,13 @@ abstract final class AppTextStyles {
         height: 1.4,
       );
 
+  /// Centered placeholder when a list/screen has no content.
+  static TextStyle get emptyState => _base.copyWith(
+        fontSize: 17,
+        color: AppColors.textSecondary,
+        height: 1.4,
+      );
+
   static TextStyle get caption => _base.copyWith(
         fontSize: 12,
         color: AppColors.textSecondary,

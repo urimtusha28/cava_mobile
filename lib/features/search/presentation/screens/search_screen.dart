@@ -171,9 +171,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 _controller.filter.isActive
                     ? 'Nuk u gjet asnjë produkt me këto filtra.'
                     : 'Nuk u gjet asnjë produkt.',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                style: AppTextStyles.emptyState,
                 textAlign: TextAlign.center,
               ),
               if (_controller.filter.isActive) ...[
