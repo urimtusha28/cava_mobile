@@ -62,8 +62,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/icons/asd.png
-  remove_alpha_ios: true
+  image_path: assets/images/launch_icon_cava.png
 
 flutter_native_splash:
   color: "#6B1D2A"
