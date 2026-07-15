@@ -66,6 +66,9 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: assets/images/launch_icon_cava.png
+  # Safety net: if any alpha remains, fill with black (same as baked-in C/corners), never white.
+  remove_alpha_ios: true
+  background_color_ios: "#000000"
 
 flutter_native_splash:
   color: "#6B1D2A"
