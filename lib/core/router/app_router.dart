@@ -23,8 +23,7 @@ import '../../features/account/presentation/screens/language_screen.dart';
 import '../../features/account/presentation/screens/currency_screen.dart';
 import '../../features/account/presentation/screens/terms_screen.dart';
 import '../../features/account/presentation/screens/privacy_screen.dart';
-import '../../features/onboarding/presentation/screens/splash_screen.dart';
-import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/owner_dashboard/presentation/shell/owner_shell_scaffold.dart';
 import '../../features/owner_dashboard/presentation/screens/owner_dashboard_screen.dart';
 import '../../features/owner_dashboard/presentation/screens/owner_orders_screen.dart';
@@ -65,13 +64,6 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) => NoTransitionPage(
         key: state.pageKey,
         child: const SplashScreen(),
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.onboarding,
-      pageBuilder: (context, state) => NoTransitionPage(
-        key: state.pageKey,
-        child: const OnboardingScreen(),
       ),
     ),
     ShellRoute(

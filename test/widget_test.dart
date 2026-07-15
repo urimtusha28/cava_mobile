@@ -10,7 +10,8 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.byType(MaterialApp), findsOneWidget);
 
-    // Flush splash navigation timer so the test binding can dispose cleanly.
-    await tester.pump(const Duration(seconds: 3));
+    // Allow splash post-frame auth navigation to settle.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
   });
 }
