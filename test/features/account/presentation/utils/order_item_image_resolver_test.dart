@@ -45,7 +45,7 @@ void main() {
         type: 'Red',
         rating: 4.5,
         reviewCount: 10,
-        inStock: true,
+        stock: 50,
         isFeatured: false,
         imageUrl: 'https://example.com/product.jpg',
       ),

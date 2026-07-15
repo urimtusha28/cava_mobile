@@ -39,7 +39,7 @@ void main() {
         type: 'Red',
         rating: 5,
         reviewCount: 999,
-        inStock: true,
+        stock: 50,
         isFeatured: false,
       );
       when(() => dataSource.getAllProducts())

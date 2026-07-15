@@ -13,7 +13,8 @@ abstract final class ProductMapper {
     final brand = model.brandProducer ?? model.brand ?? '';
     final oldPrice = model.originalPrice ?? model.oldPrice;
     final featured = model.topPick || model.isFeatured;
-    final inStock = model.stock > 0 || model.inStock;
+    // Prefer numeric stock; never trust legacy inStock when stock is 0.
+    final stock = model.stock;
 
     return ProductEntity(
       id: model.id,
@@ -30,7 +31,7 @@ abstract final class ProductMapper {
       type: model.subCategory ?? model.type ?? '',
       rating: model.rating,
       reviewCount: model.reviewCount,
-      inStock: inStock,
+      stock: stock,
       isFeatured: featured,
       placeholderColor: model.placeholderColor,
       variants: model.variants,

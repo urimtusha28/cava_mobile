@@ -14,7 +14,7 @@ class ProductEntity {
     required this.type,
     required this.rating,
     required this.reviewCount,
-    required this.inStock,
+    required this.stock,
     required this.isFeatured,
     this.placeholderColor,
     this.variants = const [],
@@ -40,7 +40,10 @@ class ProductEntity {
   final String type;
   final double rating;
   final int reviewCount;
-  final bool inStock;
+
+  /// Available units from inventory (Firestore `stock`).
+  final int stock;
+
   final bool isFeatured;
   final int? placeholderColor;
   final List<String> variants;
@@ -50,4 +53,7 @@ class ProductEntity {
   final String? servingTemp;
   final String? imageUrl;
   final String? detailImageUrl;
+
+  /// Sellable when inventory has at least one unit.
+  bool get inStock => stock > 0;
 }

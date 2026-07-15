@@ -43,6 +43,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
     final message = switch (result) {
       AddToCartResult.success => 'Produkti u shtua në shportë.',
       AddToCartResult.outOfStock => 'Produkti nuk është në stok.',
+      AddToCartResult.insufficientStock => 'Nuk ka stok të mjaftueshëm.',
       AddToCartResult.failure => 'Nuk u shtua në shportë. Provo përsëri.',
     };
 

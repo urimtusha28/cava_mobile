@@ -36,7 +36,7 @@ const _productWithMerlot = ProductEntity(
   type: 'Merlot',
   rating: 4.5,
   reviewCount: 100,
-  inStock: true,
+  stock: 50,
   isFeatured: true,
   variants: ['750ml'],
 );
@@ -164,7 +164,7 @@ void main() {
       type: 'Merlot',
       rating: 4.5,
       reviewCount: 100,
-      inStock: false,
+      stock: 0,
       isFeatured: true,
       variants: ['750ml'],
     );

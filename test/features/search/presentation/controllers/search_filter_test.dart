@@ -26,7 +26,7 @@ const _spirit = ProductEntity(
   type: 'Whiskey',
   rating: 4,
   reviewCount: 10,
-  inStock: true,
+  stock: 50,
   isFeatured: false,
 );
 

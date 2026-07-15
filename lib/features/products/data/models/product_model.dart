@@ -113,7 +113,7 @@ class ProductModel {
       price: entity.price,
       originalPrice: entity.oldPrice,
       oldPrice: entity.oldPrice,
-      stock: entity.inStock ? 1 : 0,
+      stock: entity.stock,
       category: entity.categoryName,
       subCategory: entity.type,
       imageUrl: entity.imageUrl,

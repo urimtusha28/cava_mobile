@@ -2,5 +2,6 @@
 enum AddToCartResult {
   success,
   outOfStock,
+  insufficientStock,
   failure,
 }

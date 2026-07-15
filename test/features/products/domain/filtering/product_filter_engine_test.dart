@@ -20,7 +20,7 @@ const _p2 = ProductEntity(
   type: 'Whiskey',
   rating: 4,
   reviewCount: 50,
-  inStock: false,
+  stock: 0,
   isFeatured: false,
 );
 
@@ -37,7 +37,7 @@ const _p3 = ProductEntity(
   type: 'Red',
   rating: 3,
   reviewCount: 200,
-  inStock: true,
+  stock: 50,
   isFeatured: true,
 );
 

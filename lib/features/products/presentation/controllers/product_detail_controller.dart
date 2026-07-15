@@ -1,8 +1,10 @@
 import '../../../../core/di/injection.dart';
+import '../../../../core/error/failures.dart';
 import '../../../../core/presentation/base_controller.dart';
 import '../../../../core/presentation/result_extensions.dart';
 import '../../../cart/domain/add_to_cart_result.dart';
 import '../../../cart/domain/usecases/add_to_cart.dart';
+import '../../../cart/domain/utils/cart_stock_validator.dart';
 import '../../../categories/domain/entities/category_entity.dart';
 import '../../../categories/domain/entities/subcategory_entity.dart';
 import '../../../categories/domain/usecases/get_category_by_id.dart';
@@ -66,18 +68,34 @@ class ProductDetailController extends BaseController {
     if (current == null) {
       return AddToCartResult.failure;
     }
-    if (!current.inStock) {
+    if (!current.inStock || current.stock <= 0) {
       return AddToCartResult.outOfStock;
     }
     if (quantity <= 0) {
       return AddToCartResult.failure;
+    }
+    if (quantity > current.stock) {
+      return AddToCartResult.insufficientStock;
     }
 
     try {
       final result = await _addToCart(
         AddToCartParams(product: current, quantity: quantity),
       );
-      return result.isSuccess ? AddToCartResult.success : AddToCartResult.failure;
+      if (result.isSuccess) {
+        return AddToCartResult.success;
+      }
+      final failure = result.failureOrNull;
+      if (failure is ValidationFailure) {
+        if (failure.code == 'OUT_OF_STOCK') {
+          return AddToCartResult.outOfStock;
+        }
+        if (failure.code == 'INSUFFICIENT_STOCK' ||
+            failure.message == CartStockValidator.insufficientStockMessage) {
+          return AddToCartResult.insufficientStock;
+        }
+      }
+      return AddToCartResult.failure;
     } catch (_) {
       return AddToCartResult.failure;
     }

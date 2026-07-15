@@ -24,7 +24,7 @@ const testProductEntity = ProductEntity(
   type: 'Red',
   rating: 4.5,
   reviewCount: 100,
-  inStock: true,
+  stock: 50,
   isFeatured: true,
   variants: ['750ml'],
 );
@@ -44,7 +44,7 @@ const testProductModel = ProductModel(
   type: 'Red',
   rating: 4.5,
   reviewCount: 100,
-  inStock: true,
+  stock: 50,
   isFeatured: true,
   variants: ['750ml'],
 );

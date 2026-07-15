@@ -32,8 +32,21 @@ class _CartScreenState extends State<CartScreen> {
     _loadFuture = _controller.load();
   }
 
-  void _updateQuantity(int index, int quantity) {
-    _controller.updateQuantity(index, quantity);
+  Future<void> _updateQuantity(int index, int quantity) async {
+    final error = await _controller.updateQuantity(index, quantity);
+    if (!mounted || error == null) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          error,
+          style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
+        ),
+        backgroundColor: AppColors.burgundy,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _removeItem(int index) {
@@ -105,15 +118,22 @@ class _CartScreenState extends State<CartScreen> {
                                     child: _CartItemCard(
                                       item: items[i],
                                       onDecrease: items[i].quantity > 1
-                                          ? () => _updateQuantity(
+                                          ? () {
+                                              _updateQuantity(
                                                 i,
                                                 items[i].quantity - 1,
-                                              )
+                                              );
+                                            }
                                           : null,
-                                      onIncrease: () => _updateQuantity(
-                                        i,
-                                        items[i].quantity + 1,
-                                      ),
+                                      onIncrease: items[i].quantity <
+                                              items[i].product.stock
+                                          ? () {
+                                              _updateQuantity(
+                                                i,
+                                                items[i].quantity + 1,
+                                              );
+                                            }
+                                          : null,
                                       onRemove: () => _removeItem(i),
                                     ),
                                   );
@@ -159,7 +179,7 @@ class _CartItemCard extends StatelessWidget {
 
   final CartItemEntity item;
   final VoidCallback? onDecrease;
-  final VoidCallback onIncrease;
+  final VoidCallback? onIncrease;
   final VoidCallback onRemove;
 
   @override

@@ -7,6 +7,8 @@ abstract final class PlaceOrderExceptionMapper {
     final code = failure.code?.toUpperCase();
     return switch (code) {
       'OUT_OF_STOCK' => 'Një produkt nuk është më në stok.',
+      'INSUFFICIENT_STOCK' =>
+          'Një produkt nuk është më në dispozicion ose nuk ka stok të mjaftueshëm.',
       'PRICE_MISMATCH' => 'Çmimi i një produkti ka ndryshuar. Rifresko shportën.',
       'TERMS_REQUIRED' => 'Duhet të pranosh kushtet.',
       'UNAUTHENTICATED' => 'Kyçu për të vazhduar.',
@@ -27,6 +29,7 @@ abstract final class PlaceOrderExceptionMapper {
     final message = error.toString();
     for (final code in [
       'OUT_OF_STOCK',
+      'INSUFFICIENT_STOCK',
       'PRICE_MISMATCH',
       'TERMS_REQUIRED',
       'AUTH_USER_MISMATCH',

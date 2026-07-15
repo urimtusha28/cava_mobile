@@ -35,7 +35,7 @@ class WishlistController extends BaseController {
   }
 
   Future<AddToCartResult> addToCart(ProductEntity product) async {
-    if (!product.inStock) {
+    if (!product.inStock || product.stock <= 0) {
       return AddToCartResult.outOfStock;
     }
 
@@ -44,6 +44,13 @@ class WishlistController extends BaseController {
         AddToCartParams(product: product, quantity: 1),
       );
       if (!result.isSuccess) {
+        final failure = result.failureOrNull;
+        if (failure?.code == 'OUT_OF_STOCK') {
+          return AddToCartResult.outOfStock;
+        }
+        if (failure?.code == 'INSUFFICIENT_STOCK') {
+          return AddToCartResult.insufficientStock;
+        }
         return AddToCartResult.failure;
       }
 

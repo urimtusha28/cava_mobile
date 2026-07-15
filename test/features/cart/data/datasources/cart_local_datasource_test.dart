@@ -145,7 +145,7 @@ void main() {
       type: 'Red',
       rating: 0,
       reviewCount: 0,
-      inStock: true,
+      stock: 50,
       isFeatured: false,
     );
 

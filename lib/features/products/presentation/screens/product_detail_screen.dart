@@ -184,7 +184,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             ),
             _BottomActions(
               quantity: _quantity,
-              onQuantityChanged: (q) => setState(() => _quantity = q),
+              maxQuantity: product.stock,
+              enabled: product.inStock,
+              onQuantityChanged: (q) {
+                final max = product.stock;
+                final capped = max > 0 ? q.clamp(1, max) : 1;
+                setState(() => _quantity = capped);
+              },
               onCartIconTap: () => _handleAddToCart(navigateToCart: false),
               onBuyNowTap: () => _handleAddToCart(navigateToCart: true),
             ),
@@ -208,6 +214,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
         }
       case AddToCartResult.outOfStock:
         _showCartMessage('Produkti nuk është në stok.');
+      case AddToCartResult.insufficientStock:
+        _showCartMessage('Nuk ka stok të mjaftueshëm.');
       case AddToCartResult.failure:
         _showCartMessage('Nuk u shtua në shportë. Provo përsëri.');
     }
@@ -259,12 +267,19 @@ class _ProductImage extends StatelessWidget {
     );
 
     final fallback = Theme.of(context).colorScheme.primary;
-    final badgeBackground = CategoryBadgeColorHelper.resolveBackground(
-      badgeColor: categoryBadgeColor,
-      parentBadgeColor: parentBadgeColor,
-      fallback: fallback,
-    );
-    final badgeTextColor = CategoryBadgeColorHelper.textColor(badgeBackground);
+    final outOfStock = !product.inStock;
+    final badgeBackground = outOfStock
+        ? AppColors.burgundy
+        : CategoryBadgeColorHelper.resolveBackground(
+            badgeColor: categoryBadgeColor,
+            parentBadgeColor: parentBadgeColor,
+            fallback: fallback,
+          );
+    final badgeTextColor = outOfStock
+        ? Colors.white
+        : CategoryBadgeColorHelper.textColor(badgeBackground);
+    final resolvedBadgeLabel =
+        outOfStock ? 'Out of Stock' : badgeLabel;
 
     return Stack(
       children: [
@@ -283,23 +298,24 @@ class _ProductImage extends StatelessWidget {
             placeholder: placeholder,
           ),
         ),
-        Positioned(
-          top: 14,
-          left: 14,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: badgeBackground,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              badgeLabel,
-              style: AppTextStyles.caption.copyWith(
-                color: badgeTextColor,
+        if (resolvedBadgeLabel.isNotEmpty)
+          Positioned(
+            top: 14,
+            left: 14,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: badgeBackground,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                resolvedBadgeLabel,
+                style: AppTextStyles.caption.copyWith(
+                  color: badgeTextColor,
+                ),
               ),
             ),
           ),
-        ),
       ],
     );
   }
@@ -478,12 +494,16 @@ class _SuggestionsTab extends StatelessWidget {
 class _BottomActions extends StatelessWidget {
   const _BottomActions({
     required this.quantity,
+    required this.maxQuantity,
+    required this.enabled,
     required this.onQuantityChanged,
     required this.onCartIconTap,
     required this.onBuyNowTap,
   });
 
   final int quantity;
+  final int maxQuantity;
+  final bool enabled;
   final ValueChanged<int> onQuantityChanged;
   final VoidCallback onCartIconTap;
   final VoidCallback onBuyNowTap;
@@ -513,36 +533,47 @@ class _BottomActions extends StatelessWidget {
           children: [
             _QuantityControl(
               quantity: quantity,
+              maxQuantity: maxQuantity,
+              enabled: enabled,
               onChanged: onQuantityChanged,
             ),
             const SizedBox(width: AppSpacing.sm),
-            Material(
-              color: AppColors.burgundy,
-              borderRadius: BorderRadius.circular(12),
-              child: InkWell(
-                onTap: onCartIconTap,
+            Opacity(
+              opacity: enabled ? 1 : 0.45,
+              child: Material(
+                color: AppColors.burgundy,
                 borderRadius: BorderRadius.circular(12),
-                child: const SizedBox(
-                  width: 60,
-                  height: 52,
-                  child: Icon(Icons.shopping_cart_outlined, color: Colors.white),
+                child: InkWell(
+                  onTap: enabled ? onCartIconTap : null,
+                  borderRadius: BorderRadius.circular(12),
+                  child: const SizedBox(
+                    width: 60,
+                    height: 52,
+                    child: Icon(
+                      Icons.shopping_cart_outlined,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
-              child: Material(
-                color: AppColors.burgundy,
-                borderRadius: BorderRadius.circular(12),
-                child: InkWell(
-                  onTap: onBuyNowTap,
+              child: Opacity(
+                opacity: enabled ? 1 : 0.45,
+                child: Material(
+                  color: AppColors.burgundy,
                   borderRadius: BorderRadius.circular(12),
-                  child: SizedBox(
-                    height: 52,
-                    child: Center(
-                      child: Text(
-                        'Bli tani',
-                        style: AppTextStyles.button.copyWith(fontSize: 16),
+                  child: InkWell(
+                    onTap: enabled ? onBuyNowTap : null,
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      height: 52,
+                      child: Center(
+                        child: Text(
+                          'Bli tani',
+                          style: AppTextStyles.button.copyWith(fontSize: 16),
+                        ),
                       ),
                     ),
                   ),
@@ -559,43 +590,53 @@ class _BottomActions extends StatelessWidget {
 class _QuantityControl extends StatelessWidget {
   const _QuantityControl({
     required this.quantity,
+    required this.maxQuantity,
+    required this.enabled,
     required this.onChanged,
   });
 
   final int quantity;
+  final int maxQuantity;
+  final bool enabled;
   final ValueChanged<int> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 52,
-      constraints: const BoxConstraints(minWidth: 118),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceMuted,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _QuantityButton(
-            icon: Icons.chevron_left,
-            onTap: quantity > 1 ? () => onChanged(quantity - 1) : null,
-          ),
-          SizedBox(
-            width: 36,
-            child: Text(
-              '$quantity',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.body,
+    final canDecrease = enabled && quantity > 1;
+    final canIncrease = enabled && quantity < maxQuantity;
+
+    return Opacity(
+      opacity: enabled ? 1 : 0.45,
+      child: Container(
+        height: 52,
+        constraints: const BoxConstraints(minWidth: 118),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceMuted,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _QuantityButton(
+              icon: Icons.chevron_left,
+              onTap: canDecrease ? () => onChanged(quantity - 1) : null,
             ),
-          ),
-          _QuantityButton(
-            icon: Icons.chevron_right,
-            onTap: () => onChanged(quantity + 1),
-          ),
-        ],
+            SizedBox(
+              width: 36,
+              child: Text(
+                '$quantity',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.body,
+              ),
+            ),
+            _QuantityButton(
+              icon: Icons.chevron_right,
+              onTap: canIncrease ? () => onChanged(quantity + 1) : null,
+            ),
+          ],
+        ),
       ),
     );
   }

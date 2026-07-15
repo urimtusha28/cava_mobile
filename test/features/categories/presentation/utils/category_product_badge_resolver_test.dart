@@ -18,7 +18,7 @@ void main() {
     type: 'Merlot',
     rating: 4.5,
     reviewCount: 100,
-    inStock: true,
+    stock: 50,
     isFeatured: true,
   );
 
@@ -55,7 +55,7 @@ void main() {
         type: 'Unknown',
         rating: 0,
         reviewCount: 0,
-        inStock: true,
+        stock: 50,
         isFeatured: false,
       );
       final sub = CategoryProductBadgeResolver.findSubcategory(
@@ -97,7 +97,7 @@ void main() {
         type: '',
         rating: 0,
         reviewCount: 0,
-        inStock: true,
+        stock: 50,
         isFeatured: false,
       );
       final label = CategoryProductBadgeResolver.resolveLabel(

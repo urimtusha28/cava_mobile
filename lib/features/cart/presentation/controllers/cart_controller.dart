@@ -41,13 +41,17 @@ class CartController extends BaseController {
     return runLoad(_refreshSummary);
   }
 
-  Future<void> updateQuantity(int index, int quantity) {
-    return runAction(() async {
-      await _updateCartQuantity(
-        UpdateCartQuantityParams(index: index, quantity: quantity),
-      );
-      await _refreshSummary();
-    });
+  Future<String?> updateQuantity(int index, int quantity) async {
+    final result = await _updateCartQuantity(
+      UpdateCartQuantityParams(index: index, quantity: quantity),
+    );
+    if (result.isFailure) {
+      return result.failureOrNull?.message ??
+          'Nuk ka stok të mjaftueshëm.';
+    }
+    await _refreshSummary();
+    notifyListeners();
+    return null;
   }
 
   Future<void> removeAt(int index) {

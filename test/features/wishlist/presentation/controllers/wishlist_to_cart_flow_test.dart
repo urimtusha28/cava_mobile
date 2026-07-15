@@ -108,7 +108,7 @@ void main() {
         type: 'Red',
         rating: 0,
         reviewCount: 0,
-        inStock: false,
+        stock: 0,
         isFeatured: false,
       );
       when(() => getWishlistItems())
@@ -257,7 +257,7 @@ void main() {
                 type: 'Red',
                 rating: 0,
                 reviewCount: 0,
-                inStock: false,
+                stock: 0,
                 isFeatured: false,
               ));
 
@@ -281,6 +281,8 @@ void main() {
                         'Produkti u shtua në shportë.',
                       AddToCartResult.outOfStock =>
                         'Produkti nuk është në stok.',
+                      AddToCartResult.insufficientStock =>
+                        'Nuk ka stok të mjaftueshëm.',
                       AddToCartResult.failure =>
                         'Nuk u shtua në shportë. Provo përsëri.',
                     };
@@ -326,6 +328,8 @@ void main() {
                         'Produkti u shtua në shportë.',
                       AddToCartResult.outOfStock =>
                         'Produkti nuk është në stok.',
+                      AddToCartResult.insufficientStock =>
+                        'Nuk ka stok të mjaftueshëm.',
                       AddToCartResult.failure =>
                         'Nuk u shtua në shportë. Provo përsëri.',
                     };

@@ -83,7 +83,7 @@ void main() {
     expect(find.byType(CartScreen), findsOneWidget);
   });
 
-  testWidgets('out of stock product shows snackbar and does not add', (tester) async {
+  testWidgets('out of stock product disables buy actions and shows badge', (tester) async {
     await tearDownTestDependencies();
     await configureTestDependencies(
       productDataSource: const _OutOfStockProductMockDataSource(),
@@ -94,10 +94,12 @@ void main() {
 
     await pumpDetail(tester, productId: 'wine-oos');
 
+    expect(find.text('Out of Stock'), findsOneWidget);
+
     await tester.tap(find.text('Bli tani'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Produkti nuk është në stok.'), findsOneWidget);
+    expect(find.text('Produkti nuk është në stok.'), findsNothing);
     expect(CartStateNotifier.revision.value, 0);
     expect(await CartLocalStorage().readItems(), isEmpty);
   });
@@ -122,7 +124,7 @@ class _OutOfStockProductMockDataSource extends ProductMockDataSource {
           type: 'Red',
           rating: 0,
           reviewCount: 0,
-          inStock: false,
+          stock: 0,
           isFeatured: false,
         ),
       );

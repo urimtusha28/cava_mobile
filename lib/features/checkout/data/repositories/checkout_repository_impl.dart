@@ -6,6 +6,7 @@ import '../../../account/domain/repositories/addresses_repository.dart';
 import '../../../account/domain/repositories/auth_repository.dart';
 import '../../../cart/domain/entities/cart_item_entity.dart';
 import '../../../cart/domain/repositories/cart_repository.dart';
+import '../../../cart/domain/utils/cart_stock_validator.dart';
 import '../../../products/domain/repositories/product_repository.dart';
 import '../../domain/entities/place_order_result_entity.dart';
 import '../../domain/repositories/checkout_repository.dart';
@@ -98,7 +99,8 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
     return _refreshItemPrices(items);
   }
 
-  /// Re-reads each product from Firestore so checkout sends current unit prices.
+  /// Re-reads each product from Firestore so checkout sends current unit prices
+  /// and validates stock against live inventory.
   Future<List<CartItemEntity>> _refreshItemPrices(
     List<CartItemEntity> items,
   ) async {
@@ -112,6 +114,15 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
         ),
       );
     }
+
+    final stockError = CartStockValidator.validateCartItems(refreshed);
+    if (stockError != null) {
+      throw ValidationFailure(
+        message: stockError,
+        code: 'INSUFFICIENT_STOCK',
+      );
+    }
+
     return refreshed;
   }
 
