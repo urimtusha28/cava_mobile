@@ -24,10 +24,12 @@ abstract final class AppRoutes {
   static const String ownerOrders = '/owner/orders';
   static const String ownerAnalytics = '/owner/analytics';
   static const String ownerProducts = '/owner/products';
+  static const String ownerSupport = '/owner/support';
   static const String ownerProfile = '/owner/profile';
 
   static String category(String id) => '/category/$id';
   static String product(String id) => '/product/$id';
+  static String ownerSupportChat(String id) => '/owner/support/$id';
 
   static bool isOwnerPath(String location) =>
       location == owner || location.startsWith('$owner/');

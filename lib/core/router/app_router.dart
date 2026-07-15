@@ -30,6 +30,9 @@ import '../../features/owner_dashboard/presentation/screens/owner_orders_screen.
 import '../../features/owner_dashboard/presentation/screens/owner_analytics_screen.dart';
 import '../../features/owner_dashboard/presentation/screens/owner_products_screen.dart';
 import '../../features/owner_dashboard/presentation/screens/owner_profile_screen.dart';
+import '../../features/support/domain/entities/support_conversation.dart';
+import '../../features/support/presentation/screens/owner_support_screen.dart';
+import '../../features/support/presentation/screens/owner_support_chat_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -150,6 +153,28 @@ final GoRouter appRouter = GoRouter(
             key: state.pageKey,
             child: const OwnerProductsScreen(),
           ),
+        ),
+        GoRoute(
+          path: AppRoutes.ownerSupport,
+          pageBuilder: (context, state) => NoTransitionPage(
+            key: state.pageKey,
+            child: const OwnerSupportScreen(),
+          ),
+          routes: [
+            GoRoute(
+              path: ':conversationId',
+              parentNavigatorKey: _rootNavigatorKey,
+              builder: (context, state) {
+                final id = state.pathParameters['conversationId']!;
+                final extra = state.extra;
+                return OwnerSupportChatScreen(
+                  conversationId: id,
+                  initialConversation:
+                      extra is SupportConversation ? extra : null,
+                );
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: AppRoutes.ownerProfile,

@@ -114,6 +114,21 @@ import '../../features/owner_dashboard/data/repositories/owner_dashboard_reposit
 import '../../features/owner_dashboard/domain/repositories/owner_dashboard_repository.dart';
 import '../../features/owner_dashboard/domain/usecases/get_owner_dashboard_snapshot.dart';
 import '../../features/owner_dashboard/presentation/controllers/owner_dashboard_controller.dart';
+import '../../features/notifications/data/datasources/notifications_firebase_datasource.dart';
+import '../../features/notifications/data/repositories/notifications_repository_impl.dart';
+import '../../features/notifications/domain/repositories/notifications_repository.dart';
+import '../../features/notifications/presentation/controllers/notifications_controller.dart';
+import '../../features/notifications/presentation/controllers/notifications_unread_notifier.dart';
+import '../../features/support/data/datasources/admin_support_firebase_datasource.dart';
+import '../../features/support/data/datasources/support_firebase_datasource.dart';
+import '../../features/support/data/repositories/admin_support_repository_impl.dart';
+import '../../features/support/data/repositories/support_repository_impl.dart';
+import '../../features/support/domain/repositories/admin_support_repository.dart';
+import '../../features/support/domain/repositories/support_repository.dart';
+import '../../features/support/domain/usecases/admin_create_notification.dart';
+import '../../features/support/presentation/controllers/admin_support_unread_notifier.dart';
+import '../../features/support/presentation/controllers/owner_support_controller.dart';
+import '../../features/support/presentation/controllers/support_controller.dart';
 import '../auth/app_session_notifier.dart';
 import '../state/auth_state_notifier.dart';
 import '../state/bottom_nav_scroll_notifier.dart';
@@ -144,6 +159,8 @@ void configureDependencies() {
   _registerCheckout();
   _registerWishlist();
   _registerOwnerDashboard();
+  _registerNotifications();
+  _registerSupport();
   _registerControllers();
   _dependenciesConfigured = true;
 }
@@ -392,6 +409,64 @@ void _registerOwnerDashboard() {
   );
 }
 
+void _registerNotifications({FirebaseFirestore? firestoreOverride}) {
+  if (sl.isRegistered<NotificationsRepository>()) {
+    return;
+  }
+
+  sl.registerLazySingleton<NotificationsFirebaseDataSource>(
+    () => NotificationsFirebaseDataSource(
+      firestoreOverride ?? FirebaseFirestore.instance,
+    ),
+  );
+  sl.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepositoryImpl(
+      sl<NotificationsFirebaseDataSource>(),
+      sl<AuthRepository>(),
+    ),
+  );
+  sl.registerLazySingleton<NotificationsUnreadNotifier>(
+    () => NotificationsUnreadNotifier(
+      sl<NotificationsRepository>(),
+      sl<AuthRepository>(),
+    ),
+    dispose: (n) => n.dispose(),
+  );
+}
+
+void _registerSupport({FirebaseFirestore? firestoreOverride}) {
+  if (sl.isRegistered<SupportRepository>()) {
+    return;
+  }
+
+  final firestore = firestoreOverride ?? FirebaseFirestore.instance;
+  sl.registerLazySingleton<SupportFirebaseDataSource>(
+    () => SupportFirebaseDataSource(firestore),
+  );
+  sl.registerLazySingleton<AdminSupportFirebaseDataSource>(
+    () => AdminSupportFirebaseDataSource(firestore),
+  );
+  sl.registerLazySingleton<SupportRepository>(
+    () => SupportRepositoryImpl(
+      sl<SupportFirebaseDataSource>(),
+      sl<AuthRepository>(),
+    ),
+  );
+  sl.registerLazySingleton<AdminSupportRepository>(
+    () => AdminSupportRepositoryImpl(
+      sl<AdminSupportFirebaseDataSource>(),
+      sl<AuthRepository>(),
+    ),
+  );
+  sl.registerLazySingleton<AdminSupportUnreadNotifier>(
+    () => AdminSupportUnreadNotifier(
+      sl<AdminSupportRepository>(),
+      sl<AuthRepository>(),
+    ),
+    dispose: (n) => n.dispose(),
+  );
+}
+
 void _registerCheckout() {
   if (sl.isRegistered<CheckoutRepository>()) {
     return;
@@ -540,6 +615,9 @@ void _registerUseCases() {
   sl.registerFactory<GetOwnerDashboardSnapshotUseCase>(
     () => GetOwnerDashboardSnapshotUseCase(sl<OwnerDashboardRepository>()),
   );
+  sl.registerFactory<AdminCreateNotificationUseCase>(
+    () => AdminCreateNotificationUseCase(sl<NotificationsRepository>()),
+  );
 
   // User profile
   sl.registerFactory<GetCurrentProfileUseCase>(
@@ -632,6 +710,21 @@ void _registerControllers() {
       sl<GetCurrentUserUseCase>(),
       sl<CheckoutSelectedAddressStorage>(),
       sl<GuestCheckoutCustomerStorage>(),
+    ),
+  );
+  sl.registerFactory<NotificationsController>(
+    () => NotificationsController(sl<NotificationsRepository>()),
+  );
+  sl.registerFactory<SupportController>(
+    () => SupportController(
+      sl<SupportRepository>(),
+      sl<AuthRepository>(),
+    ),
+  );
+  sl.registerFactory<OwnerSupportController>(
+    () => OwnerSupportController(
+      sl<AdminSupportRepository>(),
+      sl<AdminCreateNotificationUseCase>(),
     ),
   );
 }
@@ -785,6 +878,9 @@ Future<void> configureTestDependencies({
   _registerAppRole();
 
   _registerOwnerDashboard();
+
+  _registerNotifications(firestoreOverride: cartFirestore);
+  _registerSupport(firestoreOverride: cartFirestore);
 
   _registerCart(firestoreOverride: cartFirestore);
 

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../support/presentation/controllers/admin_support_unread_notifier.dart';
 
 /// Owner-only bottom navigation (separate from customer [BottomNavigation]).
 class OwnerBottomNavigation extends StatelessWidget {
@@ -20,11 +22,17 @@ class OwnerBottomNavigation extends StatelessWidget {
     (icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long, label: 'Porositë'),
     (icon: Icons.bar_chart_outlined, activeIcon: Icons.bar_chart, label: 'Analitika'),
     (icon: Icons.inventory_2_outlined, activeIcon: Icons.inventory_2, label: 'Produktet'),
+    (icon: Icons.support_agent_rounded, activeIcon: Icons.support_agent_rounded, label: 'Support'),
     (icon: Icons.person_outline, activeIcon: Icons.person, label: 'Profili'),
   ];
 
   @override
   Widget build(BuildContext context) {
+    ensureAdminSupportBadgeListening();
+    final badgeNotifier = sl.isRegistered<AdminSupportUnreadNotifier>()
+        ? sl<AdminSupportUnreadNotifier>()
+        : null;
+
     return SafeArea(
       minimum: const EdgeInsets.fromLTRB(
         AppSpacing.sm,
@@ -49,14 +57,29 @@ class OwnerBottomNavigation extends StatelessWidget {
           children: [
             for (var i = 0; i < _items.length; i++)
               Expanded(
-                child: _OwnerNavItem(
-                  icon: currentIndex == i
-                      ? _items[i].activeIcon
-                      : _items[i].icon,
-                  label: _items[i].label,
-                  selected: currentIndex == i,
-                  onTap: () => _navigate(context, i),
-                ),
+                child: badgeNotifier != null && i == 4
+                    ? ListenableBuilder(
+                        listenable: badgeNotifier,
+                        builder: (context, _) {
+                          return _OwnerNavItem(
+                            icon: currentIndex == i
+                                ? _items[i].activeIcon
+                                : _items[i].icon,
+                            label: _items[i].label,
+                            selected: currentIndex == i,
+                            badgeCount: badgeNotifier.unreadCount,
+                            onTap: () => _navigate(context, i),
+                          );
+                        },
+                      )
+                    : _OwnerNavItem(
+                        icon: currentIndex == i
+                            ? _items[i].activeIcon
+                            : _items[i].icon,
+                        label: _items[i].label,
+                        selected: currentIndex == i,
+                        onTap: () => _navigate(context, i),
+                      ),
               ),
           ],
         ),
@@ -75,6 +98,8 @@ class OwnerBottomNavigation extends StatelessWidget {
       case 3:
         context.go(AppRoutes.ownerProducts);
       case 4:
+        context.go(AppRoutes.ownerSupport);
+      case 5:
         context.go(AppRoutes.ownerProfile);
     }
   }
@@ -86,12 +111,14 @@ class _OwnerNavItem extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onTap,
+    this.badgeCount = 0,
   });
 
   final IconData icon;
   final String label;
   final bool selected;
   final VoidCallback onTap;
+  final int badgeCount;
 
   @override
   Widget build(BuildContext context) {
@@ -111,10 +138,18 @@ class _OwnerNavItem extends StatelessWidget {
                 color: selected ? AppColors.burgundy : Colors.transparent,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: 22,
-                color: selected ? Colors.white : color,
+              child: Badge(
+                isLabelVisible: badgeCount > 0,
+                backgroundColor: AppColors.burgundy,
+                label: Text(
+                  badgeCount > 99 ? '99+' : '$badgeCount',
+                  style: const TextStyle(fontSize: 10, color: Colors.white),
+                ),
+                child: Icon(
+                  icon,
+                  size: 22,
+                  color: selected ? Colors.white : color,
+                ),
               ),
             ),
             const SizedBox(height: 2),
@@ -124,7 +159,7 @@ class _OwnerNavItem extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.navLabel.copyWith(
                 color: color,
-                fontSize: 10,
+                fontSize: 9,
               ),
             ),
           ],
@@ -138,6 +173,7 @@ int ownerNavIndexForLocation(String location) {
   if (location.startsWith(AppRoutes.ownerOrders)) return 1;
   if (location.startsWith(AppRoutes.ownerAnalytics)) return 2;
   if (location.startsWith(AppRoutes.ownerProducts)) return 3;
-  if (location.startsWith(AppRoutes.ownerProfile)) return 4;
+  if (location.startsWith(AppRoutes.ownerSupport)) return 4;
+  if (location.startsWith(AppRoutes.ownerProfile)) return 5;
   return 0;
 }

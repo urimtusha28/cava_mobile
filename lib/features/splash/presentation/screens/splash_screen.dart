@@ -7,6 +7,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/router/post_auth_navigator.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../account/presentation/controllers/auth_controller.dart';
+import '../../../notifications/presentation/controllers/notifications_unread_notifier.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -37,6 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
     configureDependencies();
     final authController = createAuthController();
     await authController.load();
+    ensureNotificationsBadgeListening();
     if (!mounted) return;
     context.go(PostAuthNavigator.homeLocationForCurrentSession());
   }
