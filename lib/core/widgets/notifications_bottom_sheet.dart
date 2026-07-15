@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../constants/app_spacing.dart';
@@ -51,9 +52,10 @@ class _NotificationsSheetScaffold extends StatelessWidget {
           return ListenableBuilder(
             listenable: controller,
             builder: (context, _) {
+              final l10n = AppLocalizations.of(context);
               final subtitle = controller.unreadTodayCount > 0
-                  ? '${controller.unreadTodayCount} të reja sot'
-                  : 'Nuk ka njoftime të reja';
+                  ? l10n.notificationsUnreadToday(controller.unreadTodayCount)
+                  : l10n.notificationsNoNew;
 
               return Container(
                 decoration: const BoxDecoration(
@@ -110,7 +112,7 @@ class _NotificationsSheetScaffold extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Njoftimet', style: AppTextStyles.h2),
+                                Text(l10n.notificationsTitle, style: AppTextStyles.h2),
                                 const SizedBox(height: 2),
                                 Text(subtitle, style: AppTextStyles.bodySmall),
                               ],
@@ -152,6 +154,8 @@ class _NotificationsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     if (controller.isLoading && !controller.isInitialized) {
       return const Center(
         child: CircularProgressIndicator(color: AppColors.burgundy),
@@ -166,14 +170,14 @@ class _NotificationsBody extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Njoftimet nuk u ngarkuan.',
+                l10n.notificationsLoadFailed,
                 style: AppTextStyles.body,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppSpacing.md),
               TextButton(
                 onPressed: controller.startListening,
-                child: const Text('Provo përsëri'),
+                child: Text(l10n.retry),
               ),
             ],
           ),
@@ -187,7 +191,7 @@ class _NotificationsBody extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.screen),
         children: [
           Center(
-            child: Text('Nuk keni njoftime.', style: AppTextStyles.body),
+            child: Text(l10n.notificationsEmpty, style: AppTextStyles.body),
           ),
         ],
       );
@@ -221,7 +225,10 @@ class _NotificationsBody extends StatelessWidget {
                     ),
                   )
                 : Text(
-                    NotificationPresentation.formatRelativeDate(item.createdAt),
+                    NotificationPresentation.formatRelativeDate(
+                      item.createdAt,
+                      AppLocalizations.of(context),
+                    ),
                     style: AppTextStyles.caption,
                   ),
             onTap: () => _onTap(context, item),

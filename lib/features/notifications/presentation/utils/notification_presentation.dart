@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../domain/entities/notification_type.dart';
 
@@ -20,8 +21,12 @@ abstract final class NotificationPresentation {
     };
   }
 
-  /// Albanian short relative date: "10:32", "Dje", "28 Shk".
-  static String formatRelativeDate(DateTime date, {DateTime? now}) {
+  /// Short relative date: "10:32", yesterday, weekday, or "28 Feb".
+  static String formatRelativeDate(
+    DateTime date,
+    AppLocalizations l10n, {
+    DateTime? now,
+  }) {
     final current = now ?? DateTime.now();
     final local = date.toLocal();
     final today = DateTime(current.year, current.month, current.day);
@@ -34,12 +39,12 @@ abstract final class NotificationPresentation {
       return '$h:$m';
     }
     if (diffDays == 1) {
-      return 'Dje';
+      return l10n.relativeYesterday;
     }
     if (diffDays < 7 && diffDays > 1) {
-      return _weekdayShort(local.weekday);
+      return _weekdayShort(l10n, local.weekday);
     }
-    return '${local.day} ${_monthShort(local.month)}';
+    return '${local.day} ${_monthShort(l10n, local.month)}';
   }
 
   static bool isToday(DateTime date, {DateTime? now}) {
@@ -50,33 +55,33 @@ abstract final class NotificationPresentation {
         local.day == current.day;
   }
 
-  static String _weekdayShort(int weekday) {
+  static String _weekdayShort(AppLocalizations l10n, int weekday) {
     return switch (weekday) {
-      DateTime.monday => 'Hën',
-      DateTime.tuesday => 'Mar',
-      DateTime.wednesday => 'Mër',
-      DateTime.thursday => 'Enj',
-      DateTime.friday => 'Pre',
-      DateTime.saturday => 'Sht',
-      DateTime.sunday => 'Die',
+      DateTime.monday => l10n.weekdayMon,
+      DateTime.tuesday => l10n.weekdayTue,
+      DateTime.wednesday => l10n.weekdayWed,
+      DateTime.thursday => l10n.weekdayThu,
+      DateTime.friday => l10n.weekdayFri,
+      DateTime.saturday => l10n.weekdaySat,
+      DateTime.sunday => l10n.weekdaySun,
       _ => '',
     };
   }
 
-  static String _monthShort(int month) {
+  static String _monthShort(AppLocalizations l10n, int month) {
     return switch (month) {
-      1 => 'Jan',
-      2 => 'Shk',
-      3 => 'Mar',
-      4 => 'Pri',
-      5 => 'Maj',
-      6 => 'Qer',
-      7 => 'Kor',
-      8 => 'Gus',
-      9 => 'Sht',
-      10 => 'Tet',
-      11 => 'Nën',
-      12 => 'Dhj',
+      1 => l10n.monthJan,
+      2 => l10n.monthFeb,
+      3 => l10n.monthMar,
+      4 => l10n.monthApr,
+      5 => l10n.monthMay,
+      6 => l10n.monthJun,
+      7 => l10n.monthJul,
+      8 => l10n.monthAug,
+      9 => l10n.monthSep,
+      10 => l10n.monthOct,
+      11 => l10n.monthNov,
+      12 => l10n.monthDec,
       _ => '',
     };
   }

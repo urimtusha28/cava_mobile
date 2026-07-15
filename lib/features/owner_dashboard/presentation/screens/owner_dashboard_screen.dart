@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -8,6 +9,7 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
 import '../../domain/entities/owner_dashboard_entities.dart';
 import '../controllers/owner_dashboard_controller.dart';
+import '../utils/owner_order_status_l10n.dart';
 
 class OwnerDashboardScreen extends StatefulWidget {
   const OwnerDashboardScreen({super.key});
@@ -35,9 +37,10 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const CavaAppBar(title: 'Dashboard', showBack: false),
+      appBar: CavaAppBar(title: l10n.ownerDashboardTitle, showBack: false),
       body: FutureBuilder<void>(
         future: _loadFuture,
         builder: (context, _) {
@@ -47,7 +50,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
               return RefreshIndicator(
                 color: AppColors.burgundy,
                 onRefresh: _controller.refresh,
-                child: _buildBody(),
+                child: _buildBody(l10n),
               );
             },
           );
@@ -56,7 +59,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(AppLocalizations l10n) {
     switch (_controller.status) {
       case OwnerDashboardViewStatus.initial:
       case OwnerDashboardViewStatus.loading:
@@ -75,7 +78,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
           children: [
             const SizedBox(height: 80),
             Text(
-              _controller.sectionError ?? 'Dashboard nuk u ngarkua.',
+              _controller.sectionError ?? l10n.ownerDashboardLoadFailed,
               style: AppTextStyles.body,
               textAlign: TextAlign.center,
             ),
@@ -84,7 +87,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
               child: TextButton(
                 onPressed: _controller.load,
                 child: Text(
-                  'Provo përsëri',
+                  l10n.retry,
                   style: AppTextStyles.body.copyWith(color: AppColors.burgundy),
                 ),
               ),
@@ -103,7 +106,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                 height: 200,
                 child: Center(
                   child: Text(
-                    'Nuk ka të dhëna ende.',
+                    l10n.ownerNoDataYet,
                     style: AppTextStyles.emptyState,
                   ),
                 ),
@@ -131,6 +134,7 @@ class _DashboardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final s = snapshot.summary;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -149,10 +153,10 @@ class _DashboardContent extends StatelessWidget {
               backgroundColor: AppColors.surfaceMuted,
             ),
           ),
-        Text('Përmbledhje', style: AppTextStyles.h2),
+        Text(l10n.ownerSummary, style: AppTextStyles.h2),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          'Burimi: statsDaily / stats (si Overview admin)',
+          l10n.ownerSummarySource,
           style: AppTextStyles.bodySmall,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -165,62 +169,63 @@ class _DashboardContent extends StatelessWidget {
           childAspectRatio: 1.35,
           children: [
             _StatCard(
-              label: 'Shitjet Sot',
+              label: l10n.ownerSalesToday,
               value: Formatters.currency(s.salesToday),
             ),
             _StatCard(
-              label: 'Shitjet 7 ditë',
+              label: l10n.ownerSales7Days,
               value: Formatters.currency(s.salesLast7Days),
             ),
             _StatCard(
-              label: 'Shitjet 30 ditë',
+              label: l10n.ownerSales30Days,
               value: Formatters.currency(s.salesLast30Days),
             ),
             _StatCard(
-              label: 'Totali i të Ardhurave',
+              label: l10n.ownerTotalRevenue,
               value: Formatters.currency(s.totalRevenue),
             ),
             _StatCard(
-              label: 'Numri i Porosive',
+              label: l10n.ownerOrdersCount,
               value: '${s.totalOrders}',
             ),
             _StatCard(
-              label: 'Porosi në Pritje',
+              label: l10n.ownerOrdersPending,
               value: '${s.pendingOrders}',
             ),
             _StatCard(
-              label: 'Porosi në Proces',
+              label: l10n.ownerOrdersProcessing,
               value: '${s.processingOrders}',
             ),
             _StatCard(
-              label: 'Porosi të Përfunduara',
+              label: l10n.ownerOrdersCompleted,
               value: '${s.completedOrders}',
             ),
             _StatCard(
-              label: 'Porosi të Anuluara',
+              label: l10n.ownerOrdersCancelled,
               value: '${s.cancelledOrders}',
             ),
           ],
         ),
         const SizedBox(height: AppSpacing.xxl),
-        Text('Grafiku i shitjeve', style: AppTextStyles.h3),
+        Text(l10n.ownerSalesChart, style: AppTextStyles.h3),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          '7 ditët e fundit (UTC, statsDaily.revenue)',
+          l10n.ownerSalesChartSubtitle,
           style: AppTextStyles.bodySmall,
         ),
         const SizedBox(height: AppSpacing.md),
         _SalesChart(points: snapshot.chartLast7Days),
         const SizedBox(height: AppSpacing.xxl),
-        Text('Porositë e fundit', style: AppTextStyles.h3),
+        Text(l10n.ownerRecentOrders, style: AppTextStyles.h3),
         const SizedBox(height: AppSpacing.md),
         if (snapshot.recentOrders.isEmpty)
-          Text('Nuk ka porosi.', style: AppTextStyles.bodySmall)
+          Text(l10n.ownerNoOrders, style: AppTextStyles.bodySmall)
         else
           ...snapshot.recentOrders.map(
             (o) => _ListTileCard(
               title: '#${o.orderNumber}',
-              subtitle: '${o.customerName} · ${o.statusLabel}',
+              subtitle:
+                  '${o.customerName} · ${OwnerOrderStatusL10n.labelOf(l10n, o.statusLabel)}',
               trailing: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -235,32 +240,32 @@ class _DashboardContent extends StatelessWidget {
             ),
           ),
         const SizedBox(height: AppSpacing.xxl),
-        Text('Produktet më të shitura', style: AppTextStyles.h3),
+        Text(l10n.ownerTopSelling, style: AppTextStyles.h3),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Nuk ofrohet në dashboard-in admin të website-it — pa agregim top-selling.',
+          l10n.ownerTopSellingUnavailable,
           style: AppTextStyles.bodySmall,
         ),
         const SizedBox(height: AppSpacing.xxl),
-        Text('Produkte me stok të ulët', style: AppTextStyles.h3),
+        Text(l10n.ownerLowStockProducts, style: AppTextStyles.h3),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Pragu web: stock 1–9 · Numër: ${s.lowStockCount}',
+          l10n.ownerLowStockThreshold(s.lowStockCount),
           style: AppTextStyles.bodySmall,
         ),
         const SizedBox(height: AppSpacing.md),
         if (snapshot.lowStockProducts.isEmpty)
           Text(
             s.lowStockCount == 0
-                ? 'Nuk ka produkte me stok të ulët.'
-                : 'Lista nuk u lexua (kontrollo indeksin Firestore).',
+                ? l10n.ownerNoLowStock
+                : l10n.ownerLowStockListFailed,
             style: AppTextStyles.bodySmall,
           )
         else
           ...snapshot.lowStockProducts.map(
             (p) => _ListTileCard(
               title: p.name,
-              subtitle: 'Pragu max: ${p.thresholdMax}',
+              subtitle: l10n.ownerThresholdMax(p.thresholdMax),
               trailing: Text(
                 '${p.stock}',
                 style: AppTextStyles.h3.copyWith(color: AppColors.burgundy),
@@ -268,11 +273,11 @@ class _DashboardContent extends StatelessWidget {
             ),
           ),
         const SizedBox(height: AppSpacing.xxl),
-        Text('Klientët', style: AppTextStyles.h3),
+        Text(l10n.ownerCustomers, style: AppTextStyles.h3),
         const SizedBox(height: AppSpacing.sm),
         _ListTileCard(
-          title: snapshot.newCustomers.label,
-          subtitle: 'Si Overview admin — shuma e uniqueBuyerCount ditor',
+          title: l10n.ownerUniqueBuyersLabel,
+          subtitle: l10n.ownerCustomersSubtitle,
           trailing: Text(
             '${snapshot.newCustomers.count}',
             style: AppTextStyles.h3.copyWith(color: AppColors.burgundy),
@@ -368,6 +373,7 @@ class _SalesChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (points.isEmpty) {
       return Container(
         height: 180,
@@ -376,7 +382,7 @@ class _SalesChart extends StatelessWidget {
           color: AppColors.surfaceMuted,
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
-        child: Text('Nuk ka të dhëna për grafikun.', style: AppTextStyles.bodySmall),
+        child: Text(l10n.ownerChartNoData, style: AppTextStyles.bodySmall),
       );
     }
 

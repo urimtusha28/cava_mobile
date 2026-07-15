@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -40,6 +41,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return FutureBuilder<void>(
       future: _loadFuture,
       builder: (context, snapshot) {
@@ -50,7 +53,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
             return Scaffold(
               backgroundColor: AppColors.background,
-              appBar: const CavaAppBar(title: 'Kategoritë'),
+              appBar: CavaAppBar(title: l10n.categoriesTitle),
               body: GridView.builder(
                 padding: const EdgeInsets.all(AppSpacing.screen),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -125,6 +128,8 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return FutureBuilder<void>(
       future: _loadFuture,
       builder: (context, snapshot) {
@@ -136,7 +141,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
             final products = _controller.products;
             final subcategories = _controller.subcategories;
             final selectedSub = subcategories.isEmpty
-                ? const SubcategoryEntity(id: 'all', label: 'All')
+                ? const SubcategoryEntity(id: 'all', label: '')
                 : subcategories.firstWhere(
                     (sub) => sub.id == _selectedSubId,
                     orElse: () => subcategories.first,
@@ -150,8 +155,9 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
             return Scaffold(
               backgroundColor: AppColors.background,
               appBar: CavaAppBar(
-                title:
-                    isAllProducts ? 'All Products' : category?.label ?? 'Produktet',
+                title: isAllProducts
+                    ? l10n.allProductsTitle
+                    : category?.label ?? l10n.productsTitle,
                 showBack: true,
               ),
               body: Column(
@@ -169,8 +175,11 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                         Expanded(
                           child: CavaSearchBar(
                             hint: isAllProducts
-                                ? 'Kërko të gjitha produktet…'
-                                : 'Kërko në ${category?.label ?? 'kategori'}…',
+                                ? l10n.searchInAllProducts
+                                : l10n.searchInCategory(
+                                    category?.label ??
+                                        l10n.searchInCategoryFallback,
+                                  ),
                             controller: _searchController,
                             onChanged: (value) =>
                                 setState(() => _searchQuery = value),
@@ -195,7 +204,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                   Expanded(
                     child: CavaLoadingOverlay(
                       isLoading: _controller.isLoading,
-                      child: _buildProductsBody(filteredProducts),
+                      child: _buildProductsBody(filteredProducts, l10n),
                     ),
                   ),
                 ],
@@ -207,7 +216,10 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
     );
   }
 
-  Widget _buildProductsBody(List<ProductEntity> filteredProducts) {
+  Widget _buildProductsBody(
+    List<ProductEntity> filteredProducts,
+    AppLocalizations l10n,
+  ) {
     if (_controller.isLoading) {
       return const SizedBox.expand();
     }
@@ -236,8 +248,8 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
             children: [
               Text(
                 _filter.isActive
-                    ? 'Nuk u gjet asnjë produkt me këto filtra.'
-                    : 'Nuk u gjet asnjë produkt.',
+                    ? l10n.searchNoResultsWithFilters
+                    : l10n.searchNoResults,
                 style: AppTextStyles.emptyState,
                 textAlign: TextAlign.center,
               ),
@@ -247,7 +259,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                   onPressed: () => setState(() {
                     _filter = ProductFilterState.empty;
                   }),
-                  child: const Text('Pastro filtrat'),
+                  child: Text(l10n.clearFilters),
                 ),
               ],
             ],

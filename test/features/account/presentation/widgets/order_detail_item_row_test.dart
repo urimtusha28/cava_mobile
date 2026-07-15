@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/test_app.dart';
+
 class MockOrderItemImageSource extends Mock implements OrderItemImageSource {}
 
 void main() {
@@ -33,13 +35,12 @@ void main() {
       productId: 'p1',
     );
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: OrderDetailItemRow(
-            item: item,
-            imageResolver: resolver,
-          ),
+    await pumpTestApp(
+      tester,
+      home: Scaffold(
+        body: OrderDetailItemRow(
+          item: item,
+          imageResolver: resolver,
         ),
       ),
     );

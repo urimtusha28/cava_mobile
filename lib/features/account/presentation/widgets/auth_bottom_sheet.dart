@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -177,6 +178,7 @@ class _AuthSheetBodyState extends State<_AuthSheetBody> {
   }
 
   Future<void> _submitForgotPassword() async {
+    final l10n = AppLocalizations.of(context);
     _clearErrors();
     final emailError =
         AuthFormValidator.validateEmail(_forgotEmailController.text);
@@ -196,7 +198,7 @@ class _AuthSheetBodyState extends State<_AuthSheetBody> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Email për rikthim fjalëkalimi u dërgua.',
+            l10n.authResetEmailSent,
             style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
           ),
           backgroundColor: AppColors.burgundy,
@@ -208,6 +210,8 @@ class _AuthSheetBodyState extends State<_AuthSheetBody> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return ListenableBuilder(
       listenable: widget.controller,
       builder: (context, _) {
@@ -234,8 +238,8 @@ class _AuthSheetBodyState extends State<_AuthSheetBody> {
                   Expanded(
                     child: Text(
                       _mode == _AuthSheetMode.forgotPassword
-                          ? 'Rikthe fjalëkalimin'
-                          : 'Mirë se vini',
+                          ? l10n.authResetPasswordTitle
+                          : l10n.authWelcome,
                       style: AppTextStyles.h2,
                     ),
                   ),
@@ -270,14 +274,14 @@ class _AuthSheetBodyState extends State<_AuthSheetBody> {
                   if (_mode == _AuthSheetMode.login) ...[
                     _AuthTextField(
                       controller: _loginEmailController,
-                      label: 'Email',
+                      label: l10n.email,
                       keyboardType: TextInputType.emailAddress,
                       errorText: _emailError,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     _AuthTextField(
                       controller: _loginPasswordController,
-                      label: 'Fjalëkalimi',
+                      label: l10n.password,
                       obscureText: true,
                       errorText: _passwordError,
                     ),
@@ -296,7 +300,7 @@ class _AuthSheetBodyState extends State<_AuthSheetBody> {
                                 });
                               },
                         child: Text(
-                          'Harrove fjalëkalimin?',
+                          l10n.authForgotPassword,
                           style: AppTextStyles.bodySmall.copyWith(
                             color: AppColors.burgundy,
                           ),
@@ -305,58 +309,58 @@ class _AuthSheetBodyState extends State<_AuthSheetBody> {
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     _AuthSubmitButton(
-                      label: 'Kyçu',
+                      label: l10n.login,
                       loading: widget.controller.authActionLoading,
                       onPressed: _submitLogin,
                     ),
                   ] else if (_mode == _AuthSheetMode.register) ...[
                     _AuthTextField(
                       controller: _registerNameController,
-                      label: 'Emri',
+                      label: l10n.name,
                       errorText: _nameError,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     _AuthTextField(
                       controller: _registerEmailController,
-                      label: 'Email',
+                      label: l10n.email,
                       keyboardType: TextInputType.emailAddress,
                       errorText: _emailError,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     _AuthTextField(
                       controller: _registerPasswordController,
-                      label: 'Fjalëkalimi',
+                      label: l10n.password,
                       obscureText: true,
                       errorText: _passwordError,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     _AuthTextField(
                       controller: _registerConfirmPasswordController,
-                      label: 'Konfirmo fjalëkalimin',
+                      label: l10n.authConfirmPassword,
                       obscureText: true,
                       errorText: _confirmPasswordError,
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     _AuthSubmitButton(
-                      label: 'Regjistrohu',
+                      label: l10n.register,
                       loading: widget.controller.authActionLoading,
                       onPressed: _submitRegister,
                     ),
                   ] else ...[
                     Text(
-                      'Shkruaj email-in tënd dhe do të dërgojmë një link për rikthimin e fjalëkalimit.',
+                      l10n.authForgotPasswordHint,
                       style: AppTextStyles.bodySmall.copyWith(height: 1.5),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     _AuthTextField(
                       controller: _forgotEmailController,
-                      label: 'Email',
+                      label: l10n.email,
                       keyboardType: TextInputType.emailAddress,
                       errorText: _emailError,
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     _AuthSubmitButton(
-                      label: 'Dërgo linkun',
+                      label: l10n.authSendLink,
                       loading: widget.controller.authActionLoading,
                       onPressed: _submitForgotPassword,
                     ),
@@ -369,7 +373,7 @@ class _AuthSheetBodyState extends State<_AuthSheetBody> {
                                 _clearErrors();
                               }),
                       child: Text(
-                        'Kthehu te kyçja',
+                        l10n.authBackToLogin,
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.burgundy,
                         ),
@@ -409,6 +413,8 @@ class _AuthModeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -419,14 +425,14 @@ class _AuthModeToggle extends StatelessWidget {
         children: [
           Expanded(
             child: _AuthToggleChip(
-              label: 'Kyçu',
+              label: l10n.login,
               selected: isLogin,
               onTap: onLoginTap,
             ),
           ),
           Expanded(
             child: _AuthToggleChip(
-              label: 'Regjistrohu',
+              label: l10n.register,
               selected: !isLogin,
               onTap: onRegisterTap,
             ),

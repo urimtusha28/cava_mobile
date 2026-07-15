@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../theme/app_colors.dart';
@@ -77,6 +78,8 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -92,14 +95,14 @@ class _TopBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'CAVA PREMIUM',
+                  l10n.brandName.toUpperCase(),
                   style: AppTextStyles.caption.copyWith(
                     color: Colors.white,
                     letterSpacing: 1,
                   ),
                 ),
                 Text(
-                  'Premium Collection',
+                  l10n.heroBrandTagline,
                   style: AppTextStyles.caption.copyWith(color: Colors.white70),
                 ),
               ],
@@ -125,14 +128,16 @@ class _TopBar extends StatelessWidget {
 class _HeroContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Discover Premium\nCollection', style: AppTextStyles.display),
+        Text(l10n.heroHeadline, style: AppTextStyles.display),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Wine • Spirits • Tobacco • Accessories',
+          l10n.heroSubtitle,
           style: AppTextStyles.displaySub,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -150,7 +155,7 @@ class _HeroContent extends StatelessWidget {
               ),
             ),
             child: Text(
-              'Explore Collection',
+              l10n.heroCta,
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppColors.burgundy,
               ),

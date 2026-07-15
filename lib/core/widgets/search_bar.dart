@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
@@ -8,13 +9,13 @@ import '../constants/app_spacing.dart';
 class CavaSearchBar extends StatelessWidget {
   const CavaSearchBar({
     super.key,
-    this.hint = 'Kërko produkte…',
+    this.hint,
     this.onTap,
     this.controller,
     this.onChanged,
   });
 
-  final String hint;
+  final String? hint;
   final VoidCallback? onTap;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
@@ -22,6 +23,7 @@ class CavaSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final editable = controller != null;
+    final resolvedHint = hint ?? AppLocalizations.of(context).searchHintDefault;
 
     return GestureDetector(
       onTap: editable ? null : onTap,
@@ -44,7 +46,7 @@ class CavaSearchBar extends StatelessWidget {
                       onChanged: onChanged,
                       style: AppTextStyles.body,
                       decoration: InputDecoration(
-                        hintText: hint,
+                        hintText: resolvedHint,
                         hintStyle: AppTextStyles.body.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -56,7 +58,7 @@ class CavaSearchBar extends StatelessWidget {
                   : Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        hint,
+                        resolvedHint,
                         style: AppTextStyles.body.copyWith(
                           color: AppColors.textSecondary,
                         ),

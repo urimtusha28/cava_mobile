@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../helpers/test_app.dart';
 import '../../../../helpers/test_di.dart';
 
 void main() {
@@ -41,9 +42,7 @@ void main() {
   });
 
   testWidgets('guest checkout shows three action buttons', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: CheckoutScreen()),
-    );
+    await pumpTestApp(tester, home: const CheckoutScreen());
     await tester.pumpAndSettle();
 
     expect(find.text('Nuk je i kyçur.'), findsOneWidget);
@@ -54,9 +53,7 @@ void main() {
   });
 
   testWidgets('Bli pa u regjistruar opens guest info sheet', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: CheckoutScreen()),
-    );
+    await pumpTestApp(tester, home: const CheckoutScreen());
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Bli pa u regjistruar'));
@@ -70,9 +67,7 @@ void main() {
   });
 
   testWidgets('Hyr opens auth bottom sheet in login mode', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: CheckoutScreen()),
-    );
+    await pumpTestApp(tester, home: const CheckoutScreen());
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Hyr'));
@@ -83,9 +78,7 @@ void main() {
 
   testWidgets('Regjistrohu opens auth bottom sheet in register mode',
       (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: CheckoutScreen()),
-    );
+    await pumpTestApp(tester, home: const CheckoutScreen());
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Regjistrohu'));

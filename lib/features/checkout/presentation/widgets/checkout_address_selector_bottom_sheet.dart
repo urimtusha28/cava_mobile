@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -107,7 +108,7 @@ class _CheckoutAddressSelectorSheetState
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Adresa e dorëzimit', style: AppTextStyles.h3),
+                child: Text(AppLocalizations.of(context).deliveryAddressTitle, style: AppTextStyles.h3),
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -203,7 +204,7 @@ class _AddressOptionCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      address.label.isNotEmpty ? address.label : 'Adresë',
+                      address.label.isNotEmpty ? address.label : AppLocalizations.of(context).addressFallbackLabel,
                       style: AppTextStyles.h3,
                     ),
                     const SizedBox(height: AppSpacing.xs),
@@ -240,7 +241,7 @@ class _AddAddressButton extends StatelessWidget {
       onPressed: onPressed,
       icon: const Icon(Icons.add, color: AppColors.burgundy),
       label: Text(
-        'Shto adresë të re',
+        AppLocalizations.of(context).addNewAddress,
         style: AppTextStyles.body.copyWith(
           color: AppColors.burgundy,
           fontWeight: FontWeight.w600,
@@ -270,7 +271,7 @@ class _EmptyAddresses extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Nuk ke asnjë adresë.',
+              AppLocalizations.of(context).noAddressYet,
               style: AppTextStyles.body,
               textAlign: TextAlign.center,
             ),
@@ -288,7 +289,7 @@ class _EmptyAddresses extends StatelessWidget {
                   vertical: AppSpacing.sm,
                 ),
               ),
-              child: Text('Shto adresë', style: AppTextStyles.bodySmall),
+              child: Text(AppLocalizations.of(context).addAddress, style: AppTextStyles.bodySmall),
             ),
           ],
         ),

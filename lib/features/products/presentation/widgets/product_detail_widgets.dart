@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -51,6 +52,7 @@ class ProductHeaderInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -62,10 +64,10 @@ class ProductHeaderInfo extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: AppSpacing.md),
-        _MetaRow('Country', product.country ?? '—'),
-        _MetaRow('Bottle', product.volume),
+        _MetaRow(l10n.metaCountry, product.country ?? l10n.emDash),
+        _MetaRow(l10n.metaBottle, product.volume),
         if (product.alcoholPercentage != null)
-          _MetaRow('Alcohol', '${product.alcoholPercentage}%'),
+          _MetaRow(l10n.metaAlcohol, '${product.alcoholPercentage}%'),
         const SizedBox(height: AppSpacing.lg),
         PriceWidget(
           price: product.price,
@@ -84,11 +86,12 @@ class ProductInfoCardsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final cards = [
-      (Icons.eco_outlined, 'Variety', product.type),
-      (Icons.public, 'Country', product.country ?? '—'),
-      (Icons.local_bar, 'Serving', product.servingTemp ?? '—'),
-      (Icons.percent, 'Alcohol', product.alcoholPercentage != null ? '${product.alcoholPercentage}%' : '—'),
+      (Icons.eco_outlined, l10n.infoVariety, product.type),
+      (Icons.public, l10n.metaCountry, product.country ?? l10n.emDash),
+      (Icons.local_bar, l10n.infoServing, product.servingTemp ?? l10n.emDash),
+      (Icons.percent, l10n.metaAlcohol, product.alcoholPercentage != null ? '${product.alcoholPercentage}%' : l10n.emDash),
     ];
 
     return Row(
@@ -113,15 +116,16 @@ class ProductDetailSections extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
-        _ExpandableSection(title: 'Description', content: product.description),
+        _ExpandableSection(title: l10n.sectionDescription, content: product.description),
         if (product.foodPairing != null)
-          _ExpandableSection(title: 'Food Pairing', content: product.foodPairing!),
+          _ExpandableSection(title: l10n.sectionFoodPairing, content: product.foodPairing!),
         if (product.tastingNotes != null)
-          _ExpandableSection(title: 'Tasting Notes', content: product.tastingNotes!),
+          _ExpandableSection(title: l10n.sectionTastingNotes, content: product.tastingNotes!),
         if (product.winery != null)
-          _ExpandableSection(title: 'Winery', content: product.winery!),
+          _ExpandableSection(title: l10n.sectionWinery, content: product.winery!),
       ],
     );
   }
@@ -171,7 +175,7 @@ class ProductBottomCta extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Text('SHTO NË SHPORTË', style: AppTextStyles.button),
+                Text(AppLocalizations.of(context).addToCartCta, style: AppTextStyles.button),
                 const Spacer(),
                 Text(Formatters.currency(price), style: AppTextStyles.button),
               ],

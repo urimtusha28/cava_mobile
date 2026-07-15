@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -11,35 +12,37 @@ class HelpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const CavaAppBar(title: 'Ndihmë & Kontakt', showBack: true),
+      appBar: CavaAppBar(title: l10n.helpAndContact, showBack: true),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.screen),
         children: [
           _InfoCard(
             icon: Icons.email_outlined,
-            title: 'Email',
-            value: 'info@cava-premium.com',
+            title: l10n.email,
+            value: l10n.helpEmailValue,
           ),
           const SizedBox(height: AppSpacing.md),
           _InfoCard(
             icon: Icons.phone_outlined,
-            title: 'Telefon',
-            value: '+355 69 000 0000',
+            title: l10n.phone,
+            value: l10n.helpPhoneValue,
           ),
           const SizedBox(height: AppSpacing.md),
           _InfoCard(
             icon: Icons.schedule_outlined,
-            title: 'Orari',
-            value: 'E Hënë – E Shtunë, 09:00 – 20:00',
+            title: l10n.schedule,
+            value: l10n.helpHoursValue,
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text('Pyetje të shpeshta', style: AppTextStyles.h3),
+          Text(l10n.faqTitle, style: AppTextStyles.h3),
           const SizedBox(height: AppSpacing.md),
-          _FaqTile('Si mund ta ndjek porosinë time?'),
-          _FaqTile('Cilat janë metodat e pagesës?'),
-          _FaqTile('Sa kohë zgjat dërgesa?'),
+          _FaqTile(l10n.faqTrackOrder),
+          _FaqTile(l10n.faqPaymentMethods),
+          _FaqTile(l10n.faqDeliveryTime),
         ],
       ),
     );

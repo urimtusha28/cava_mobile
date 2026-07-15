@@ -31,7 +31,7 @@ class CategoryProductsController extends BaseController {
       if (categoryId == 'all') {
         category = null;
         subcategories = const [
-          SubcategoryEntity(id: 'all', label: 'All Products'),
+          SubcategoryEntity(id: 'all', label: ''),
         ];
         products = await unwrapFutureResult(
           _getAllProducts(),

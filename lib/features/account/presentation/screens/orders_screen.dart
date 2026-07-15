@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -36,6 +37,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return FutureBuilder<void>(
       future: _loadFuture,
       builder: (context, snapshot) {
@@ -47,8 +50,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
               builder: (context, _) {
                 return Scaffold(
                   backgroundColor: AppColors.background,
-                  appBar: const CavaAppBar(title: 'Porositë e mia', showBack: true),
-                  body: _buildBody(isLoggedIn),
+                  appBar: CavaAppBar(title: l10n.myOrders, showBack: true),
+                  body: _buildBody(isLoggedIn, l10n),
                 );
               },
             );
@@ -58,7 +61,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  Widget _buildBody(bool isLoggedIn) {
+  Widget _buildBody(bool isLoggedIn, AppLocalizations l10n) {
     if (_controller.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -70,7 +73,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
 
     if (_controller.orders.isEmpty) {
-      return const _EmptyState(message: 'Nuk ke porosi ende.');
+      return _EmptyState(message: l10n.ordersEmpty);
     }
 
     return ListView.separated(
@@ -107,7 +110,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         ),
                       ),
                       Text(
-                        formatOrderStatus(order.status),
+                        formatOrderStatus(order.status, l10n),
                         style: AppTextStyles.caption.copyWith(
                           color: AppColors.burgundy,
                         ),
@@ -116,7 +119,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    formatPaymentStatus(order.paymentStatus),
+                    formatPaymentStatus(order.paymentStatus, l10n),
                     style: AppTextStyles.bodySmall,
                   ),
                   const SizedBox(height: 4),
@@ -126,7 +129,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${order.itemCount} produkte',
+                    l10n.ordersItemCount(order.itemCount),
                     style: AppTextStyles.bodySmall,
                   ),
                   if (order.createdAt != null) ...[
@@ -173,6 +176,8 @@ class _LoginPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.screen),
@@ -180,7 +185,7 @@ class _LoginPrompt extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Kyçu për të parë porositë e tua.',
+              l10n.loginToSeeOrders,
               style: AppTextStyles.body,
               textAlign: TextAlign.center,
             ),
@@ -196,7 +201,7 @@ class _LoginPrompt extends StatelessWidget {
                     horizontal: AppSpacing.xl,
                     vertical: AppSpacing.md,
                   ),
-                  child: Text('Kyçu', style: AppTextStyles.button),
+                  child: Text(l10n.login, style: AppTextStyles.button),
                 ),
               ),
             ),

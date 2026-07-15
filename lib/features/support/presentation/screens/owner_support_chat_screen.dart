@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -63,10 +64,12 @@ class _OwnerSupportChatScreenState extends State<OwnerSupportChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: CavaAppBar(
-        title: widget.initialConversation?.customerName ?? 'Biseda',
+        title: widget.initialConversation?.customerName ??
+            l10n.ownerConversationFallback,
         showBack: true,
       ),
       body: ListenableBuilder(
@@ -89,12 +92,12 @@ class _OwnerSupportChatScreenState extends State<OwnerSupportChatScreen> {
                           padding: const EdgeInsets.only(right: AppSpacing.sm),
                           child: OutlinedButton(
                             onPressed: () => _controller.updateStatus(status),
-                            child: Text(status.labelSq),
+                            child: Text(status.labelOf(l10n)),
                           ),
                         ),
                       OutlinedButton(
                         onPressed: _controller.assignToSelf,
-                        child: const Text('Cakto mua'),
+                        child: Text(l10n.ownerAssignToMe),
                       ),
                     ],
                   ),
@@ -103,7 +106,7 @@ class _OwnerSupportChatScreenState extends State<OwnerSupportChatScreen> {
                 child: _controller.messages.isEmpty
                     ? Center(
                         child: Text(
-                          'Nuk ka mesazhe.',
+                          l10n.ownerNoMessages,
                           style: AppTextStyles.emptyState,
                         ),
                       )
@@ -145,7 +148,7 @@ class _OwnerSupportChatScreenState extends State<OwnerSupportChatScreen> {
                           controller: _textController,
                           onChanged: (_) => setState(() {}),
                           decoration: InputDecoration(
-                            hintText: 'Përgjigju...',
+                            hintText: l10n.ownerReplyHint,
                             filled: true,
                             fillColor: AppColors.surfaceMuted,
                             border: OutlineInputBorder(

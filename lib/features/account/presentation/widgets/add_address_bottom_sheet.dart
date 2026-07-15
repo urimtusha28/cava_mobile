@@ -1,3 +1,4 @@
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_radius.dart';
@@ -67,8 +68,9 @@ class _AddAddressSheetBodyState extends State<_AddAddressSheetBody> {
   final _streetController = TextEditingController();
   final _cityController = TextEditingController();
   final _zipController = TextEditingController();
-  final _countryController = TextEditingController(text: 'Kosovë');
+  final _countryController = TextEditingController();
   bool _isDefault = false;
+  bool _didInitCountry = false;
 
   String? _fullNameError;
   String? _phoneError;
@@ -128,6 +130,7 @@ class _AddAddressSheetBodyState extends State<_AddAddressSheetBody> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return ListenableBuilder(
       listenable: widget.controller,
       builder: (context, _) {
@@ -152,7 +155,7 @@ class _AddAddressSheetBodyState extends State<_AddAddressSheetBody> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text('Shto adresë', style: AppTextStyles.h2),
+                    child: Text(l10n.addAddressTitle, style: AppTextStyles.h2),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
@@ -171,16 +174,16 @@ class _AddAddressSheetBodyState extends State<_AddAddressSheetBody> {
                   AppSpacing.xxl,
                 ),
                 children: [
-                  _Field(controller: _labelController, label: 'Etiketa'),
-                  _Field(controller: _fullNameController, label: 'Emri i plotë', errorText: _fullNameError),
-                  _Field(controller: _phoneController, label: 'Telefoni', errorText: _phoneError, keyboardType: TextInputType.phone),
-                  _Field(controller: _streetController, label: 'Rruga', errorText: _streetError),
-                  _Field(controller: _cityController, label: 'Qyteti', errorText: _cityError),
-                  _Field(controller: _zipController, label: 'Kodi postar'),
-                  _Field(controller: _countryController, label: 'Shteti', errorText: _countryError),
+                  _Field(controller: _labelController, label: l10n.addressLabel),
+                  _Field(controller: _fullNameController, label: l10n.fullName, errorText: _fullNameError),
+                  _Field(controller: _phoneController, label: l10n.phoneLabel, errorText: _phoneError, keyboardType: TextInputType.phone),
+                  _Field(controller: _streetController, label: l10n.street, errorText: _streetError),
+                  _Field(controller: _cityController, label: l10n.city, errorText: _cityError),
+                  _Field(controller: _zipController, label: l10n.postalCode),
+                  _Field(controller: _countryController, label: l10n.country, errorText: _countryError),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: Text('Vendos si adresë kryesore', style: AppTextStyles.body),
+                    title: Text(l10n.setAsDefaultAddress, style: AppTextStyles.body),
                     value: _isDefault,
                     activeThumbColor: AppColors.burgundy,
                     onChanged: widget.controller.actionLoading
@@ -286,7 +289,10 @@ class _SubmitButton extends StatelessWidget {
                       color: Colors.white,
                     ),
                   )
-                : Text('Ruaj adresën', style: AppTextStyles.button),
+                : Text(
+                    AppLocalizations.of(context).saveAddress,
+                    style: AppTextStyles.button,
+                  ),
           ),
         ),
       ),

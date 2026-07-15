@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide SearchController;
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_spacing.dart';
@@ -99,13 +100,14 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildSearchField() {
+    final l10n = AppLocalizations.of(context);
     final hasQuery = _controller.query.isNotEmpty;
 
     return Row(
       children: [
         Expanded(
           child: CavaSearchBar(
-            hint: 'Kërko produktet e Cava Premium…',
+            hint: l10n.searchHintCava,
             controller: _textController,
             onChanged: _controller.updateQuery,
           ),
@@ -118,7 +120,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 }
               : null,
           child: Text(
-            'Fshij',
+            l10n.searchClear,
             style: AppTextStyles.bodySmall.copyWith(
               color: hasQuery
                   ? AppColors.textSecondary
@@ -131,6 +133,8 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildBody() {
+    final l10n = AppLocalizations.of(context);
+
     if (_controller.errorMessage != null) {
       return Center(
         child: Padding(
@@ -148,7 +152,7 @@ class _SearchScreenState extends State<SearchScreen> {
               const SizedBox(height: AppSpacing.md),
               OutlinedButton(
                 onPressed: () => _controller.loadInitial(),
-                child: const Text('Provo përsëri'),
+                child: Text(l10n.retry),
               ),
             ],
           ),
@@ -157,7 +161,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     if (_controller.query.isEmpty) {
-      return _buildInitialState();
+      return _buildInitialState(l10n);
     }
 
     if (_controller.isSearching && !_controller.hasLoadedProducts) {
@@ -173,8 +177,8 @@ class _SearchScreenState extends State<SearchScreen> {
             children: [
               Text(
                 _controller.filter.isActive
-                    ? 'Nuk u gjet asnjë produkt me këto filtra.'
-                    : 'Nuk u gjet asnjë produkt.',
+                    ? l10n.searchNoResultsWithFilters
+                    : l10n.searchNoResults,
                 style: AppTextStyles.emptyState,
                 textAlign: TextAlign.center,
               ),
@@ -182,7 +186,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 const SizedBox(height: AppSpacing.md),
                 OutlinedButton(
                   onPressed: _controller.clearFilter,
-                  child: const Text('Pastro filtrat'),
+                  child: Text(l10n.clearFilters),
                 ),
               ],
             ],
@@ -194,13 +198,13 @@ class _SearchScreenState extends State<SearchScreen> {
     return _buildResultsGrid(_controller.results);
   }
 
-  Widget _buildInitialState() {
+  Widget _buildInitialState(AppLocalizations l10n) {
     if (_controller.recentSearches.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.screen),
           child: Text(
-            'Kërko produktet e Cava Premium.',
+            l10n.searchEmptyPrompt,
             style: AppTextStyles.emptyState,
             textAlign: TextAlign.center,
           ),
@@ -222,7 +226,7 @@ class _SearchScreenState extends State<SearchScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Kërkimet e fundit',
+                l10n.searchRecentTitle,
                 style: AppTextStyles.body.copyWith(
                   color: AppColors.textPrimary,
                 ),
@@ -230,7 +234,7 @@ class _SearchScreenState extends State<SearchScreen> {
               TextButton(
                 onPressed: _controller.clearRecentSearches,
                 child: Text(
-                  'Fshij të gjitha',
+                  l10n.searchClearAll,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                   ),

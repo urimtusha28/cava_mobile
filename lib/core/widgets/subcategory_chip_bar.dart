@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
@@ -21,8 +22,20 @@ class SubcategoryChipBar extends StatelessWidget {
   final ValueChanged<String> onSelected;
   final String? parentBadgeColor;
 
+  String _displayLabel(SubcategoryEntity sub, AppLocalizations l10n) {
+    if (sub.id != 'all') return sub.label;
+    // Synthetic "all" chips only — keep data labels like "All Wines".
+    if (sub.label.isEmpty || sub.label == 'All Products') {
+      return l10n.allProductsChip;
+    }
+    if (sub.label == 'All') return l10n.allChip;
+    return sub.label;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return SizedBox(
       height: 44,
       child: ListView.separated(
@@ -52,7 +65,7 @@ class SubcategoryChipBar extends StatelessWidget {
                 ),
               ),
               child: Text(
-                sub.label,
+                _displayLabel(sub, l10n),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: selected
                       ? CategoryBadgeColorHelper.textColor(accent)

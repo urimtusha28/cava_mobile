@@ -155,26 +155,13 @@ abstract final class OwnerDashboardMapper {
       orderNumber: orderNumber,
       customerName: name,
       total: total,
-      statusLabel: _fulfillmentLabel(fulfillment),
+      // Raw fulfillment / status code — localize in presentation via
+      // [OwnerOrderStatusL10n.labelOf].
+      statusLabel: fulfillment,
       paymentMethod: paymentMethod,
       paymentStatus: paymentStatus,
       createdAt: createdAt,
     );
-  }
-
-  static String _fulfillmentLabel(String raw) {
-    return switch (raw) {
-      'received' => 'Pranuar',
-      'confirmed' => 'Konfirmuar',
-      'prepared' => 'Përgatitur',
-      'shipped' => 'Dërguar',
-      'in_transit' => 'Në tranzit',
-      'delivered' || 'Fulfilled' => 'Përfunduar',
-      'returned' => 'Kthyer',
-      'canceled' => 'Anuluar',
-      'Unfulfilled' => 'Pa përmbushur',
-      _ => raw.isEmpty ? '—' : raw,
-    };
   }
 
   static LowStockProduct lowStockFromFirestore(

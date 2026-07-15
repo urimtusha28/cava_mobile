@@ -1,10 +1,14 @@
+import 'package:cava_ecommerce/core/locale/locale_controller.dart';
 import 'package:cava_ecommerce/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('App builds without crashing', (WidgetTester tester) async {
-    await tester.pumpWidget(const CavaPremiumApp());
+    final localeController = LocaleController();
+    await localeController.load();
+
+    await tester.pumpWidget(CavaPremiumApp(localeController: localeController));
     await tester.pump();
 
     expect(tester.takeException(), isNull);

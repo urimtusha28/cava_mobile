@@ -7,6 +7,7 @@ import 'package:cava_ecommerce/features/account/presentation/widgets/order_detai
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../../helpers/test_app.dart';
 import '../../../../helpers/test_di.dart';
 
 void main() {
@@ -19,11 +20,7 @@ void main() {
   });
 
   testWidgets('shows login prompt when user is guest', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: OrdersScreen(),
-      ),
-    );
+    await pumpTestApp(tester, home: const OrdersScreen());
     await tester.pumpAndSettle();
 
     expect(find.text('Kyçu për të parë porositë e tua.'), findsOneWidget);
@@ -51,22 +48,21 @@ void main() {
       totals: OrderTotalsEntity(total: 8.5, subtotal: 8.5),
     );
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Builder(
-          builder: (context) {
-            return Scaffold(
-              body: Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    showOrderDetailBottomSheet(context: context, order: order);
-                  },
-                  child: const Text('Show detail'),
-                ),
+    await pumpTestApp(
+      tester,
+      home: Builder(
+        builder: (context) {
+          return Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  showOrderDetailBottomSheet(context: context, order: order);
+                },
+                child: const Text('Show detail'),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/auth/app_session_notifier.dart';
@@ -42,9 +43,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const CavaAppBar(title: 'Profili', showBack: false),
+      appBar: CavaAppBar(title: l10n.ownerProfileTitle, showBack: false),
       body: ListenableBuilder(
         listenable: _authController,
         builder: (context, _) {
@@ -78,12 +80,12 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                         children: [
                           Text(
                             _authController.userName.isEmpty
-                                ? 'Pronari'
+                                ? l10n.ownerFallbackName
                                 : _authController.userName,
                             style: AppTextStyles.h3,
                           ),
                           Text(
-                            'Roli: Owner / Admin',
+                            l10n.ownerRoleLabel,
                             style: AppTextStyles.bodySmall,
                           ),
                         ],
@@ -116,9 +118,12 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : Text('Dil', style: AppTextStyles.body.copyWith(
-                          color: Colors.white,
-                        )),
+                      : Text(
+                          l10n.logout,
+                          style: AppTextStyles.body.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
             ],

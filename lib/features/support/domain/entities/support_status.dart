@@ -1,3 +1,5 @@
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
+
 enum SupportStatus {
   open,
   pending,
@@ -16,10 +18,10 @@ enum SupportStatus {
 
   String get firestoreValue => name;
 
-  String get labelSq => switch (this) {
-        SupportStatus.open => 'Hapur',
-        SupportStatus.pending => 'Në pritje',
-        SupportStatus.resolved => 'Zgjidhur',
-        SupportStatus.closed => 'Mbyllur',
+  String labelOf(AppLocalizations l10n) => switch (this) {
+        SupportStatus.open => l10n.supportStatusOpen,
+        SupportStatus.pending => l10n.supportStatusPending,
+        SupportStatus.resolved => l10n.supportStatusResolved,
+        SupportStatus.closed => l10n.supportStatusClosed,
       };
 }

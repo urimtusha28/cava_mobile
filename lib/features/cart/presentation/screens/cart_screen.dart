@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -64,6 +65,7 @@ class _CartScreenState extends State<CartScreen> {
             return ListenableBuilder(
               listenable: _controller,
               builder: (context, _) {
+                final l10n = AppLocalizations.of(context);
                 final items = _controller.items;
 
                 return Scaffold(
@@ -74,15 +76,15 @@ class _CartScreenState extends State<CartScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       CheckoutScreenHeader(
-                        scriptTitle: 'Shporta',
-                        boldTitle: 'Juaj',
+                        scriptTitle: l10n.cartScriptTitle,
+                        boldTitle: l10n.cartBoldTitle,
                         showBack: true,
                         onBack: () => context.go(AppRoutes.home),
                       ),
                       Expanded(
                         child: Center(
                           child: Text(
-                            'Shporta është bosh',
+                            l10n.cartEmpty,
                             style: AppTextStyles.emptyState,
                           ),
                         ),
@@ -93,8 +95,8 @@ class _CartScreenState extends State<CartScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       CheckoutScreenHeader(
-                        scriptTitle: 'Shporta',
-                        boldTitle: 'Juaj',
+                        scriptTitle: l10n.cartScriptTitle,
+                        boldTitle: l10n.cartBoldTitle,
                         showBack: true,
                         onBack: () => context.go(AppRoutes.home),
                       ),
@@ -309,6 +311,8 @@ class _OrderSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -318,23 +322,23 @@ class _OrderSummaryCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text('Totali i porosisë', style: AppTextStyles.h3),
+          Text(l10n.cartOrderTotalTitle, style: AppTextStyles.h3),
           const SizedBox(height: AppSpacing.lg),
-          _SummaryRow('Çmimi', Formatters.currency(controller.subtotal)),
+          _SummaryRow(l10n.cartPrice, Formatters.currency(controller.subtotal)),
           const SizedBox(height: AppSpacing.sm),
-          _SummaryRow('TVSH', Formatters.currency(controller.vat)),
+          _SummaryRow(l10n.cartVat, Formatters.currency(controller.vat)),
           const SizedBox(height: AppSpacing.sm),
-          _SummaryRow('Transporti', Formatters.currency(controller.shipping)),
+          _SummaryRow(l10n.cartShipping, Formatters.currency(controller.shipping)),
           if (controller.discount > 0) ...[
             const SizedBox(height: AppSpacing.sm),
-            _SummaryRow('Zbritja', Formatters.currency(controller.discount)),
+            _SummaryRow(l10n.cartDiscount, Formatters.currency(controller.discount)),
           ],
           const Padding(
             padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
             child: Divider(height: 1, color: AppColors.border),
           ),
           _SummaryRow(
-            'Totali:',
+            l10n.totalColon,
             Formatters.currency(controller.total),
             emphasized: true,
           ),
@@ -372,6 +376,8 @@ class _CartFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.screen,
@@ -387,7 +393,7 @@ class _CartFooter extends StatelessWidget {
         children: [
           Text.rich(
             TextSpan(
-              text: 'Totali: ',
+              text: '${l10n.totalColon} ',
               style: AppTextStyles.body,
               children: [
                 TextSpan(
@@ -399,7 +405,7 @@ class _CartFooter extends StatelessWidget {
           ),
           const Spacer(),
           FooterActionButton(
-            label: 'Vazhdo',
+            label: l10n.cartContinue,
             onTap: onContinue,
           ),
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -73,6 +74,7 @@ class _EditProfileSheetBodyState extends State<_EditProfileSheetBody> {
   }
 
   Future<void> _save() async {
+    final l10n = AppLocalizations.of(context);
     setState(() {
       _firstNameError =
           ProfileFormValidator.validateFirstName(_firstNameController.text);
@@ -97,14 +99,15 @@ class _EditProfileSheetBodyState extends State<_EditProfileSheetBody> {
       Navigator.of(context).pop(true);
     } else {
       setState(() {
-        _localError = widget.controller.saveError ??
-            'Profili nuk u përditësua. Provo përsëri.';
+        _localError = widget.controller.saveError ?? l10n.profileUpdateFailed;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Container(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height * 0.85,
@@ -136,23 +139,23 @@ class _EditProfileSheetBodyState extends State<_EditProfileSheetBody> {
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
-              Text('Edito profilin', style: AppTextStyles.h3),
+              Text(l10n.editProfileTitle, style: AppTextStyles.h3),
               const SizedBox(height: AppSpacing.xl),
               _field(
-                label: 'Emri',
+                label: l10n.name,
                 controller: _firstNameController,
                 error: _firstNameError,
                 enabled: !_saving,
               ),
               const SizedBox(height: AppSpacing.md),
               _field(
-                label: 'Mbiemri',
+                label: l10n.lastName,
                 controller: _lastNameController,
                 enabled: !_saving,
               ),
               const SizedBox(height: AppSpacing.md),
               _field(
-                label: 'Telefoni',
+                label: l10n.phoneLabel,
                 controller: _phoneController,
                 error: _phoneError,
                 keyboardType: TextInputType.phone,
@@ -160,7 +163,7 @@ class _EditProfileSheetBodyState extends State<_EditProfileSheetBody> {
               ),
               const SizedBox(height: AppSpacing.md),
               _field(
-                label: 'Email',
+                label: l10n.email,
                 controller: _emailController,
                 enabled: false,
               ),
@@ -187,7 +190,7 @@ class _EditProfileSheetBodyState extends State<_EditProfileSheetBody> {
                           borderRadius: BorderRadius.circular(AppRadius.md),
                         ),
                       ),
-                      child: const Text('Anulo'),
+                      child: Text(l10n.cancel),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
@@ -211,7 +214,7 @@ class _EditProfileSheetBodyState extends State<_EditProfileSheetBody> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('Ruaj'),
+                          : Text(l10n.save),
                     ),
                   ),
                 ],

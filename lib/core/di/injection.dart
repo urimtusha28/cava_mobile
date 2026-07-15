@@ -875,7 +875,16 @@ Future<void> configureTestDependencies({
     );
   }
 
-  _registerAppRole();
+  // Tests: avoid FirebaseAuth.instance without Firebase.initializeApp.
+  if (!sl.isRegistered<AppRoleRepository>()) {
+    sl.registerLazySingleton<AppRoleRepository>(
+      () => AppRoleRepositoryImpl(
+        sl<AuthRepository>(),
+        sl<UserProfileRepository>(),
+        null,
+      ),
+    );
+  }
 
   _registerOwnerDashboard();
 

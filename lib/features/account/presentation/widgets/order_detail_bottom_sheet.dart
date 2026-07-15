@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -64,6 +65,7 @@ class _OrderDetailSheetBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final totals = order.totals;
     final customer = order.customer;
 
@@ -88,7 +90,7 @@ class _OrderDetailSheetBody extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Text('Detajet e porosisë', style: AppTextStyles.h2),
+                child: Text(l10n.orderDetailTitle, style: AppTextStyles.h2),
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
@@ -107,26 +109,26 @@ class _OrderDetailSheetBody extends StatelessWidget {
               AppSpacing.lg,
             ),
             children: [
-              _InfoRow(label: 'Porosia', value: order.displayOrderNumber),
+              _InfoRow(label: l10n.orderLabel, value: order.displayOrderNumber),
               _InfoRow(
-                label: 'Statusi',
-                value: formatOrderStatus(order.status),
+                label: l10n.orderStatus,
+                value: formatOrderStatus(order.status, l10n),
               ),
               _InfoRow(
-                label: 'Pagesa',
-                value: formatPaymentStatus(order.paymentStatus),
+                label: l10n.orderPayment,
+                value: formatPaymentStatus(order.paymentStatus, l10n),
               ),
               if (order.createdAt != null)
                 _InfoRow(
-                  label: 'Data',
+                  label: l10n.orderDate,
                   value: formatOrderDate(order.createdAt),
                 ),
               const SizedBox(height: AppSpacing.lg),
-              Text('Produktet', style: AppTextStyles.h3),
+              Text(l10n.orderProducts, style: AppTextStyles.h3),
               const SizedBox(height: AppSpacing.sm),
               if (order.items.isEmpty)
                 Text(
-                  'Nuk ka produkte në këtë porosi.',
+                  l10n.orderNoProducts,
                   style: AppTextStyles.bodySmall,
                 )
               else
@@ -134,43 +136,43 @@ class _OrderDetailSheetBody extends StatelessWidget {
                   (item) => OrderDetailItemRow(item: item),
                 ),
               const SizedBox(height: AppSpacing.lg),
-              Text('Totali', style: AppTextStyles.h3),
+              Text(l10n.total, style: AppTextStyles.h3),
               const SizedBox(height: AppSpacing.sm),
               if (totals?.subtotal != null)
                 _TotalRow(
-                  label: 'Nëntotali',
+                  label: l10n.orderSubtotal,
                   value: formatOrderTotal(totals!.subtotal!),
                 ),
               if (totals?.discount != null && totals!.discount! > 0)
                 _TotalRow(
-                  label: 'Zbritja',
+                  label: l10n.cartDiscount,
                   value: '-${formatOrderTotal(totals.discount!)}',
                 ),
               if (totals?.shipping != null && totals!.shipping! > 0)
                 _TotalRow(
-                  label: 'Transporti',
+                  label: l10n.cartShipping,
                   value: formatOrderTotal(totals.shipping!),
                 ),
               if (totals?.vat != null && totals!.vat! > 0)
                 _TotalRow(
-                  label: 'TVSH',
+                  label: l10n.cartVat,
                   value: formatOrderTotal(totals.vat!),
                 ),
               _TotalRow(
-                label: 'Totali',
+                label: l10n.total,
                 value: formatOrderTotal(order.total),
                 emphasized: true,
               ),
               if (customer?.hasInfo == true) ...[
                 const SizedBox(height: AppSpacing.lg),
-                Text('Klienti', style: AppTextStyles.h3),
+                Text(l10n.orderCustomer, style: AppTextStyles.h3),
                 const SizedBox(height: AppSpacing.sm),
                 if (_hasText(customer!.name))
-                  _InfoRow(label: 'Emri', value: customer.name!.trim()),
+                  _InfoRow(label: l10n.name, value: customer.name!.trim()),
                 if (_hasText(customer.phone))
-                  _InfoRow(label: 'Telefoni', value: customer.phone!.trim()),
+                  _InfoRow(label: l10n.phoneLabel, value: customer.phone!.trim()),
                 if (_hasText(customer.address))
-                  _InfoRow(label: 'Adresa', value: customer.address!.trim()),
+                  _InfoRow(label: l10n.address, value: customer.address!.trim()),
               ],
               const SizedBox(height: AppSpacing.xl),
               Material(
@@ -182,7 +184,7 @@ class _OrderDetailSheetBody extends StatelessWidget {
                   child: SizedBox(
                     height: 52,
                     child: Center(
-                      child: Text('Mbyll', style: AppTextStyles.button),
+                      child: Text(l10n.close, style: AppTextStyles.button),
                     ),
                   ),
                 ),

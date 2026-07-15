@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -10,35 +11,37 @@ class TermsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const CavaAppBar(title: 'Kushtet e përdorimit', showBack: true),
+      appBar: CavaAppBar(title: l10n.termsOfUse, showBack: true),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.screen),
         children: [
           Text(
-            'Duke përdorur aplikacionin Cava Premium, ju pranoni kushtet e mëposhtme të përdorimit.',
+            l10n.termsIntro,
             style: AppTextStyles.bodySmall.copyWith(height: 1.6),
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text('1. Përdorimi i shërbimit', style: AppTextStyles.h3),
+          Text(l10n.termsSection1Title, style: AppTextStyles.h3),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Aplikacioni ofrohet për blerje produktesh të ligjshme nga persona të moshës 18 vjeç e lart.',
+            l10n.termsSection1Body,
             style: AppTextStyles.bodySmall.copyWith(height: 1.6),
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text('2. Porositë', style: AppTextStyles.h3),
+          Text(l10n.termsSection2Title, style: AppTextStyles.h3),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Çmimet dhe disponueshmëria e produkteve mund të ndryshojnë. Porosia konfirmohet pas pranimit të pagesës.',
+            l10n.termsSection2Body,
             style: AppTextStyles.bodySmall.copyWith(height: 1.6),
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text('3. Përgjegjësia', style: AppTextStyles.h3),
+          Text(l10n.termsSection3Title, style: AppTextStyles.h3),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Cava Premium përpiqet të ofrojë informacion të saktë, por nuk mban përgjegjësi për gabime teknike të përkohshme.',
+            l10n.termsSection3Body,
             style: AppTextStyles.bodySmall.copyWith(height: 1.6),
           ),
         ],

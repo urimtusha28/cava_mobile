@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -33,9 +34,10 @@ class _OwnerProductsScreenState extends State<OwnerProductsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const CavaAppBar(title: 'Produktet', showBack: false),
+      appBar: CavaAppBar(title: l10n.ownerProductsTitle, showBack: false),
       body: FutureBuilder<void>(
         future: _loadFuture,
         builder: (context, _) {
@@ -51,7 +53,7 @@ class _OwnerProductsScreenState extends State<OwnerProductsScreen> {
               if (_controller.status == OwnerDashboardViewStatus.error) {
                 return Center(
                   child: Text(
-                    _controller.sectionError ?? 'Gabim',
+                    _controller.sectionError ?? l10n.errorGeneric,
                     style: AppTextStyles.body,
                   ),
                 );
@@ -63,19 +65,28 @@ class _OwnerProductsScreenState extends State<OwnerProductsScreen> {
                 padding: const EdgeInsets.all(AppSpacing.screen),
                 children: [
                   Text(
-                    'Agregatet nga stats/productsSummary (si web).',
+                    l10n.ownerProductsIntro,
                     style: AppTextStyles.bodySmall,
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  _CountRow(label: 'Në stok (≥10)', value: '${s?.inStockCount ?? 0}'),
-                  _CountRow(label: 'Stok i ulët (1–9)', value: '${s?.lowStockCount ?? 0}'),
-                  _CountRow(label: 'Jashtë stoku', value: '${s?.outOfStockCount ?? 0}'),
+                  _CountRow(
+                    label: l10n.ownerInStockCount,
+                    value: '${s?.inStockCount ?? 0}',
+                  ),
+                  _CountRow(
+                    label: l10n.ownerLowStockCount,
+                    value: '${s?.lowStockCount ?? 0}',
+                  ),
+                  _CountRow(
+                    label: l10n.ownerOutOfStockCount,
+                    value: '${s?.outOfStockCount ?? 0}',
+                  ),
                   const SizedBox(height: AppSpacing.xl),
-                  Text('Lista stok i ulët', style: AppTextStyles.h3),
+                  Text(l10n.ownerLowStockList, style: AppTextStyles.h3),
                   const SizedBox(height: AppSpacing.md),
                   if (low.isEmpty)
                     Text(
-                      'Nuk ka rreshta për listë.',
+                      l10n.ownerNoListRows,
                       style: AppTextStyles.bodySmall,
                     )
                   else
@@ -104,7 +115,7 @@ class _OwnerProductsScreenState extends State<OwnerProductsScreen> {
                     ),
                   const SizedBox(height: AppSpacing.xl),
                   Text(
-                    'Top selling: nuk ekziston në admin web — pa të dhëna.',
+                    l10n.ownerTopSellingMissing,
                     style: AppTextStyles.bodySmall,
                   ),
                 ],

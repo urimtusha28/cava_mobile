@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -80,6 +81,7 @@ class _GuestCheckoutInfoSheetBodyState
   String? _cityError;
   String? _countryError;
   bool _saving = false;
+  bool _needsDefaultCountry = false;
 
   @override
   void initState() {
@@ -92,11 +94,21 @@ class _GuestCheckoutInfoSheetBodyState
     _phoneController = TextEditingController(text: existing?.phone ?? '');
     _addressController = TextEditingController(text: existing?.address ?? '');
     _cityController = TextEditingController(text: existing?.city ?? '');
-    _countryController =
-        TextEditingController(text: existing?.country.isNotEmpty == true
-            ? existing!.country
-            : 'Kosovë');
+    _countryController = TextEditingController(
+        text: existing?.country.isNotEmpty == true ? existing!.country : '');
+    _needsDefaultCountry = _countryController.text.isEmpty;
     _zipController = TextEditingController(text: existing?.zip ?? '');
+  }
+
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_needsDefaultCountry) {
+      _needsDefaultCountry = false;
+      _countryController.text =
+          AppLocalizations.of(context).defaultCountryKosovo;
+    }
   }
 
   @override
@@ -113,21 +125,34 @@ class _GuestCheckoutInfoSheetBodyState
   }
 
   Future<void> _save() async {
+    final l10n = AppLocalizations.of(context);
     setState(() {
-      _firstNameError =
-          GuestCheckoutFormValidator.validateFirstName(_firstNameController.text);
-      _lastNameError =
-          GuestCheckoutFormValidator.validateLastName(_lastNameController.text);
-      _emailError =
-          GuestCheckoutFormValidator.validateEmail(_emailController.text);
-      _phoneError =
-          GuestCheckoutFormValidator.validatePhone(_phoneController.text);
-      _addressError =
-          GuestCheckoutFormValidator.validateAddress(_addressController.text);
-      _cityError =
-          GuestCheckoutFormValidator.validateCity(_cityController.text);
-      _countryError =
-          GuestCheckoutFormValidator.validateCountry(_countryController.text);
+      _firstNameError = _firstNameController.text.trim().isEmpty
+          ? l10n.validationFirstNameRequired
+          : null;
+      _lastNameError = _lastNameController.text.trim().isEmpty
+          ? l10n.validationLastNameRequired
+          : null;
+      final email = _emailController.text.trim();
+      if (email.isEmpty) {
+        _emailError = l10n.validationEmailRequired;
+      } else if (GuestCheckoutFormValidator.validateEmail(email) != null) {
+        _emailError = l10n.validationEmailInvalid;
+      } else {
+        _emailError = null;
+      }
+      _phoneError = _phoneController.text.trim().isEmpty
+          ? l10n.validationPhoneRequired
+          : null;
+      _addressError = _addressController.text.trim().isEmpty
+          ? l10n.validationAddressRequired
+          : null;
+      _cityError = _cityController.text.trim().isEmpty
+          ? l10n.validationCityRequired
+          : null;
+      _countryError = _countryController.text.trim().isEmpty
+          ? l10n.validationCountryRequired
+          : null;
     });
 
     if (_firstNameError != null ||
@@ -183,7 +208,7 @@ class _GuestCheckoutInfoSheetBodyState
             children: [
               Expanded(
                 child: Text(
-                  'Të dhënat e dorëzimit',
+                  AppLocalizations.of(context).guestCheckoutTitle,
                   style: AppTextStyles.h3,
                 ),
               ),
@@ -206,51 +231,51 @@ class _GuestCheckoutInfoSheetBodyState
             children: [
               _Field(
                 controller: _firstNameController,
-                label: 'Emri',
+                label: AppLocalizations.of(context).name,
                 errorText: _firstNameError,
               ),
               const SizedBox(height: AppSpacing.md),
               _Field(
                 controller: _lastNameController,
-                label: 'Mbiemri',
+                label: AppLocalizations.of(context).lastName,
                 errorText: _lastNameError,
               ),
               const SizedBox(height: AppSpacing.md),
               _Field(
                 controller: _emailController,
-                label: 'Email',
+                label: AppLocalizations.of(context).email,
                 keyboardType: TextInputType.emailAddress,
                 errorText: _emailError,
               ),
               const SizedBox(height: AppSpacing.md),
               _Field(
                 controller: _phoneController,
-                label: 'Telefoni',
+                label: AppLocalizations.of(context).phoneLabel,
                 keyboardType: TextInputType.phone,
                 errorText: _phoneError,
               ),
               const SizedBox(height: AppSpacing.md),
               _Field(
                 controller: _addressController,
-                label: 'Adresa',
+                label: AppLocalizations.of(context).address,
                 errorText: _addressError,
               ),
               const SizedBox(height: AppSpacing.md),
               _Field(
                 controller: _cityController,
-                label: 'Qyteti',
+                label: AppLocalizations.of(context).city,
                 errorText: _cityError,
               ),
               const SizedBox(height: AppSpacing.md),
               _Field(
                 controller: _countryController,
-                label: 'Shteti',
+                label: AppLocalizations.of(context).country,
                 errorText: _countryError,
               ),
               const SizedBox(height: AppSpacing.md),
               _Field(
                 controller: _zipController,
-                label: 'Kodi postar',
+                label: AppLocalizations.of(context).postalCode,
               ),
               const SizedBox(height: AppSpacing.xl),
               SizedBox(
@@ -274,7 +299,7 @@ class _GuestCheckoutInfoSheetBodyState
                           ),
                         )
                       : Text(
-                          'Ruaj',
+                          AppLocalizations.of(context).save,
                           style: AppTextStyles.body.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,

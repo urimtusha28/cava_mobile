@@ -103,7 +103,7 @@ void main() {
       expect(order.orderNumber, '10042');
       expect(order.customerName, 'Arben K.');
       expect(order.total, 89);
-      expect(order.statusLabel, 'Pranuar');
+      expect(order.statusLabel, 'received');
     });
   });
 

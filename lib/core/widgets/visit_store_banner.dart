@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../constants/app_assets.dart';
@@ -10,14 +11,13 @@ import '../constants/app_spacing.dart';
 class VisitStoreBanner extends StatelessWidget {
   const VisitStoreBanner({super.key});
 
-  static const storeAddress =
-      'The Village - Shopping & Fun, 1 Ahmet Kaçiku, Ferizaj 70000';
-
   static const mapsUrl =
       'https://www.google.com/maps/search/?api=1&query=The%20Village%20Shopping%20Fun%201%20Ahmet%20Kaciku%20Ferizaj%2070000';
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
       child: GestureDetector(
@@ -61,7 +61,7 @@ class VisitStoreBanner extends StatelessWidget {
                               color: AppColors.burgundy,
                             ),
                             const SizedBox(width: 6),
-                            Text('Cava Premium', style: AppTextStyles.caption),
+                            Text(l10n.brandName, style: AppTextStyles.caption),
                           ],
                         ),
                       ),
@@ -75,12 +75,12 @@ class VisitStoreBanner extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Na vizitoni fizikisht',
+                      l10n.visitStoreTitle,
                       style: AppTextStyles.h3,
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'në pikën tonë të shitjes',
+                      l10n.visitStoreSubtitle,
                       style: AppTextStyles.bodySmall.copyWith(height: 1.4),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -94,7 +94,7 @@ class VisitStoreBanner extends StatelessWidget {
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: Text(
-                            storeAddress,
+                            l10n.visitStoreAddress,
                             style: AppTextStyles.bodySmall,
                           ),
                         ),
@@ -111,6 +111,7 @@ class VisitStoreBanner extends StatelessWidget {
   }
 
   Future<void> _showMapsDialog(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
     final shouldOpen = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
@@ -119,9 +120,9 @@ class VisitStoreBanner extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
-          title: Text('Open Maps?', style: AppTextStyles.h3),
+          title: Text(l10n.openMapsTitle, style: AppTextStyles.h3),
           content: Text(
-            'Dëshiron ta hapësh lokacionin në Maps?',
+            l10n.openMapsMessage,
             style: AppTextStyles.bodySmall.copyWith(height: 1.45),
           ),
           actionsPadding: const EdgeInsets.fromLTRB(
@@ -134,7 +135,7 @@ class VisitStoreBanner extends StatelessWidget {
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
               child: Text(
-                'Cancel',
+                l10n.openMapsCancel,
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -143,7 +144,7 @@ class VisitStoreBanner extends StatelessWidget {
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
               child: Text(
-                'Open Maps',
+                l10n.openMapsConfirm,
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.burgundy,
                   fontWeight: FontWeight.w600,
@@ -181,10 +182,11 @@ Future<void> openStoreInMaps(BuildContext context) async {
 }
 
 void _showMapsErrorSnackBar(BuildContext context) {
+  final l10n = AppLocalizations.of(context);
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(
-        'Nuk mund të hapet Maps.',
+        l10n.openMapsError,
         style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
       ),
       backgroundColor: AppColors.burgundy,

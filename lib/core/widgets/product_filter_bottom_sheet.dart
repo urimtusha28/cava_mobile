@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../constants/app_radius.dart';
 import '../constants/app_spacing.dart';
@@ -69,6 +70,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final bottom = MediaQuery.viewInsetsOf(context).bottom;
     final maxHeight = MediaQuery.sizeOf(context).height * 0.88;
 
@@ -105,7 +107,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                   ),
                   child: Row(
                     children: [
-                      Text('Filtro & Sorto', style: AppTextStyles.h3),
+                      Text(l10n.filterSortTitle, style: AppTextStyles.h3),
                       const Spacer(),
                       IconButton(
                         onPressed: () => Navigator.of(context).pop(),
@@ -126,7 +128,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _sectionTitle('Renditja'),
+                        _sectionTitle(l10n.filterSectionSort),
                         ...ProductSortOption.values.map(
                           (option) => InkWell(
                             onTap: () {
@@ -150,7 +152,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                                   const SizedBox(width: AppSpacing.md),
                                   Expanded(
                                     child: Text(
-                                      option.labelSq,
+                                      option.labelOf(l10n),
                                       style: AppTextStyles.bodySmall,
                                     ),
                                   ),
@@ -160,7 +162,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                           ),
                         ),
                         const SizedBox(height: AppSpacing.lg),
-                        _sectionTitle('Çmimi'),
+                        _sectionTitle(l10n.filterSectionPrice),
                         RangeSlider(
                           values: _priceRange,
                           min: widget.options.minPrice,
@@ -192,7 +194,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                         SwitchListTile(
                           contentPadding: EdgeInsets.zero,
                           title: Text(
-                            'Vetëm në stok',
+                            l10n.filterInStockOnly,
                             style: AppTextStyles.bodySmall,
                           ),
                           value: _draft.inStockOnly,
@@ -205,7 +207,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                         ),
                         if (widget.options.brands.isNotEmpty) ...[
                           const SizedBox(height: AppSpacing.md),
-                          _sectionTitle('Marka'),
+                          _sectionTitle(l10n.filterSectionBrand),
                           _chipWrap(
                             values: widget.options.brands,
                             selected: _draft.brands,
@@ -218,7 +220,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                         ],
                         if (widget.options.countries.isNotEmpty) ...[
                           const SizedBox(height: AppSpacing.lg),
-                          _sectionTitle('Origjina'),
+                          _sectionTitle(l10n.filterSectionOrigin),
                           _chipWrap(
                             values: widget.options.countries,
                             selected: _draft.countries,
@@ -231,7 +233,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                         ],
                         if (widget.options.categories.isNotEmpty) ...[
                           const SizedBox(height: AppSpacing.lg),
-                          _sectionTitle('Kategoria'),
+                          _sectionTitle(l10n.filterSectionCategory),
                           _chipWrap(
                             values: widget.options.categories,
                             selected: _draft.categories,
@@ -244,7 +246,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                         ],
                         if (widget.options.subcategories.isNotEmpty) ...[
                           const SizedBox(height: AppSpacing.lg),
-                          _sectionTitle('Nënkategoria'),
+                          _sectionTitle(l10n.filterSectionSubcategory),
                           _chipWrap(
                             values: widget.options.subcategories,
                             selected: _draft.subcategories,
@@ -258,7 +260,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                         ],
                         if (widget.options.volumes.isNotEmpty) ...[
                           const SizedBox(height: AppSpacing.lg),
-                          _sectionTitle('Volumi'),
+                          _sectionTitle(l10n.filterSectionVolume),
                           _chipWrap(
                             values: widget.options.volumes,
                             selected: _draft.volumes,
@@ -304,7 +306,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                                   BorderRadius.circular(AppRadius.md),
                             ),
                           ),
-                          child: const Text('Pastro'),
+                          child: Text(l10n.clear),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.md),
@@ -321,7 +323,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                                   BorderRadius.circular(AppRadius.md),
                             ),
                           ),
-                          child: const Text('Apliko'),
+                          child: Text(l10n.apply),
                         ),
                       ),
                     ],

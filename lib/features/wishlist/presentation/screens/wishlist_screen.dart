@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/state/wishlist_state_notifier.dart';
@@ -40,11 +41,12 @@ class _WishlistScreenState extends State<WishlistScreen> {
       return;
     }
 
+    final l10n = AppLocalizations.of(context);
     final message = switch (result) {
-      AddToCartResult.success => 'Produkti u shtua në shportë.',
-      AddToCartResult.outOfStock => 'Produkti nuk është në stok.',
-      AddToCartResult.insufficientStock => 'Nuk ka stok të mjaftueshëm.',
-      AddToCartResult.failure => 'Nuk u shtua në shportë. Provo përsëri.',
+      AddToCartResult.success => l10n.productAddedToCart,
+      AddToCartResult.outOfStock => l10n.productOutOfStock,
+      AddToCartResult.insufficientStock => l10n.insufficientStock,
+      AddToCartResult.failure => l10n.addToCartFailed,
     };
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -61,6 +63,8 @@ class _WishlistScreenState extends State<WishlistScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return FutureBuilder<void>(
       future: _loadFuture,
       builder: (context, snapshot) {
@@ -74,11 +78,11 @@ class _WishlistScreenState extends State<WishlistScreen> {
 
                 return Scaffold(
                   backgroundColor: AppColors.background,
-                  appBar: const CavaAppBar(title: 'Wishlist'),
+                  appBar: CavaAppBar(title: l10n.wishlistTitle),
                   body: products.isEmpty
                       ? Center(
                           child: Text(
-                            'Wishlist është bosh.',
+                            l10n.wishlistEmpty,
                             style: AppTextStyles.emptyState,
                           ),
                         )
@@ -123,6 +127,7 @@ class _WishlistItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final color = Color(product.placeholderColor ?? 0xFF6B1D2A);
     final placeholder = Icon(
       Icons.wine_bar_outlined,
@@ -195,7 +200,7 @@ class _WishlistItemCard extends StatelessWidget {
                           GestureDetector(
                             onTap: onAddToCart,
                             child: Text(
-                              'Shto në shportë',
+                              l10n.addToCart,
                               style: AppTextStyles.caption.copyWith(
                                 color: AppColors.burgundy,
                               ),

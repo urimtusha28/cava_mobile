@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -32,8 +33,19 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
     _loadFuture = _controller.load(widget.initialResult);
   }
 
+  String _paymentLabel(AppLocalizations l10n, String method) {
+    return switch (method) {
+      'cash' => l10n.paymentMethodCash,
+      'card' => l10n.paymentMethodCard,
+      'bank' => l10n.paymentMethodBank,
+      _ => method,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return FutureBuilder<void>(
       future: _loadFuture,
       builder: (context, snapshot) {
@@ -44,7 +56,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
 
             return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const CavaAppBar(title: 'Porosia'),
+      appBar: CavaAppBar(title: l10n.orderSuccessAppBar),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.screen),
         child: Column(
@@ -60,10 +72,10 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               child: const Icon(Icons.check_rounded, color: AppColors.burgundy, size: 48),
             ),
             const SizedBox(height: AppSpacing.xxl),
-            Text('Porosia u Krye!', style: AppTextStyles.h1, textAlign: TextAlign.center),
+            Text(l10n.orderSuccessTitle, style: AppTextStyles.h1, textAlign: TextAlign.center),
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Faleminderit për besimin tuaj.',
+              l10n.orderSuccessThanks,
               style: AppTextStyles.bodySmall,
               textAlign: TextAlign.center,
             ),
@@ -78,17 +90,17 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               ),
               child: Column(
                 children: [
-                  _Row('Porosia', result?.displayOrderNumber ?? '—'),
+                  _Row(l10n.orderSuccessOrderLabel, result?.displayOrderNumber ?? l10n.emDash),
                   const SizedBox(height: 10),
                   _Row(
-                    'Totali',
-                    result != null ? Formatters.currency(result.total) : '—',
+                    l10n.total,
+                    result != null ? Formatters.currency(result.total) : l10n.emDash,
                   ),
                   if (result != null) ...[
                     const SizedBox(height: 10),
                     _Row(
-                      'Pagesa',
-                      paymentMethodLabel(result.paymentMethod),
+                      l10n.orderSuccessPaymentLabel,
+                      _paymentLabel(l10n, result.paymentMethod),
                     ),
                   ],
                 ],
@@ -96,7 +108,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
             ),
             const Spacer(),
             PrimaryButton(
-              label: 'Kthehu në Home',
+              label: l10n.backToHome,
               onPressed: () => context.go(AppRoutes.home),
             ),
           ],

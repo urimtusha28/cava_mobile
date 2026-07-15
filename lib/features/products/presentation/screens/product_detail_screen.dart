@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -61,8 +62,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             if (product == null) {
               return Scaffold(
                 backgroundColor: AppColors.background,
-                appBar: const CavaAppBar(
-                  title: 'Produkti',
+                appBar: CavaAppBar(
+                  title: AppLocalizations.of(context).productTitle,
                   showBack: true,
                   backgroundColor: AppColors.background,
                 ),
@@ -71,7 +72,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         isLoading: true,
                         child: SizedBox.expand(),
                       )
-                    : const Center(child: Text('Produkti nuk u gjet')),
+                    : Center(child: Text(AppLocalizations.of(context).productNotFound)),
               );
             }
 
@@ -135,14 +136,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'TVSH llogaritet në arkë',
+                      AppLocalizations.of(context).productVatNote,
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xxl),
                     Text(
-                      'Përshkrimi',
+                      AppLocalizations.of(context).productDescription,
                       style: AppTextStyles.body.copyWith(
                         color: const Color(0xFF8A7B6E),
                       ),
@@ -151,7 +152,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                     Text(
                       product.description.isNotEmpty
                           ? product.description
-                          : 'Është duke u përpunuar përshkrimi, ju kërkojmë ndjesë.',
+                          : AppLocalizations.of(context).productDescriptionPlaceholder,
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondary,
                         height: 1.5,
@@ -167,9 +168,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                       dividerColor: AppColors.detailTag,
                       labelStyle: AppTextStyles.body,
                       unselectedLabelStyle: AppTextStyles.body,
-                      tabs: const [
-                        Tab(text: 'Detajet'),
-                        Tab(text: 'Sugjerimet'),
+                      tabs: [
+                        Tab(text: AppLocalizations.of(context).productTabDetails),
+                        Tab(text: AppLocalizations.of(context).productTabSuggestions),
                       ],
                     ),
                     const SizedBox(height: AppSpacing.lg),
@@ -210,14 +211,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
         if (navigateToCart) {
           context.go(AppRoutes.cart);
         } else {
-          _showCartMessage('Produkti u shtua në shportë.');
+          _showCartMessage(AppLocalizations.of(context).productAddedToCart);
         }
       case AddToCartResult.outOfStock:
-        _showCartMessage('Produkti nuk është në stok.');
+        _showCartMessage(AppLocalizations.of(context).productOutOfStock);
       case AddToCartResult.insufficientStock:
-        _showCartMessage('Nuk ka stok të mjaftueshëm.');
+        _showCartMessage(AppLocalizations.of(context).insufficientStock);
       case AddToCartResult.failure:
-        _showCartMessage('Nuk u shtua në shportë. Provo përsëri.');
+        _showCartMessage(AppLocalizations.of(context).addToCartFailed);
     }
   }
 
@@ -279,7 +280,7 @@ class _ProductImage extends StatelessWidget {
         ? Colors.white
         : CategoryBadgeColorHelper.textColor(badgeBackground);
     final resolvedBadgeLabel =
-        outOfStock ? 'Out of Stock' : badgeLabel;
+        outOfStock ? AppLocalizations.of(context).outOfStockBadge : badgeLabel;
 
     return Stack(
       children: [
@@ -329,14 +330,15 @@ class _ProductTags extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final code = product.id.split('-').last.replaceAll(RegExp(r'\D'), '');
-    final origin = product.country ?? 'N/A';
+    final l10n = AppLocalizations.of(context);
+    final origin = product.country ?? l10n.notAvailable;
 
     return Wrap(
       spacing: AppSpacing.sm,
       runSpacing: AppSpacing.sm,
       children: [
-        _TagChip(label: 'Kodi: $code'),
-        _TagChip(label: 'Origjina: $origin ${_countryFlag(product.country)}'),
+        _TagChip(label: l10n.productCodeLabel(code)),
+        _TagChip(label: '${l10n.productOriginLabel(origin)} ${_countryFlag(product.country)}'),
       ],
     );
   }
@@ -384,18 +386,20 @@ class _DetailsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final na = l10n.notAvailable;
     final rows = <(String, String)>[
-      ('Lloji i rrushit:', _value(product.type)),
-      ('Rajoni:', _value(product.country)),
-      ('Vintage:', 'N/A'),
-      ('Shija:', _value(product.tastingNotes)),
-      ('ABV:', product.alcoholPercentage != null
+      (l10n.detailGrapeType, _value(product.type, na)),
+      (l10n.detailRegion, _value(product.country, na)),
+      (l10n.detailVintage, na),
+      (l10n.detailTaste, _value(product.tastingNotes, na)),
+      (l10n.detailAbv, product.alcoholPercentage != null
           ? '${product.alcoholPercentage}%'
-          : 'N/A'),
-      ('Volume:', product.volume),
-      ('Trupi:', 'N/A'),
-      ('Taninet:', 'N/A'),
-      ('Vjetrimi:', 'N/A'),
+          : na),
+      (l10n.detailVolume, product.volume),
+      (l10n.detailBody, na),
+      (l10n.detailTannins, na),
+      (l10n.detailAging, na),
     ];
 
     return Column(
@@ -406,8 +410,8 @@ class _DetailsTab extends StatelessWidget {
     );
   }
 
-  String _value(String? value) =>
-      value != null && value.isNotEmpty ? value : 'N/A';
+  String _value(String? value, String fallback) =>
+      value != null && value.isNotEmpty ? value : fallback;
 }
 
 class _DetailRow extends StatelessWidget {
@@ -471,12 +475,14 @@ class _SuggestionsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final na = l10n.notAvailable;
     final rows = <(String, String, double?)>[
-      ('Temperatura:', _value(product.servingTemp), null),
-      ('Dekantimi:', 'N/A', null),
-      ('Përfundimi:', 'N/A', null),
-      ('Aromat:', _value(product.tastingNotes), 72),
-      ('Kombinimi:', _value(product.foodPairing), 72),
+      (l10n.suggestTemperature, _value(product.servingTemp, na), null),
+      (l10n.suggestDecanting, na, null),
+      (l10n.suggestFinish, na, null),
+      (l10n.suggestAromas, _value(product.tastingNotes, na), 72),
+      (l10n.suggestPairing, _value(product.foodPairing, na), 72),
     ];
 
     return Column(
@@ -487,8 +493,8 @@ class _SuggestionsTab extends StatelessWidget {
     );
   }
 
-  String _value(String? value) =>
-      value != null && value.isNotEmpty ? value : 'N/A';
+  String _value(String? value, String fallback) =>
+      value != null && value.isNotEmpty ? value : fallback;
 }
 
 class _BottomActions extends StatelessWidget {
@@ -571,7 +577,7 @@ class _BottomActions extends StatelessWidget {
                       height: 52,
                       child: Center(
                         child: Text(
-                          'Bli tani',
+                          AppLocalizations.of(context).buyNow,
                           style: AppTextStyles.button.copyWith(fontSize: 16),
                         ),
                       ),

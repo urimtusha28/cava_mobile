@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -34,9 +35,10 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const CavaAppBar(title: 'Analitika', showBack: false),
+      appBar: CavaAppBar(title: l10n.ownerAnalyticsTitle, showBack: false),
       body: FutureBuilder<void>(
         future: _loadFuture,
         builder: (context, _) {
@@ -52,7 +54,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
               if (_controller.status == OwnerDashboardViewStatus.error) {
                 return Center(
                   child: Text(
-                    _controller.sectionError ?? 'Gabim',
+                    _controller.sectionError ?? l10n.errorGeneric,
                     style: AppTextStyles.body,
                   ),
                 );
@@ -60,39 +62,39 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
               final s = _controller.snapshot?.summary;
               if (s == null) {
                 return Center(
-                  child: Text('Nuk ka të dhëna.', style: AppTextStyles.emptyState),
+                  child: Text(l10n.ownerNoData, style: AppTextStyles.emptyState),
                 );
               }
               return ListView(
                 padding: const EdgeInsets.all(AppSpacing.screen),
                 children: [
                   Text(
-                    'Të njëjtat burime si Analytics/Overview admin (statsDaily UTC).',
+                    l10n.ownerAnalyticsIntro,
                     style: AppTextStyles.bodySmall,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _Metric(
-                    label: 'Shitjet 7 ditë',
+                    label: l10n.ownerSales7Days,
                     value: Formatters.currency(s.salesLast7Days),
                   ),
                   _Metric(
-                    label: 'Shitjet 30 ditë',
+                    label: l10n.ownerSales30Days,
                     value: Formatters.currency(s.salesLast30Days),
                   ),
                   _Metric(
-                    label: 'Porosi totale (lifetime)',
+                    label: l10n.ownerTotalOrdersLifetime,
                     value: '${s.totalOrders}',
                   ),
                   _Metric(
-                    label: 'Të ardhura totale (lifetime)',
+                    label: l10n.ownerTotalRevenueLifetime,
                     value: Formatters.currency(s.totalRevenue),
                   ),
                   _Metric(
-                    label: 'Përfunduar (30 ditë, donut_delivered)',
+                    label: l10n.ownerCompleted30Days,
                     value: '${s.completedOrders}',
                   ),
                   _Metric(
-                    label: 'Anuluar/kthyer (30 ditë)',
+                    label: l10n.ownerCancelled30Days,
                     value: '${s.cancelledOrders}',
                   ),
                 ],

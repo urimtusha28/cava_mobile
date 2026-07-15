@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -7,6 +8,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
 import '../controllers/owner_dashboard_controller.dart';
+import '../utils/owner_order_status_l10n.dart';
 
 class OwnerOrdersScreen extends StatefulWidget {
   const OwnerOrdersScreen({super.key});
@@ -34,9 +36,10 @@ class _OwnerOrdersScreenState extends State<OwnerOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const CavaAppBar(title: 'Porositë', showBack: false),
+      appBar: CavaAppBar(title: l10n.ownerOrdersTitle, showBack: false),
       body: FutureBuilder<void>(
         future: _loadFuture,
         builder: (context, _) {
@@ -52,7 +55,7 @@ class _OwnerOrdersScreenState extends State<OwnerOrdersScreen> {
               if (_controller.status == OwnerDashboardViewStatus.error) {
                 return Center(
                   child: Text(
-                    _controller.sectionError ?? 'Gabim',
+                    _controller.sectionError ?? l10n.errorGeneric,
                     style: AppTextStyles.body,
                   ),
                 );
@@ -61,7 +64,7 @@ class _OwnerOrdersScreenState extends State<OwnerOrdersScreen> {
               if (orders.isEmpty) {
                 return Center(
                   child: Text(
-                    'Nuk ka porosi të fundit.',
+                    l10n.ownerNoRecentOrders,
                     style: AppTextStyles.emptyState,
                   ),
                 );
@@ -86,7 +89,7 @@ class _OwnerOrdersScreenState extends State<OwnerOrdersScreen> {
                             children: [
                               Text('#${o.orderNumber}', style: AppTextStyles.body),
                               Text(
-                                '${o.customerName} · ${o.statusLabel}',
+                                '${o.customerName} · ${OwnerOrderStatusL10n.labelOf(l10n, o.statusLabel)}',
                                 style: AppTextStyles.bodySmall,
                               ),
                               Text(

@@ -69,7 +69,7 @@ void main() {
           orderNumber: '10001',
           customerName: 'Test',
           total: 50,
-          statusLabel: 'Pranuar',
+          statusLabel: 'received',
           paymentMethod: 'cash',
           paymentStatus: 'unpaid',
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -35,6 +36,8 @@ class _AddressesScreenState extends State<AddressesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return FutureBuilder<void>(
       future: _loadFuture,
       builder: (context, snapshot) {
@@ -47,14 +50,14 @@ class _AddressesScreenState extends State<AddressesScreen> {
                 return Scaffold(
                   backgroundColor: AppColors.background,
                   appBar: CavaAppBar(
-                    title: 'Adresat',
+                    title: l10n.addresses,
                     showBack: true,
                     actions: isLoggedIn
                         ? [
                             TextButton(
                               onPressed: _openAddAddress,
                               child: Text(
-                                'Shto',
+                                l10n.add,
                                 style: AppTextStyles.body.copyWith(
                                   color: AppColors.burgundy,
                                   fontWeight: FontWeight.w600,
@@ -64,7 +67,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
                           ]
                         : null,
                   ),
-                  body: _buildBody(isLoggedIn),
+                  body: _buildBody(isLoggedIn, l10n),
                 );
               },
             );
@@ -74,7 +77,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
     );
   }
 
-  Widget _buildBody(bool isLoggedIn) {
+  Widget _buildBody(bool isLoggedIn, AppLocalizations l10n) {
     if (_controller.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -84,7 +87,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
     }
 
     if (_controller.addresses.isEmpty) {
-      return const _EmptyState(message: 'Nuk ke adresa të ruajtura.');
+      return _EmptyState(message: l10n.addressesEmpty);
     }
 
     return ListView.separated(
@@ -109,7 +112,9 @@ class _AddressesScreenState extends State<AddressesScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      address.label.isNotEmpty ? address.label : 'Adresë',
+                      address.label.isNotEmpty
+                          ? address.label
+                          : l10n.addressFallbackLabel,
                       style: AppTextStyles.h3,
                     ),
                   ),
@@ -124,7 +129,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
                         borderRadius: BorderRadius.circular(99),
                       ),
                       child: Text(
-                        'Kryesore',
+                        l10n.addressDefaultBadge,
                         style: AppTextStyles.caption.copyWith(
                           color: AppColors.burgundy,
                         ),
@@ -141,7 +146,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
               if (address.zip != null && address.zip!.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Text(
-                  'Kodi postar: ${address.zip}',
+                  l10n.postalCodeWithValue(address.zip!),
                   style: AppTextStyles.bodySmall,
                 ),
               ],
@@ -150,7 +155,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
                 TextButton(
                   onPressed: () => _controller.setDefault(address.id),
                   child: Text(
-                    'Vendos si kryesore',
+                    l10n.setAsDefault,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.burgundy,
                     ),
@@ -199,6 +204,8 @@ class _LoginPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.screen),
@@ -206,7 +213,7 @@ class _LoginPrompt extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Kyçu për të menaxhuar adresat e tua.',
+              l10n.loginToManageAddresses,
               style: AppTextStyles.body,
               textAlign: TextAlign.center,
             ),
@@ -222,7 +229,7 @@ class _LoginPrompt extends StatelessWidget {
                     horizontal: AppSpacing.xl,
                     vertical: AppSpacing.md,
                   ),
-                  child: Text('Kyçu', style: AppTextStyles.button),
+                  child: Text(l10n.login, style: AppTextStyles.button),
                 ),
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -9,37 +10,40 @@ import '../../../../core/constants/app_radius.dart';
 class MessagesScreen extends StatelessWidget {
   const MessagesScreen({super.key});
 
-  static const _conversations = [
-    _Conversation(
-      name: 'Cava Premium Support',
-      preview: 'Porosia juaj #CP-2024-01568 është në rrugëtim.',
-      time: '10:32',
-      unread: 1,
-    ),
-    _Conversation(
-      name: 'Ofertat Speciale',
-      preview: 'Zbritje 15% për verërat italiane këtë javë.',
-      time: 'Dje',
-      unread: 0,
-    ),
-    _Conversation(
-      name: 'Kujtesë Shporte',
-      preview: 'Keni 2 produkte në shportë. Përfundoni blerjen!',
-      time: 'Mar',
-      unread: 0,
-    ),
-  ];
+  List<_Conversation> _conversations(AppLocalizations l10n) => [
+        _Conversation(
+          name: l10n.messagesSupportName,
+          preview: l10n.messagesSupportPreview,
+          time: '10:32',
+          unread: 1,
+        ),
+        _Conversation(
+          name: l10n.messagesOffersName,
+          preview: l10n.messagesOffersPreview,
+          time: l10n.relativeYesterday,
+          unread: 0,
+        ),
+        _Conversation(
+          name: l10n.messagesCartName,
+          preview: l10n.messagesCartPreview,
+          time: l10n.weekdayTue,
+          unread: 0,
+        ),
+      ];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final conversations = _conversations(l10n);
+
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const CavaAppBar(title: 'Mesazhe'),
+      appBar: CavaAppBar(title: l10n.messagesTitle),
       body: ListView.separated(
         padding: const EdgeInsets.all(AppSpacing.screen),
-        itemCount: _conversations.length,
+        itemCount: conversations.length,
         separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.md),
-        itemBuilder: (_, index) => _MessageTile(conversation: _conversations[index]),
+        itemBuilder: (_, index) => _MessageTile(conversation: conversations[index]),
       ),
     );
   }

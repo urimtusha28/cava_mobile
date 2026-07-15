@@ -1,5 +1,6 @@
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../constants/app_assets.dart';
@@ -29,11 +30,11 @@ class BottomNavigation extends StatefulWidget {
 class _BottomNavigationState extends State<BottomNavigation> {
   late final NotchBottomBarController _controller;
 
-  static const _items = [
-    (asset: AppAssets.navHome, label: 'Home'),
-    (asset: AppAssets.navWishlist, label: 'Wishlist'),
-    (asset: AppAssets.navShopping, label: 'Shporta'),
-    (asset: AppAssets.navProfile, label: 'Profili'),
+  static const _itemAssets = [
+    AppAssets.navHome,
+    AppAssets.navWishlist,
+    AppAssets.navShopping,
+    AppAssets.navProfile,
   ];
 
   static const double _fullScale = 1.0;
@@ -63,6 +64,13 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final labels = [
+      l10n.navHome,
+      l10n.navWishlist,
+      l10n.navCart,
+      l10n.navProfile,
+    ];
     const horizontalPadding = AppSpacing.sm;
     final screenWidth = MediaQuery.sizeOf(context).width;
     final barWidth = screenWidth - horizontalPadding * 2;
@@ -120,10 +128,10 @@ class _BottomNavigationState extends State<BottomNavigation> {
                         elevation: 0,
                         kIconSize: iconSize,
                         bottomBarItems: [
-                          for (var i = 0; i < _items.length; i++)
+                          for (var i = 0; i < _itemAssets.length; i++)
                             BottomBarItem(
                               inActiveItem: _NavIcon(
-                                asset: _items[i].asset,
+                                asset: _itemAssets[i],
                                 color: AppColors.textMuted,
                                 size: iconSize,
                                 badgeCount: switch (i) {
@@ -133,7 +141,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
                                 },
                               ),
                               activeItem: _NavIcon(
-                                asset: _items[i].asset,
+                                asset: _itemAssets[i],
                                 color: Colors.white,
                                 size: iconSize,
                                 badgeCount: switch (i) {
@@ -143,7 +151,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
                                 },
                                 onBurgundy: true,
                               ),
-                              itemLabel: _items[i].label,
+                              itemLabel: labels[i],
                             ),
                         ],
                         onTap: widget.onTap,

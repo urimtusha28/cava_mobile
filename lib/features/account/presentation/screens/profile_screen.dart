@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/firebase/firebase_config.dart';
@@ -50,6 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _onEditProfile() async {
+    final l10n = AppLocalizations.of(context);
     final saved = await openEditProfileSheet(
       context: context,
       controller: _controller,
@@ -59,7 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Profili u përditësua.',
+            l10n.profileUpdated,
             style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
           ),
           backgroundColor: AppColors.burgundy,
@@ -70,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Profili nuk u përditësua. Provo përsëri.',
+            l10n.profileUpdateFailed,
             style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
           ),
           backgroundColor: AppColors.burgundy,
@@ -82,6 +84,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return FutureBuilder<void>(
       future: _loadFuture,
       builder: (context, snapshot) {
@@ -93,66 +97,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
               builder: (context, _) {
                 final loggedIn = isLoggedIn || _controller.isLoggedIn;
                 final phone = _controller.phone;
+                final displayName = _controller.displayName.trim().isNotEmpty
+                    ? _controller.displayName
+                    : l10n.guestName;
 
                 return Scaffold(
                   backgroundColor: AppColors.background,
-                  appBar: const CavaAppBar(title: 'Profili'),
+                  appBar: CavaAppBar(title: l10n.profileTitle),
                   body: ListView(
                     padding: const EdgeInsets.all(AppSpacing.screen),
                     children: [
                       _ProfileHeader(
                         isLoggedIn: loggedIn,
-                        userName: _controller.displayName,
+                        userName: displayName,
                         email: loggedIn ? _controller.email : null,
                         phone: loggedIn ? phone : null,
                         onLoginTap: _handleLoginTap,
+                        loginLabel: l10n.tapToLogin,
                       ),
                       const SizedBox(height: AppSpacing.xxl),
                       if (loggedIn)
                         _Tile(
                           icon: Icons.edit_outlined,
-                          title: 'Edito profilin',
+                          title: l10n.editProfile,
                           onTap: _onEditProfile,
                         ),
                       _Tile(
                         icon: Icons.shopping_bag_outlined,
-                        title: 'Porositë e mia',
+                        title: l10n.myOrders,
                         onTap: () => context.push(AppRoutes.orders),
                       ),
                       _Tile(
                         icon: Icons.location_on_outlined,
-                        title: 'Adresat',
+                        title: l10n.addresses,
                         onTap: () => context.push(AppRoutes.addresses),
                       ),
                       _Tile(
                         icon: Icons.help_outline,
-                        title: 'Ndihmë & Kontakt',
+                        title: l10n.helpAndContact,
                         onTap: () => context.push(AppRoutes.help),
                       ),
                       _Tile(
                         icon: Icons.info_outline,
-                        title: 'Rreth Cava Premium',
+                        title: l10n.aboutCava,
                         onTap: () => context.push(AppRoutes.about),
                       ),
                       _Tile(
                         icon: Icons.language_outlined,
-                        title: 'Gjuha',
+                        title: l10n.language,
                         onTap: () => context.push(AppRoutes.language),
                       ),
                       _Tile(
                         icon: Icons.description_outlined,
-                        title: 'Kushtet e përdorimit',
+                        title: l10n.termsOfUse,
                         onTap: () => context.push(AppRoutes.terms),
                       ),
                       _Tile(
                         icon: Icons.privacy_tip_outlined,
-                        title: 'Politika e privatësisë',
+                        title: l10n.privacyPolicy,
                         onTap: () => context.push(AppRoutes.privacy),
                       ),
                       if (loggedIn)
                         _Tile(
                           icon: Icons.logout,
-                          title: 'Dil',
+                          title: l10n.logout,
                           onTap: () => _controller.logout(),
                         ),
                     ],
@@ -172,6 +180,7 @@ class _ProfileHeader extends StatelessWidget {
     required this.isLoggedIn,
     required this.userName,
     required this.onLoginTap,
+    required this.loginLabel,
     this.email,
     this.phone,
   });
@@ -181,6 +190,7 @@ class _ProfileHeader extends StatelessWidget {
   final String? email;
   final String? phone;
   final VoidCallback onLoginTap;
+  final String loginLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -206,7 +216,7 @@ class _ProfileHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isLoggedIn ? userName : 'Kyçu',
+                    isLoggedIn ? userName : loginLabel,
                     style: AppTextStyles.h2.copyWith(
                       color: isLoggedIn
                           ? AppColors.textPrimary

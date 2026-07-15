@@ -24,6 +24,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../helpers/fixtures.dart';
+import '../../../../helpers/test_app.dart';
 import '../../../../helpers/test_di.dart';
 
 class MockGetWishlistItemsUseCase extends Mock
@@ -231,7 +232,7 @@ void main() {
       final product = MockProducts.products.first;
       await sl<WishlistRepository>().add(product);
 
-      await tester.pumpWidget(const MaterialApp(home: WishlistScreen()));
+      await pumpTestApp(tester, home: const WishlistScreen());
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Shto në shportë'));
@@ -263,37 +264,36 @@ void main() {
 
       // Direct OOS through controller snackbar mapping in screen — seed via local
       // wishlist with a controller that returns OOS.
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) {
-                return TextButton(
-                  onPressed: () async {
-                    final controller = WishlistController(
-                      MockGetWishlistItemsUseCase(),
-                      MockRemoveFromWishlistUseCase(),
-                      MockAddToCartUseCase(),
-                    );
-                    final result = await controller.addToCart(product);
-                    final message = switch (result) {
-                      AddToCartResult.success =>
-                        'Produkti u shtua në shportë.',
-                      AddToCartResult.outOfStock =>
-                        'Produkti nuk është në stok.',
-                      AddToCartResult.insufficientStock =>
-                        'Nuk ka stok të mjaftueshëm.',
-                      AddToCartResult.failure =>
-                        'Nuk u shtua në shportë. Provo përsëri.',
-                    };
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(message)),
-                    );
-                  },
-                  child: const Text('tap'),
-                );
-              },
-            ),
+      await pumpTestApp(
+        tester,
+        home: Scaffold(
+          body: Builder(
+            builder: (context) {
+              return TextButton(
+                onPressed: () async {
+                  final controller = WishlistController(
+                    MockGetWishlistItemsUseCase(),
+                    MockRemoveFromWishlistUseCase(),
+                    MockAddToCartUseCase(),
+                  );
+                  final result = await controller.addToCart(product);
+                  final message = switch (result) {
+                    AddToCartResult.success =>
+                      'Produkti u shtua në shportë.',
+                    AddToCartResult.outOfStock =>
+                      'Produkti nuk është në stok.',
+                    AddToCartResult.insufficientStock =>
+                      'Nuk ka stok të mjaftueshëm.',
+                    AddToCartResult.failure =>
+                      'Nuk u shtua në shportë. Provo përsëri.',
+                  };
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(message)),
+                  );
+                },
+                child: const Text('tap'),
+              );
+            },
           ),
         ),
       );
@@ -314,33 +314,32 @@ void main() {
         (_) async => const Error(UnknownFailure(message: 'fail')),
       );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) {
-                return TextButton(
-                  onPressed: () async {
-                    final controller = WishlistController(getItems, remove, add);
-                    final result = await controller.addToCart(testProductEntity);
-                    final message = switch (result) {
-                      AddToCartResult.success =>
-                        'Produkti u shtua në shportë.',
-                      AddToCartResult.outOfStock =>
-                        'Produkti nuk është në stok.',
-                      AddToCartResult.insufficientStock =>
-                        'Nuk ka stok të mjaftueshëm.',
-                      AddToCartResult.failure =>
-                        'Nuk u shtua në shportë. Provo përsëri.',
-                    };
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(message)),
-                    );
-                  },
-                  child: const Text('tap'),
-                );
-              },
-            ),
+      await pumpTestApp(
+        tester,
+        home: Scaffold(
+          body: Builder(
+            builder: (context) {
+              return TextButton(
+                onPressed: () async {
+                  final controller = WishlistController(getItems, remove, add);
+                  final result = await controller.addToCart(testProductEntity);
+                  final message = switch (result) {
+                    AddToCartResult.success =>
+                      'Produkti u shtua në shportë.',
+                    AddToCartResult.outOfStock =>
+                      'Produkti nuk është në stok.',
+                    AddToCartResult.insufficientStock =>
+                      'Nuk ka stok të mjaftueshëm.',
+                    AddToCartResult.failure =>
+                      'Nuk u shtua në shportë. Provo përsëri.',
+                  };
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(message)),
+                  );
+                },
+                child: const Text('tap'),
+              );
+            },
           ),
         ),
       );

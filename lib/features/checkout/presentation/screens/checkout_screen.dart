@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -56,7 +57,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         context.go(AppRoutes.orderSuccess, extra: result.order);
       case CheckoutSubmitStatus.validationError:
       case CheckoutSubmitStatus.requestError:
-        _showMessage(result.message ?? 'Porosia nuk u krijua. Provo përsëri.');
+        _showMessage(result.message ?? AppLocalizations.of(context).orderCreateFailed);
     }
   }
 
@@ -117,9 +118,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const CheckoutScreenHeader(
-                      scriptTitle: 'Finalizo',
-                      boldTitle: 'Porosinë',
+                    CheckoutScreenHeader(
+                      scriptTitle: AppLocalizations.of(context).checkoutScriptTitle,
+                      boldTitle: AppLocalizations.of(context).checkoutBoldTitle,
                       showBack: true,
                     ),
                     Expanded(
@@ -243,7 +244,7 @@ class _UserInfoCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Adresa e dorëzimit',
+                  AppLocalizations.of(context).deliveryAddressTitle,
                   style: AppTextStyles.h3,
                 ),
               ),
@@ -257,7 +258,7 @@ class _UserInfoCard extends StatelessWidget {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Text(
-                    'Ndrysho >',
+                    AppLocalizations.of(context).change,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.burgundy,
                       fontWeight: FontWeight.w600,
@@ -274,7 +275,7 @@ class _UserInfoCard extends StatelessWidget {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Text(
-                    'Ndrysho >',
+                    AppLocalizations.of(context).change,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.burgundy,
                       fontWeight: FontWeight.w600,
@@ -294,37 +295,37 @@ class _UserInfoCard extends StatelessWidget {
             _DeliveryEmptyState(onAddAddress: onAddAddress)
           else if (isLoggedIn && !hasSelectedAddress)
             Text(
-              'Zgjidh adresën e dorëzimit.',
+              AppLocalizations.of(context).selectDeliveryAddress,
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppColors.textSecondary,
               ),
             )
           else if (showDeliveryDetails) ...[
             if (trimmedName.isNotEmpty) ...[
-              _InfoLine('Emri:', trimmedName),
+              _InfoLine(AppLocalizations.of(context).infoName, trimmedName),
               const SizedBox(height: AppSpacing.sm),
             ],
             if (trimmedEmail.isNotEmpty) ...[
-              _InfoLine('Email:', trimmedEmail),
+              _InfoLine(AppLocalizations.of(context).infoEmail, trimmedEmail),
               const SizedBox(height: AppSpacing.sm),
             ],
             if (trimmedAddress.isNotEmpty) ...[
-              _InfoLine('Adresa:', trimmedAddress),
+              _InfoLine(AppLocalizations.of(context).infoAddress, trimmedAddress),
               const SizedBox(height: AppSpacing.sm),
             ],
             if (trimmedCity.isNotEmpty) ...[
-              _InfoLine('Qyteti:', trimmedCity),
+              _InfoLine(AppLocalizations.of(context).infoCity, trimmedCity),
               const SizedBox(height: AppSpacing.sm),
             ],
             if (trimmedCountry.isNotEmpty) ...[
-              _InfoLine('Shteti:', trimmedCountry),
+              _InfoLine(AppLocalizations.of(context).infoCountry, trimmedCountry),
               const SizedBox(height: AppSpacing.sm),
             ],
             if (trimmedPhone.isNotEmpty) ...[
-              _InfoLine('Telefoni:', trimmedPhone),
+              _InfoLine(AppLocalizations.of(context).infoPhone, trimmedPhone),
               const SizedBox(height: AppSpacing.sm),
             ],
-            if (trimmedZip.isNotEmpty) _InfoLine('Kodi postar:', trimmedZip),
+            if (trimmedZip.isNotEmpty) _InfoLine(AppLocalizations.of(context).infoPostalCode, trimmedZip),
           ],
         ],
       ),
@@ -349,7 +350,7 @@ class _GuestAuthActions extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Nuk je i kyçur.',
+          AppLocalizations.of(context).notLoggedIn,
           style: AppTextStyles.bodySmall.copyWith(
             color: AppColors.textSecondary,
           ),
@@ -357,18 +358,18 @@ class _GuestAuthActions extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         _CheckoutActionButton(
-          label: 'Bli pa u regjistruar',
+          label: AppLocalizations.of(context).buyAsGuest,
           filled: true,
           onPressed: onGuestCheckout,
         ),
         const SizedBox(height: AppSpacing.md),
         _CheckoutActionButton(
-          label: 'Hyr',
+          label: AppLocalizations.of(context).signIn,
           onPressed: onLogin,
         ),
         const SizedBox(height: AppSpacing.md),
         _CheckoutActionButton(
-          label: 'Regjistrohu',
+          label: AppLocalizations.of(context).register,
           onPressed: onRegister,
         ),
       ],
@@ -451,7 +452,7 @@ class _DeliveryEmptyState extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Nuk ke asnjë adresë.',
+          AppLocalizations.of(context).noAddressYet,
           style: AppTextStyles.bodySmall,
           textAlign: TextAlign.center,
         ),
@@ -466,7 +467,7 @@ class _DeliveryEmptyState extends StatelessWidget {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           ),
-          child: Text('Shto adresë', style: AppTextStyles.bodySmall),
+          child: Text(AppLocalizations.of(context).addAddress, style: AppTextStyles.bodySmall),
         ),
       ],
     );
@@ -516,7 +517,7 @@ class _PaymentMethodsCard extends StatelessWidget {
             value: 'cash',
             groupValue: selected,
             icon: Icons.payments_outlined,
-            title: 'Paguaj me para në dorë',
+            title: AppLocalizations.of(context).payCash,
             onChanged: onChanged,
           ),
           const SizedBox(height: AppSpacing.xl),
@@ -524,7 +525,7 @@ class _PaymentMethodsCard extends StatelessWidget {
             value: 'card',
             groupValue: selected,
             icon: Icons.credit_card_outlined,
-            title: 'Paguaj me kartel',
+            title: AppLocalizations.of(context).payCard,
             onChanged: onChanged,
           ),
           const SizedBox(height: AppSpacing.xl),
@@ -532,7 +533,7 @@ class _PaymentMethodsCard extends StatelessWidget {
             value: 'bank',
             groupValue: selected,
             icon: Icons.account_balance_outlined,
-            title: 'Transfer bankar',
+            title: AppLocalizations.of(context).payBank,
             onChanged: onChanged,
           ),
         ],
@@ -655,24 +656,24 @@ class _CheckoutFooter extends StatelessWidget {
                 child: Text.rich(
                   TextSpan(
                     style: AppTextStyles.bodySmall.copyWith(height: 1.5),
-                    children: const [
-                      TextSpan(text: 'Pajtohem me '),
+                    children: [
+                      TextSpan(text: AppLocalizations.of(context).termsAgreePrefix),
                       TextSpan(
-                        text: 'Kushtet & Rregullat',
-                        style: TextStyle(
+                        text: AppLocalizations.of(context).termsAndRules,
+                        style: const TextStyle(
                           color: AppColors.burgundy,
                           decoration: TextDecoration.underline,
                         ),
                       ),
-                      TextSpan(text: ' dhe '),
+                      TextSpan(text: AppLocalizations.of(context).termsAgreeAnd),
                       TextSpan(
-                        text: 'Politikën e Kthimit',
-                        style: TextStyle(
+                        text: AppLocalizations.of(context).returnPolicy,
+                        style: const TextStyle(
                           color: AppColors.burgundy,
                           decoration: TextDecoration.underline,
                         ),
                       ),
-                      TextSpan(text: '.'),
+                      const TextSpan(text: '.'),
                     ],
                   ),
                 ),
@@ -684,7 +685,7 @@ class _CheckoutFooter extends StatelessWidget {
             children: [
               Text.rich(
                 TextSpan(
-                  text: 'Totali: ',
+                  text: '${AppLocalizations.of(context).totalColon} ',
                   style: AppTextStyles.body,
                   children: [
                     TextSpan(
@@ -696,7 +697,7 @@ class _CheckoutFooter extends StatelessWidget {
               ),
               const Spacer(),
               FooterActionButton(
-                label: 'Bli',
+                label: AppLocalizations.of(context).buy,
                 onTap: onBuy,
                 enabled: enabled,
                 isLoading: isLoading,

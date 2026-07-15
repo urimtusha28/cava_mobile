@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_radius.dart';
@@ -37,6 +38,7 @@ class _OwnerSupportScreenState extends State<OwnerSupportScreen> {
   }
 
   Future<void> _openSendNotification() async {
+    final l10n = AppLocalizations.of(context);
     final titleCtrl = TextEditingController();
     final bodyCtrl = TextEditingController();
     final uidCtrl = TextEditingController();
@@ -47,6 +49,7 @@ class _OwnerSupportScreenState extends State<OwnerSupportScreen> {
       isScrollControlled: true,
       backgroundColor: AppColors.background,
       builder: (ctx) {
+        final sheetL10n = AppLocalizations.of(ctx);
         return Padding(
           padding: EdgeInsets.only(
             left: AppSpacing.screen,
@@ -60,36 +63,40 @@ class _OwnerSupportScreenState extends State<OwnerSupportScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Dërgo njoftim', style: AppTextStyles.h2),
+                  Text(sheetL10n.ownerSendNotification, style: AppTextStyles.h2),
                   const SizedBox(height: AppSpacing.md),
                   TextField(
                     controller: uidCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Recipient UID',
+                    decoration: InputDecoration(
+                      labelText: sheetL10n.ownerRecipientUid,
                     ),
                   ),
                   TextField(
                     controller: titleCtrl,
-                    decoration: const InputDecoration(labelText: 'Titulli'),
+                    decoration: InputDecoration(
+                      labelText: sheetL10n.ownerNotificationTitle,
+                    ),
                   ),
                   TextField(
                     controller: bodyCtrl,
                     minLines: 2,
                     maxLines: 4,
-                    decoration: const InputDecoration(labelText: 'Teksti'),
+                    decoration: InputDecoration(
+                      labelText: sheetL10n.ownerNotificationBody,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   DropdownButton<NotificationType>(
                     value: type,
                     isExpanded: true,
-                    items: const [
+                    items: [
                       DropdownMenuItem(
                         value: NotificationType.general,
-                        child: Text('General'),
+                        child: Text(sheetL10n.ownerNotificationTypeGeneral),
                       ),
                       DropdownMenuItem(
                         value: NotificationType.promotion,
-                        child: Text('Promotion'),
+                        child: Text(sheetL10n.ownerNotificationTypePromotion),
                       ),
                     ],
                     onChanged: (v) {
@@ -111,7 +118,7 @@ class _OwnerSupportScreenState extends State<OwnerSupportScreen> {
                       );
                       if (ctx.mounted) Navigator.pop(ctx, ok);
                     },
-                    child: const Text('Dërgo'),
+                    child: Text(sheetL10n.send),
                   ),
                 ],
               );
@@ -130,7 +137,7 @@ class _OwnerSupportScreenState extends State<OwnerSupportScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Njoftimi u dërgua.',
+            l10n.ownerNotificationSent,
             style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
           ),
           backgroundColor: AppColors.burgundy,
@@ -151,16 +158,17 @@ class _OwnerSupportScreenState extends State<OwnerSupportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: CavaAppBar(
-        title: 'Support',
+        title: l10n.ownerSupportTitle,
         showBack: false,
         actions: [
           TextButton(
             onPressed: _openSendNotification,
             child: Text(
-              'Dërgo njoftim',
+              l10n.ownerSendNotification,
               style: AppTextStyles.bodySmall.copyWith(color: AppColors.burgundy),
             ),
           ),
@@ -186,7 +194,7 @@ class _OwnerSupportScreenState extends State<OwnerSupportScreen> {
                       Text(_controller.errorMessage!, style: AppTextStyles.body),
                       TextButton(
                         onPressed: () => _controller.load(),
-                        child: const Text('Provo përsëri'),
+                        child: Text(l10n.retry),
                       ),
                     ],
                   ),
@@ -204,13 +212,13 @@ class _OwnerSupportScreenState extends State<OwnerSupportScreen> {
                       ),
                       children: [
                         _FilterChip(
-                          label: 'Të gjitha',
+                          label: l10n.ownerFilterAll,
                           selected: _controller.statusFilter == null,
                           onTap: () => _controller.setFilter(null),
                         ),
                         for (final status in SupportStatus.values)
                           _FilterChip(
-                            label: status.labelSq,
+                            label: status.labelOf(l10n),
                             selected: _controller.statusFilter == status,
                             onTap: () => _controller.setFilter(status),
                           ),
@@ -221,7 +229,7 @@ class _OwnerSupportScreenState extends State<OwnerSupportScreen> {
                     child: _controller.conversations.isEmpty
                         ? Center(
                             child: Text(
-                              'Nuk ka biseda.',
+                              l10n.ownerNoConversations,
                               style: AppTextStyles.emptyState,
                             ),
                           )
@@ -293,6 +301,7 @@ class _ConversationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: AppColors.surfaceMuted,
       borderRadius: BorderRadius.circular(AppRadius.md),
@@ -320,7 +329,7 @@ class _ConversationTile extends StatelessWidget {
                       style: AppTextStyles.bodySmall,
                     ),
                     Text(
-                      conversation.status.labelSq,
+                      conversation.status.labelOf(l10n),
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.burgundy,
                       ),

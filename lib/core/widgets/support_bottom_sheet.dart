@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../constants/app_radius.dart';
@@ -17,11 +18,12 @@ Future<void> showSupportBottomSheet(BuildContext context) {
   configureDependencies();
   final controller = createSupportController();
   unawaited(controller.load());
+  final l10n = AppLocalizations.of(context);
 
   return showAppBottomSheet(
     context: context,
-    title: 'Support',
-    subtitle: 'Jemi këtu për t\'ju ndihmuar',
+    title: l10n.supportTitle,
+    subtitle: l10n.supportSubtitle,
     headerIcon: Icons.support_agent_rounded,
     child: _SupportSheetBody(controller: controller),
   ).whenComplete(controller.dispose);
@@ -66,19 +68,20 @@ class _SupportSheetBodyState extends State<_SupportSheetBody> {
   }
 
   Future<void> _onSend() async {
+    final l10n = AppLocalizations.of(context);
     final loggedIn = await widget.controller.isLoggedIn;
     if (!loggedIn) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Kyçu për të kontaktuar support-in.',
+            l10n.supportLoginRequired,
             style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
           ),
           backgroundColor: AppColors.burgundy,
           behavior: SnackBarBehavior.floating,
           action: SnackBarAction(
-            label: 'Kyçu',
+            label: l10n.login,
             textColor: Colors.white,
             onPressed: () {
               showAuthBottomSheet(
@@ -112,6 +115,7 @@ class _SupportSheetBodyState extends State<_SupportSheetBody> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return ListenableBuilder(
       listenable: widget.controller,
       builder: (context, _) {
@@ -133,10 +137,10 @@ class _SupportSheetBodyState extends State<_SupportSheetBody> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Si mund t\'ju ndihmojmë?', style: AppTextStyles.h3),
+                  Text(l10n.supportHowCanWeHelp, style: AppTextStyles.h3),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    'Pyet për produkte, porosi, dërgesa ose çdo gjë tjetër rreth Cava Premium.',
+                    l10n.supportIntro,
                     style: AppTextStyles.bodySmall.copyWith(height: 1.5),
                   ),
                 ],
@@ -148,7 +152,7 @@ class _SupportSheetBodyState extends State<_SupportSheetBody> {
                 Expanded(
                   child: _QuickContactChip(
                     icon: Icons.email_outlined,
-                    label: 'Email',
+                    label: l10n.email,
                     onTap: _launchEmail,
                   ),
                 ),
@@ -156,7 +160,7 @@ class _SupportSheetBodyState extends State<_SupportSheetBody> {
                 Expanded(
                   child: _QuickContactChip(
                     icon: Icons.phone_outlined,
-                    label: 'Telefon',
+                    label: l10n.phone,
                     onTap: _launchPhone,
                   ),
                 ),
@@ -164,7 +168,7 @@ class _SupportSheetBodyState extends State<_SupportSheetBody> {
             ),
             if (hasChat) ...[
               const SizedBox(height: AppSpacing.lg),
-              Text('Biseda', style: AppTextStyles.h3),
+              Text(l10n.supportConversation, style: AppTextStyles.h3),
               const SizedBox(height: AppSpacing.sm),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 220),
@@ -178,7 +182,7 @@ class _SupportSheetBodyState extends State<_SupportSheetBody> {
               ),
             ],
             const SizedBox(height: AppSpacing.lg),
-            Text('Shkruaj pyetjen tënde', style: AppTextStyles.h3),
+            Text(l10n.supportWriteQuestion, style: AppTextStyles.h3),
             const SizedBox(height: AppSpacing.sm),
             TextField(
               controller: _textController,
@@ -186,7 +190,7 @@ class _SupportSheetBodyState extends State<_SupportSheetBody> {
               maxLines: hasChat ? 4 : 6,
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
-                hintText: 'P.sh. A e keni këtë verë në stok?',
+                hintText: l10n.supportQuestionHint,
                 hintStyle: AppTextStyles.bodySmall,
                 filled: true,
                 fillColor: AppColors.surfaceMuted,
@@ -218,16 +222,16 @@ class _SupportSheetBodyState extends State<_SupportSheetBody> {
                               color: Colors.white,
                             ),
                           )
-                        : Text('Dërgo pyetjen', style: AppTextStyles.button),
+                        : Text(l10n.supportSendQuestion, style: AppTextStyles.button),
                   ),
                 ),
               ),
             ),
             const SizedBox(height: AppSpacing.md),
-            const SheetActionCard(
+            SheetActionCard(
               icon: Icons.schedule_outlined,
-              title: 'Orari i supportit',
-              subtitle: 'E Hënë – E Shtunë, 09:00 – 20:00',
+              title: l10n.supportHoursTitle,
+              subtitle: l10n.supportHoursValue,
             ),
           ],
         );

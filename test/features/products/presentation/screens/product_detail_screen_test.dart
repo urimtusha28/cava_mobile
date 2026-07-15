@@ -4,17 +4,19 @@ import 'package:cava_ecommerce/core/state/cart_state_notifier.dart';
 import 'package:cava_ecommerce/features/cart/data/local/cart_local_storage.dart';
 import 'package:cava_ecommerce/features/cart/presentation/screens/cart_screen.dart';
 import 'package:cava_ecommerce/features/categories/data/datasources/category_mock_datasource.dart';
-import 'package:cava_ecommerce/features/products/presentation/screens/product_detail_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:go_router/go_router.dart';
-import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../../../helpers/test_di.dart';
 import 'package:cava_ecommerce/features/products/data/datasources/product_mock_datasource.dart';
 import 'package:cava_ecommerce/features/products/data/models/product_model.dart';
 import 'package:cava_ecommerce/features/products/domain/entities/product_entity.dart';
+import 'package:cava_ecommerce/features/products/presentation/screens/product_detail_screen.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../../helpers/test_app.dart';
+import '../../../../helpers/test_di.dart';
 
 void main() {
   setUp(() async {
@@ -42,11 +44,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(
-      MaterialApp.router(
-        routerConfig: router,
-      ),
-    );
+    await pumpTestApp(tester, routerConfig: router);
     await tester.pumpAndSettle();
   }
 
@@ -94,7 +92,8 @@ void main() {
 
     await pumpDetail(tester, productId: 'wine-oos');
 
-    expect(find.text('Out of Stock'), findsOneWidget);
+    final l10n = lookupAppLocalizations(const Locale('sq'));
+    expect(find.text(l10n.outOfStockBadge), findsOneWidget);
 
     await tester.tap(find.text('Bli tani'));
     await tester.pumpAndSettle();

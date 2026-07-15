@@ -4,9 +4,9 @@ import 'package:cava_ecommerce/features/cart/domain/usecases/add_to_cart.dart';
 import 'package:cava_ecommerce/features/cart/presentation/screens/cart_screen.dart';
 import 'package:cava_ecommerce/features/products/data/mock/mock_products.dart';
 import 'package:cava_ecommerce/features/products/presentation/controllers/product_detail_controller.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../../helpers/test_app.dart';
 import '../../../../helpers/test_di.dart';
 
 void main() {
@@ -25,11 +25,7 @@ void main() {
       AddToCartParams(product: controller.product!, quantity: 1),
     );
 
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: CartScreen(),
-      ),
-    );
+    await pumpTestApp(tester, home: const CartScreen());
     await tester.pumpAndSettle();
 
     expect(find.text('Zbritja'), findsNothing);
@@ -43,11 +39,7 @@ void main() {
       AddToCartParams(product: product, quantity: 1),
     );
 
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: CartScreen(),
-      ),
-    );
+    await pumpTestApp(tester, home: const CartScreen());
     await tester.pumpAndSettle();
 
     expect(find.byType(ProductImageView), findsOneWidget);

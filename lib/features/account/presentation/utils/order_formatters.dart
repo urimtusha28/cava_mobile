@@ -1,3 +1,5 @@
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
+
 String formatOrderDate(DateTime? date) {
   if (date == null) {
     return '';
@@ -12,49 +14,49 @@ String formatOrderTotal(double total) {
   return '${total.toStringAsFixed(2).replaceAll('.', ',')} €';
 }
 
-String formatOrderStatus(String status) {
+String formatOrderStatus(String status, AppLocalizations l10n) {
   switch (status.toLowerCase().trim()) {
     case 'open':
-      return 'E hapur';
+      return l10n.orderStatusOpen;
     case 'pending':
-      return 'Në pritje';
+      return l10n.orderStatusPending;
     case 'processing':
-      return 'Në përpunim';
+      return l10n.orderStatusProcessing;
     case 'shipped':
     case 'in_transit':
-      return 'Në rrugëtim';
+      return l10n.orderStatusShipped;
     case 'delivered':
     case 'completed':
-      return 'E dorëzuar';
+      return l10n.orderStatusDelivered;
     case 'cancelled':
     case 'canceled':
-      return 'E anuluar';
+      return l10n.orderStatusCancelled;
     default:
-      return formatUnknownLabel(status);
+      return formatUnknownLabel(status, l10n);
   }
 }
 
-String formatPaymentStatus(String status) {
+String formatPaymentStatus(String status, AppLocalizations l10n) {
   switch (status.toLowerCase().trim()) {
     case 'paid':
-      return 'E paguar';
+      return l10n.paymentStatusPaid;
     case 'unpaid':
-      return 'E papaguar';
+      return l10n.paymentStatusUnpaid;
     case 'pending':
-      return 'Në pritje';
+      return l10n.paymentStatusPending;
     case 'failed':
-      return 'Dështuar';
+      return l10n.paymentStatusFailed;
     case 'refunded':
-      return 'E rimbursuar';
+      return l10n.paymentStatusRefunded;
     default:
-      return status.isEmpty ? '—' : formatUnknownLabel(status);
+      return status.isEmpty ? l10n.emDash : formatUnknownLabel(status, l10n);
   }
 }
 
-String formatUnknownLabel(String value) {
+String formatUnknownLabel(String value, AppLocalizations l10n) {
   final cleaned = value.replaceAll('_', ' ').replaceAll('-', ' ').trim();
   if (cleaned.isEmpty) {
-    return '—';
+    return l10n.emDash;
   }
   return cleaned
       .split(RegExp(r'\s+'))

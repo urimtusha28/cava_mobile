@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../theme/app_colors.dart';
@@ -22,6 +23,7 @@ class ProductSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (products.isEmpty) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,7 +38,7 @@ class ProductSection extends StatelessWidget {
                 GestureDetector(
                   onTap: () => context.push(seeAllRoute!),
                   child: Text(
-                    'Shiko të gjitha',
+                    l10n.seeAll,
                     style: AppTextStyles.caption.copyWith(color: AppColors.burgundy),
                   ),
                 ),

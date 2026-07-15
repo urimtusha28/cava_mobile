@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_spacing.dart';
@@ -17,17 +18,26 @@ class OwnerBottomNavigation extends StatelessWidget {
 
   final int currentIndex;
 
-  static const _items = [
-    (icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, label: 'Dashboard'),
-    (icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long, label: 'Porositë'),
-    (icon: Icons.bar_chart_outlined, activeIcon: Icons.bar_chart, label: 'Analitika'),
-    (icon: Icons.inventory_2_outlined, activeIcon: Icons.inventory_2, label: 'Produktet'),
-    (icon: Icons.support_agent_rounded, activeIcon: Icons.support_agent_rounded, label: 'Support'),
-    (icon: Icons.person_outline, activeIcon: Icons.person, label: 'Profili'),
+  static const _itemIcons = [
+    (icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard),
+    (icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long),
+    (icon: Icons.bar_chart_outlined, activeIcon: Icons.bar_chart),
+    (icon: Icons.inventory_2_outlined, activeIcon: Icons.inventory_2),
+    (icon: Icons.support_agent_rounded, activeIcon: Icons.support_agent_rounded),
+    (icon: Icons.person_outline, activeIcon: Icons.person),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final labels = [
+      l10n.ownerNavDashboard,
+      l10n.ownerNavOrders,
+      l10n.ownerNavAnalytics,
+      l10n.ownerNavProducts,
+      l10n.ownerNavSupport,
+      l10n.ownerNavProfile,
+    ];
     ensureAdminSupportBadgeListening();
     final badgeNotifier = sl.isRegistered<AdminSupportUnreadNotifier>()
         ? sl<AdminSupportUnreadNotifier>()
@@ -55,7 +65,7 @@ class OwnerBottomNavigation extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
         child: Row(
           children: [
-            for (var i = 0; i < _items.length; i++)
+            for (var i = 0; i < _itemIcons.length; i++)
               Expanded(
                 child: badgeNotifier != null && i == 4
                     ? ListenableBuilder(
@@ -63,9 +73,9 @@ class OwnerBottomNavigation extends StatelessWidget {
                         builder: (context, _) {
                           return _OwnerNavItem(
                             icon: currentIndex == i
-                                ? _items[i].activeIcon
-                                : _items[i].icon,
-                            label: _items[i].label,
+                                ? _itemIcons[i].activeIcon
+                                : _itemIcons[i].icon,
+                            label: labels[i],
                             selected: currentIndex == i,
                             badgeCount: badgeNotifier.unreadCount,
                             onTap: () => _navigate(context, i),
@@ -74,9 +84,9 @@ class OwnerBottomNavigation extends StatelessWidget {
                       )
                     : _OwnerNavItem(
                         icon: currentIndex == i
-                            ? _items[i].activeIcon
-                            : _items[i].icon,
-                        label: _items[i].label,
+                            ? _itemIcons[i].activeIcon
+                            : _itemIcons[i].icon,
+                        label: labels[i],
                         selected: currentIndex == i,
                         onTap: () => _navigate(context, i),
                       ),

@@ -1,7 +1,9 @@
 import 'package:cava_ecommerce/features/account/data/mappers/order_mapper.dart';
 import 'package:cava_ecommerce/features/account/data/models/order_model.dart';
 import 'package:cava_ecommerce/features/account/presentation/utils/order_formatters.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -114,7 +116,8 @@ void main() {
 
   group('formatPaymentStatus', () {
     test('maps paid to Albanian label', () {
-      expect(formatPaymentStatus('paid'), 'E paguar');
+      final l10n = lookupAppLocalizations(const Locale('sq'));
+      expect(formatPaymentStatus('paid', l10n), l10n.paymentStatusPaid);
     });
   });
 }
