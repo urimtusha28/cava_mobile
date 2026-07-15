@@ -28,9 +28,11 @@ abstract final class OrderMapper {
       }
 
       final rawOrderNumber = data['orderNumber'];
-      final orderNumber = rawOrderNumber is String && rawOrderNumber.trim().isNotEmpty
-          ? rawOrderNumber.trim()
-          : null;
+      final orderNumber = switch (rawOrderNumber) {
+        num n => n.toInt().toString(),
+        String s when s.trim().isNotEmpty => s.trim(),
+        _ => null,
+      };
 
       return OrderModel(
         id: id,

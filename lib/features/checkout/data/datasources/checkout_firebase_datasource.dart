@@ -22,11 +22,20 @@ class CheckoutFirebaseDataSource implements CheckoutDataSource {
         'payment=${payload['paymentMethod']}',
       );
       final data = await _functionsGateway.call('placeOrder', payload);
+      debugPrint(
+        '[Checkout] placeOrder response keys=${data.keys.toList()} '
+        'orderId=${data['orderId']} orderNumber=${data['orderNumber']}',
+      );
       final result = PlaceOrderResultEntity.fromMap(data);
       if (result.orderId.isEmpty) {
         throw const ServerFailure(
           message: PlaceOrderExceptionMapper.defaultMessage,
           code: 'INVALID_RESPONSE',
+        );
+      }
+      if (result.orderNumber == null || result.orderNumber!.trim().isEmpty) {
+        debugPrint(
+          '[Checkout] placeOrder WARNING: orderNumber missing in CF response',
         );
       }
       return result;

@@ -7,6 +7,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
+import '../../../../core/widgets/cava_loading_overlay.dart';
 import '../../../../core/widgets/product_image_view.dart';
 import '../../../cart/domain/add_to_cart_result.dart';
 import '../../../categories/presentation/utils/category_badge_color_helper.dart';
@@ -54,6 +55,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
           listenable: _controller,
           builder: (context, _) {
             final product = _controller.product;
+            final isLoading =
+                _controller.isLoading || !_controller.isInitialized;
 
             if (product == null) {
               return Scaffold(
@@ -63,7 +66,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                   showBack: true,
                   backgroundColor: AppColors.background,
                 ),
-                body: const Center(child: Text('Produkti nuk u gjet')),
+                body: isLoading
+                    ? const CavaLoadingOverlay(
+                        isLoading: true,
+                        child: SizedBox.expand(),
+                      )
+                    : const Center(child: Text('Produkti nuk u gjet')),
               );
             }
 

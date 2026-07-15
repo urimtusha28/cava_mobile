@@ -97,7 +97,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
             const Spacer(),
             PrimaryButton(
               label: 'Kthehu në Home',
-              pill: true,
               onPressed: () => context.go(AppRoutes.home),
             ),
           ],

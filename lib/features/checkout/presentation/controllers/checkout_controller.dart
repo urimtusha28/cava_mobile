@@ -146,7 +146,11 @@ class CheckoutController extends BaseController {
       final order = result.dataOrNull!;
       await unwrapFutureResult(_clearCart(), fallback: null);
       await _cartController.load();
-      debugPrint('[Checkout] placeOrder success orderId=${order.orderId}');
+      debugPrint(
+        '[Checkout] placeOrder success '
+        'orderId=${order.orderId} orderNumber=${order.orderNumber} '
+        'total=${order.total}',
+      );
       return CheckoutSubmitResult.success(order);
     } catch (error) {
       debugPrint('[Checkout] placeOrder exception: $error');
