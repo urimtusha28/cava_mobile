@@ -21,6 +21,9 @@ abstract class FirebaseAuthGateway {
   Future<void> signOut();
 
   Future<void> updateDisplayName(User user, String displayName);
+
+  /// Returns custom claim `admin` when present; null if signed out or missing.
+  Future<bool?> getAdminClaim({bool forceRefresh = true});
 }
 
 class FirebaseAuthGatewayImpl implements FirebaseAuthGateway {
@@ -61,5 +64,19 @@ class FirebaseAuthGatewayImpl implements FirebaseAuthGateway {
   @override
   Future<void> updateDisplayName(User user, String displayName) {
     return user.updateDisplayName(displayName);
+  }
+
+  @override
+  Future<bool?> getAdminClaim({bool forceRefresh = true}) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return null;
+    }
+    final token = await user.getIdTokenResult(forceRefresh);
+    final claim = token.claims?['admin'];
+    if (claim is bool) {
+      return claim;
+    }
+    return null;
   }
 }

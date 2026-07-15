@@ -16,9 +16,11 @@ import '../../features/account/data/datasources/orders_firebase_datasource.dart'
 import '../../features/account/data/datasources/orders_mock_datasource.dart';
 import '../../features/account/data/firebase/firebase_auth_gateway.dart';
 import '../../features/account/data/repositories/addresses_repository_impl.dart';
+import '../../features/account/data/repositories/app_role_repository_impl.dart';
 import '../../features/account/data/repositories/auth_repository_impl.dart';
 import '../../features/account/data/repositories/orders_repository_impl.dart';
 import '../../features/account/domain/repositories/addresses_repository.dart';
+import '../../features/account/domain/repositories/app_role_repository.dart';
 import '../../features/account/domain/repositories/auth_repository.dart';
 import '../../features/account/domain/repositories/orders_repository.dart';
 import '../../features/account/domain/usecases/address_usecases.dart';
@@ -30,6 +32,7 @@ import '../../features/account/domain/usecases/is_logged_in.dart';
 import '../../features/account/domain/usecases/login.dart';
 import '../../features/account/domain/usecases/logout.dart';
 import '../../features/account/domain/usecases/register.dart';
+import '../../features/account/domain/usecases/resolve_app_role.dart';
 import '../../features/account/presentation/controllers/addresses_controller.dart';
 import '../../features/account/presentation/controllers/auth_controller.dart';
 import '../../features/account/data/datasources/user_profile_data_source.dart';
@@ -105,6 +108,13 @@ import '../../features/wishlist/domain/usecases/is_in_wishlist.dart';
 import '../../features/wishlist/domain/usecases/remove_from_wishlist.dart';
 import '../../features/wishlist/domain/usecases/toggle_wishlist.dart';
 import '../../features/wishlist/presentation/controllers/wishlist_controller.dart';
+import '../../features/owner_dashboard/data/datasources/owner_dashboard_data_source.dart';
+import '../../features/owner_dashboard/data/datasources/owner_dashboard_firebase_datasource.dart';
+import '../../features/owner_dashboard/data/repositories/owner_dashboard_repository_impl.dart';
+import '../../features/owner_dashboard/domain/repositories/owner_dashboard_repository.dart';
+import '../../features/owner_dashboard/domain/usecases/get_owner_dashboard_snapshot.dart';
+import '../../features/owner_dashboard/presentation/controllers/owner_dashboard_controller.dart';
+import '../auth/app_session_notifier.dart';
 import '../state/auth_state_notifier.dart';
 import '../state/bottom_nav_scroll_notifier.dart';
 import '../state/cart_state_notifier.dart';
@@ -127,11 +137,13 @@ void configureDependencies() {
   _registerHome();
   _registerAuth();
   _registerUserProfile();
+  _registerAppRole();
   _registerCart();
   _registerOrders();
   _registerAddresses();
   _registerCheckout();
   _registerWishlist();
+  _registerOwnerDashboard();
   _registerControllers();
   _dependenciesConfigured = true;
 }
@@ -307,6 +319,24 @@ UserProfileDataSource _createUserProfileDataSource({
   return UserProfileMockDataSource();
 }
 
+void _registerAppRole() {
+  if (sl.isRegistered<AppRoleRepository>()) {
+    return;
+  }
+
+  sl.registerLazySingleton<AppRoleRepository>(() {
+    FirebaseAuthGateway? gateway;
+    if (FirebaseConfig.enabled && FirebaseConfig.useFirebaseAuth) {
+      gateway = FirebaseAuthGatewayImpl(FirebaseAuth.instance);
+    }
+    return AppRoleRepositoryImpl(
+      sl<AuthRepository>(),
+      sl<UserProfileRepository>(),
+      gateway,
+    );
+  });
+}
+
 void _registerOrders() {
   if (sl.isRegistered<OrdersRepository>()) {
     return;
@@ -344,6 +374,22 @@ AddressesDataSource _createAddressesDataSource() {
     return AddressesFirebaseDataSource(FirebaseFirestore.instance);
   }
   return AddressesMockDataSource();
+}
+
+void _registerOwnerDashboard() {
+  if (sl.isRegistered<OwnerDashboardRepository>()) {
+    return;
+  }
+
+  sl.registerLazySingleton<OwnerDashboardDataSource>(() {
+    if (FirebaseConfig.enabled) {
+      return OwnerDashboardFirebaseDataSource(FirebaseFirestore.instance);
+    }
+    throw StateError('Owner dashboard requires Firebase.');
+  });
+  sl.registerLazySingleton<OwnerDashboardRepository>(
+    () => OwnerDashboardRepositoryImpl(sl<OwnerDashboardDataSource>()),
+  );
 }
 
 void _registerCheckout() {
@@ -488,6 +534,12 @@ void _registerUseCases() {
     () => ForgotPasswordUseCase(sl<AuthRepository>()),
   );
   sl.registerFactory<LogoutUseCase>(() => LogoutUseCase(sl<AuthRepository>()));
+  sl.registerFactory<ResolveAppRoleUseCase>(
+    () => ResolveAppRoleUseCase(sl<AppRoleRepository>()),
+  );
+  sl.registerFactory<GetOwnerDashboardSnapshotUseCase>(
+    () => GetOwnerDashboardSnapshotUseCase(sl<OwnerDashboardRepository>()),
+  );
 
   // User profile
   sl.registerFactory<GetCurrentProfileUseCase>(
@@ -554,7 +606,10 @@ void _registerControllers() {
     () => WishlistController(sl(), sl(), sl()),
   );
   sl.registerFactory<AuthController>(
-    () => AuthController(sl(), sl(), sl(), sl(), sl(), sl()),
+    () => AuthController(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
+  );
+  sl.registerFactory<OwnerDashboardController>(
+    () => OwnerDashboardController(sl<GetOwnerDashboardSnapshotUseCase>()),
   );
   sl.registerFactory<ProfileController>(
     () => ProfileController(sl(), sl(), sl(), sl()),
@@ -614,6 +669,8 @@ Future<void> resetDependencies() async {
   WishlistStateNotifier.reset();
   BottomNavScrollNotifier.reset();
   LocalWishlistStore.clear();
+  AuthStateNotifier.reset();
+  AppSessionNotifier.instance.reset();
   try {
     await CartLocalStorage().clear();
   } catch (_) {
@@ -634,7 +691,6 @@ Future<void> resetDependencies() async {
   } catch (_) {
     // SharedPreferences may be unavailable before Flutter binding init.
   }
-  AuthStateNotifier.reset();
 }
 
 /// Registers dependencies with optional datasource overrides for tests.
@@ -725,6 +781,10 @@ Future<void> configureTestDependencies({
       ),
     );
   }
+
+  _registerAppRole();
+
+  _registerOwnerDashboard();
 
   _registerCart(firestoreOverride: cartFirestore);
 

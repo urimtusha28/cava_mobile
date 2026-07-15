@@ -1,3 +1,5 @@
+import '../../../../core/auth/app_role.dart';
+import '../../../../core/auth/app_session_notifier.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/presentation/base_controller.dart';
 import '../../../../core/presentation/result_extensions.dart';
@@ -9,6 +11,7 @@ import '../../domain/usecases/is_logged_in.dart';
 import '../../domain/usecases/login.dart';
 import '../../domain/usecases/logout.dart';
 import '../../domain/usecases/register.dart';
+import '../../domain/usecases/resolve_app_role.dart';
 
 class AuthController extends BaseController {
   AuthController(
@@ -18,6 +21,7 @@ class AuthController extends BaseController {
     this._forgotPassword,
     this._logout,
     this._authRepository,
+    this._resolveAppRole,
   );
 
   final IsLoggedInUseCase _isLoggedIn;
@@ -26,11 +30,13 @@ class AuthController extends BaseController {
   final ForgotPasswordUseCase _forgotPassword;
   final LogoutUseCase _logout;
   final AuthRepository _authRepository;
+  final ResolveAppRoleUseCase _resolveAppRole;
 
   bool loggedIn = false;
   String userName = '';
   bool authActionLoading = false;
   String? authActionError;
+  AppRole role = AppRole.customer;
 
   Stream<bool> get authState => _authRepository.watchAuthState();
 
@@ -113,6 +119,13 @@ class AuthController extends BaseController {
       fallback: false,
     );
     userName = await _authRepository.getUserName();
+    if (loggedIn) {
+      role = await _resolveAppRole.callOrCustomer();
+      AppSessionNotifier.instance.update(isLoggedIn: true, role: role);
+    } else {
+      role = AppRole.customer;
+      AppSessionNotifier.instance.clear();
+    }
     AuthStateNotifier.update(loggedIn);
     notifyListeners();
   }

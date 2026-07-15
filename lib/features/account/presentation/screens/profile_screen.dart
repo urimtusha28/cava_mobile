@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/firebase/firebase_config.dart';
+import '../../../../core/router/post_auth_navigator.dart';
 import '../../../../core/state/auth_state_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -42,6 +43,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await _controller.authController.login();
       await _controller.refreshAfterAuth();
     }
+    if (!mounted) {
+      return;
+    }
+    PostAuthNavigator.navigateIfOwner(context);
   }
 
   Future<void> _onEditProfile() async {

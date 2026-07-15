@@ -6,6 +6,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/post_auth_navigator.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_checkbox.dart';
 import '../../../../core/widgets/checkout_screen_header.dart';
@@ -96,6 +97,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return;
     }
     await _controller.load();
+    if (!mounted) {
+      return;
+    }
+    PostAuthNavigator.navigateIfOwner(context);
   }
 
   @override

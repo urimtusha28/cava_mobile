@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../auth/app_session_notifier.dart';
 import 'app_routes.dart';
 import 'shell_scaffold.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
@@ -24,20 +25,39 @@ import '../../features/account/presentation/screens/terms_screen.dart';
 import '../../features/account/presentation/screens/privacy_screen.dart';
 import '../../features/onboarding/presentation/screens/splash_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/owner_dashboard/presentation/shell/owner_shell_scaffold.dart';
+import '../../features/owner_dashboard/presentation/screens/owner_dashboard_screen.dart';
+import '../../features/owner_dashboard/presentation/screens/owner_orders_screen.dart';
+import '../../features/owner_dashboard/presentation/screens/owner_analytics_screen.dart';
+import '../../features/owner_dashboard/presentation/screens/owner_products_screen.dart';
+import '../../features/owner_dashboard/presentation/screens/owner_profile_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _shellNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'shell');
+final GlobalKey<NavigatorState> _ownerShellNavigatorKey =
+    GlobalKey<NavigatorState>(debugLabel: 'ownerShell');
+
+String? _roleRedirect(GoRouterState state) {
+  final path = state.matchedLocation;
+  if (path == '/') {
+    return AppRoutes.splash;
+  }
+
+  // Customers (and guests) must not open owner routes.
+  if (AppRoutes.isOwnerPath(path) && !AppSessionNotifier.instance.isOwner) {
+    return AppRoutes.home;
+  }
+
+  return null;
+}
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: AppRoutes.splash,
-  redirect: (context, state) {
-    final path = state.matchedLocation;
-    if (path == '/') return AppRoutes.splash;
-    return null;
-  },
+  refreshListenable: AppSessionNotifier.instance,
+  redirect: (context, state) => _roleRedirect(state),
   routes: [
     GoRoute(path: '/', redirect: (_, _) => AppRoutes.splash),
     GoRoute(
@@ -98,6 +118,52 @@ final GoRouter appRouter = GoRouter(
             child: CategoryProductsScreen(
               categoryId: state.pathParameters['categoryId']!,
             ),
+          ),
+        ),
+      ],
+    ),
+    ShellRoute(
+      navigatorKey: _ownerShellNavigatorKey,
+      builder: (context, state, child) {
+        return OwnerShellScaffold(
+          location: state.matchedLocation,
+          child: child,
+        );
+      },
+      routes: [
+        GoRoute(
+          path: AppRoutes.ownerDashboard,
+          pageBuilder: (context, state) => NoTransitionPage(
+            key: state.pageKey,
+            child: const OwnerDashboardScreen(),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.ownerOrders,
+          pageBuilder: (context, state) => NoTransitionPage(
+            key: state.pageKey,
+            child: const OwnerOrdersScreen(),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.ownerAnalytics,
+          pageBuilder: (context, state) => NoTransitionPage(
+            key: state.pageKey,
+            child: const OwnerAnalyticsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.ownerProducts,
+          pageBuilder: (context, state) => NoTransitionPage(
+            key: state.pageKey,
+            child: const OwnerProductsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.ownerProfile,
+          pageBuilder: (context, state) => NoTransitionPage(
+            key: state.pageKey,
+            child: const OwnerProfileScreen(),
           ),
         ),
       ],

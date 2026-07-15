@@ -5,9 +5,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
+import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/post_auth_navigator.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../account/presentation/controllers/auth_controller.dart';
 import '../../data/onboarding_storage.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -86,11 +89,17 @@ class _SplashScreenState extends State<SplashScreen>
     final completed = await OnboardingStorage.isComplete();
     if (!mounted) return;
 
-    if (completed) {
-      context.go(AppRoutes.home);
-    } else {
+    if (!completed) {
       context.go(AppRoutes.onboarding);
+      return;
     }
+
+    // Resolve auth role before first frame of Home/Owner — no Home flash for owners.
+    configureDependencies();
+    final authController = createAuthController();
+    await authController.load();
+    if (!mounted) return;
+    context.go(PostAuthNavigator.homeLocationForCurrentSession());
   }
 
   @override

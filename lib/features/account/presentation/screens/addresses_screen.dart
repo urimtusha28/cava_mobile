@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/firebase/firebase_config.dart';
+import '../../../../core/router/post_auth_navigator.dart';
 import '../../../../core/state/auth_state_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -165,11 +166,21 @@ class _AddressesScreenState extends State<AddressesScreen> {
 
   void _openLogin() {
     if (FirebaseConfig.enabled && FirebaseConfig.useFirebaseAuth) {
-      showAuthBottomSheet(context: context, controller: _authController).then((_) {
-        _controller.load();
+      showAuthBottomSheet(context: context, controller: _authController).then((_) async {
+        await _controller.load();
+        if (!mounted) {
+          return;
+        }
+        PostAuthNavigator.navigateIfOwner(context);
       });
     } else {
-      _authController.login().then((_) => _controller.load());
+      _authController.login().then((_) async {
+        await _controller.load();
+        if (!mounted) {
+          return;
+        }
+        PostAuthNavigator.navigateIfOwner(context);
+      });
     }
   }
 

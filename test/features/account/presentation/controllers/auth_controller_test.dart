@@ -1,3 +1,4 @@
+import 'package:cava_ecommerce/core/auth/app_role.dart';
 import 'package:cava_ecommerce/core/result/result.dart';
 import 'package:cava_ecommerce/features/account/domain/repositories/auth_repository.dart';
 import 'package:cava_ecommerce/features/account/domain/usecases/forgot_password.dart';
@@ -5,6 +6,7 @@ import 'package:cava_ecommerce/features/account/domain/usecases/is_logged_in.dar
 import 'package:cava_ecommerce/features/account/domain/usecases/login.dart';
 import 'package:cava_ecommerce/features/account/domain/usecases/register.dart';
 import 'package:cava_ecommerce/features/account/domain/usecases/logout.dart';
+import 'package:cava_ecommerce/features/account/domain/usecases/resolve_app_role.dart';
 import 'package:cava_ecommerce/features/account/presentation/controllers/auth_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -21,6 +23,8 @@ class MockLogoutUseCase extends Mock implements LogoutUseCase {}
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
+class MockResolveAppRoleUseCase extends Mock implements ResolveAppRoleUseCase {}
+
 void main() {
   setUpAll(() {
     registerFallbackValue(const LoginParams(email: 'a@b.com', password: 'secret'));
@@ -36,6 +40,7 @@ void main() {
   late MockForgotPasswordUseCase forgotPassword;
   late MockLogoutUseCase logout;
   late MockAuthRepository authRepository;
+  late MockResolveAppRoleUseCase resolveAppRole;
   late AuthController controller;
 
   setUp(() {
@@ -45,6 +50,10 @@ void main() {
     forgotPassword = MockForgotPasswordUseCase();
     logout = MockLogoutUseCase();
     authRepository = MockAuthRepository();
+    resolveAppRole = MockResolveAppRoleUseCase();
+    when(() => resolveAppRole.call()).thenAnswer(
+      (_) async => const Success(AppRole.customer),
+    );
     controller = AuthController(
       isLoggedIn,
       login,
@@ -52,6 +61,7 @@ void main() {
       forgotPassword,
       logout,
       authRepository,
+      resolveAppRole,
     );
   });
 

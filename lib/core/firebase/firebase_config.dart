@@ -40,6 +40,8 @@ abstract final class FirebaseConfig {
   static const String bannersCollection = 'banners';
   static const String ordersCollection = 'orders';
   static const String usersCollection = 'users';
+  static const String statsCollection = 'stats';
+  static const String statsDailyCollection = 'statsDaily';
   static const String addressesSubcollection = 'addresses';
   static const String wishlistSubcollection = 'wishlist';
   static const String cartSubcollection = 'cart';

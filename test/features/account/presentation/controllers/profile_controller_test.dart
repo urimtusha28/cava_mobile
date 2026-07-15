@@ -1,6 +1,7 @@
 import 'package:cava_ecommerce/features/account/data/datasources/auth_mock_datasource.dart';
 import 'package:cava_ecommerce/features/account/data/datasources/user_profile_mock_datasource.dart';
 import 'package:cava_ecommerce/features/account/data/mock/mock_auth.dart';
+import 'package:cava_ecommerce/features/account/data/repositories/app_role_repository_impl.dart';
 import 'package:cava_ecommerce/features/account/data/repositories/auth_repository_impl.dart';
 import 'package:cava_ecommerce/features/account/data/repositories/user_profile_repository_impl.dart';
 import 'package:cava_ecommerce/features/account/domain/usecases/forgot_password.dart';
@@ -8,6 +9,7 @@ import 'package:cava_ecommerce/features/account/domain/usecases/is_logged_in.dar
 import 'package:cava_ecommerce/features/account/domain/usecases/login.dart';
 import 'package:cava_ecommerce/features/account/domain/usecases/logout.dart';
 import 'package:cava_ecommerce/features/account/domain/usecases/register.dart';
+import 'package:cava_ecommerce/features/account/domain/usecases/resolve_app_role.dart';
 import 'package:cava_ecommerce/features/account/domain/usecases/user_profile_usecases.dart';
 import 'package:cava_ecommerce/features/account/presentation/controllers/auth_controller.dart';
 import 'package:cava_ecommerce/features/account/presentation/controllers/profile_controller.dart';
@@ -26,6 +28,9 @@ void main() {
       profileDataSource,
       authRepository,
     );
+    final resolveRole = ResolveAppRoleUseCase(
+      AppRoleRepositoryImpl(authRepository, profileRepository, null),
+    );
     final authController = AuthController(
       IsLoggedInUseCase(authRepository),
       LoginUseCase(authRepository),
@@ -33,6 +38,7 @@ void main() {
       ForgotPasswordUseCase(authRepository),
       LogoutUseCase(authRepository),
       authRepository,
+      resolveRole,
     );
     controller = ProfileController(
       authController,
