@@ -303,6 +303,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wishlistEmpty => 'Your wishlist is empty.';
 
   @override
+  String get viewProducts => 'View products';
+
+  @override
   String get addToCart => 'Add to cart';
 
   @override

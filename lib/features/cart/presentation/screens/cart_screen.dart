@@ -82,11 +82,11 @@ class _CartScreenState extends State<CartScreen> {
                         onBack: () => context.go(AppRoutes.home),
                       ),
                       Expanded(
-                        child: Center(
-                          child: Text(
-                            l10n.cartEmpty,
-                            style: AppTextStyles.emptyState,
-                          ),
+                        child: _CartEmptyState(
+                          message: l10n.cartEmpty,
+                          buttonLabel: l10n.viewProducts,
+                          onViewProducts: () =>
+                              context.push(AppRoutes.category('all')),
                         ),
                       ),
                     ],
@@ -167,6 +167,53 @@ class _CartScreenState extends State<CartScreen> {
           },
         );
       },
+    );
+  }
+}
+
+class _CartEmptyState extends StatelessWidget {
+  const _CartEmptyState({
+    required this.message,
+    required this.buttonLabel,
+    required this.onViewProducts,
+  });
+
+  final String message;
+  final String buttonLabel;
+  final VoidCallback onViewProducts;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.screen),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              message,
+              style: AppTextStyles.emptyState,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Material(
+              color: AppColors.burgundy,
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                onTap: onViewProducts,
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
+                    vertical: AppSpacing.md,
+                  ),
+                  child: Text(buttonLabel, style: AppTextStyles.button),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

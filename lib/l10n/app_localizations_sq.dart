@@ -304,6 +304,9 @@ class AppLocalizationsSq extends AppLocalizations {
   String get wishlistEmpty => 'Lista e preferencave është bosh.';
 
   @override
+  String get viewProducts => 'Shiko produktet';
+
+  @override
   String get addToCart => 'Shto në shportë';
 
   @override

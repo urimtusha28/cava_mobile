@@ -680,6 +680,12 @@ abstract class AppLocalizations {
   /// **'Lista e preferencave është bosh.'**
   String get wishlistEmpty;
 
+  /// No description provided for @viewProducts.
+  ///
+  /// In sq, this message translates to:
+  /// **'Shiko produktet'**
+  String get viewProducts;
+
   /// No description provided for @addToCart.
   ///
   /// In sq, this message translates to:
