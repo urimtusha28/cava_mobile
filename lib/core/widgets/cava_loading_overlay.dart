@@ -27,7 +27,7 @@ class CavaLoadingOverlay extends StatelessWidget {
               child: ColoredBox(
                 color: AppColors.background.withValues(alpha: 0.72),
                 child: const Center(
-                  child: _CavaPremiumLoader(),
+                  child: CavaPremiumLoader(),
                 ),
               ),
             ),
@@ -38,8 +38,13 @@ class CavaLoadingOverlay extends StatelessWidget {
 }
 
 /// Same mark as [CavaAppBar] logo, with an indeterminate ring filling below.
-class _CavaPremiumLoader extends StatelessWidget {
-  const _CavaPremiumLoader();
+/// Public so the splash screen shows the identical brand loader; [color]
+/// defaults to burgundy (overlay on light surfaces) and can be overridden for
+/// dark backgrounds (e.g. the splash gradient).
+class CavaPremiumLoader extends StatelessWidget {
+  const CavaPremiumLoader({super.key, this.color = AppColors.burgundy});
+
+  final Color color;
 
   static const double logoSize = 56;
   static const double ringSize = 32;
@@ -54,10 +59,7 @@ class _CavaPremiumLoader extends StatelessWidget {
           width: logoSize,
           height: logoSize,
           fit: BoxFit.contain,
-          colorFilter: const ColorFilter.mode(
-            AppColors.burgundy,
-            BlendMode.srcIn,
-          ),
+          colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
         ),
         const SizedBox(height: 20),
         SizedBox(
@@ -65,8 +67,8 @@ class _CavaPremiumLoader extends StatelessWidget {
           height: ringSize,
           child: CircularProgressIndicator(
             strokeWidth: 2.5,
-            color: AppColors.burgundy,
-            backgroundColor: AppColors.burgundy.withValues(alpha: 0.14),
+            color: color,
+            backgroundColor: color.withValues(alpha: 0.14),
           ),
         ),
       ],

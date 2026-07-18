@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/post_auth_navigator.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/cava_loading_overlay.dart';
 import '../../../account/presentation/controllers/auth_controller.dart';
 import '../../../notifications/presentation/controllers/notifications_unread_notifier.dart';
 
@@ -18,8 +19,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   static const _brandColor = Color(0xFFF1EAE2);
-  static const _minVisible = Duration(milliseconds: 1200);
-  static const _splashImage = 'assets/icons/asd.png';
+  static const _minVisible = Duration(milliseconds: 5500);
 
   @override
   void initState() {
@@ -73,30 +73,46 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
         ),
         child: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(
-                  _splashImage,
-                  width: 120,
-                  height: 120,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Cava Premium',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: _brandColor,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.4,
-                    fontFamily: 'DMSans',
+          child: Stack(
+            children: [
+              // The same brand loader (logo + ring) as CavaLoadingOverlay,
+              // in the light brand color so it reads on the dark gradient.
+              const Center(child: CavaPremiumLoader(color: _brandColor)),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Powered by',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: _brandColor.withValues(alpha: 0.75),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w300,
+                          letterSpacing: 0.3,
+                          fontFamily: 'DMSans',
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Eshrefi Global Holding',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: _brandColor,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w300,
+                          letterSpacing: 0.4,
+                          fontFamily: 'DMSans',
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
