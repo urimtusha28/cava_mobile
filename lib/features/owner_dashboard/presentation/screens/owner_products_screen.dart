@@ -113,11 +113,6 @@ class _OwnerProductsScreenState extends State<OwnerProductsScreen> {
                         ),
                       ),
                     ),
-                  const SizedBox(height: AppSpacing.xl),
-                  Text(
-                    l10n.ownerTopSellingMissing,
-                    style: AppTextStyles.bodySmall,
-                  ),
                 ],
               );
             },

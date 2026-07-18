@@ -1316,16 +1316,40 @@ class AppLocalizationsEn extends AppLocalizations {
       'Same sources as admin Analytics/Overview (statsDaily UTC).';
 
   @override
-  String get ownerTotalOrdersLifetime => 'Total orders (lifetime)';
+  String get ownerTotalOrdersLifetime => 'Total orders';
 
   @override
-  String get ownerTotalRevenueLifetime => 'Total revenue (lifetime)';
+  String get ownerTotalRevenueLifetime => 'Total revenue';
 
   @override
-  String get ownerCompleted30Days => 'Completed (30 days, donut_delivered)';
+  String get ownerCompleted30Days => 'Completed (30 days)';
 
   @override
-  String get ownerCancelled30Days => 'Cancelled/returned (30 days)';
+  String get ownerCancelled30Days => 'Cancelled / returned (30 days)';
+
+  @override
+  String get ownerAnalyticsRevenueTitle => 'Revenue';
+
+  @override
+  String get ownerAnalyticsOrdersTitle => 'Order status';
+
+  @override
+  String get ownerAnalyticsOrdersSubtitle => 'Last 30 days';
+
+  @override
+  String get ownerAnalyticsNoChart => 'No chart data.';
+
+  @override
+  String get ownerAnalyticsPendingShort => 'Pending';
+
+  @override
+  String get ownerAnalyticsProcessingShort => 'Processing';
+
+  @override
+  String get ownerAnalyticsCompletedShort => 'Completed';
+
+  @override
+  String get ownerAnalyticsCancelledShort => 'Cancelled';
 
   @override
   String get ownerProductsTitle => 'Products';

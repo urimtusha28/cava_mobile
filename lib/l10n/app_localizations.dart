@@ -2607,26 +2607,74 @@ abstract class AppLocalizations {
   /// No description provided for @ownerTotalOrdersLifetime.
   ///
   /// In sq, this message translates to:
-  /// **'Porosi totale (lifetime)'**
+  /// **'Porosi totale'**
   String get ownerTotalOrdersLifetime;
 
   /// No description provided for @ownerTotalRevenueLifetime.
   ///
   /// In sq, this message translates to:
-  /// **'Të ardhura totale (lifetime)'**
+  /// **'Të ardhura totale'**
   String get ownerTotalRevenueLifetime;
 
   /// No description provided for @ownerCompleted30Days.
   ///
   /// In sq, this message translates to:
-  /// **'Përfunduar (30 ditë, donut_delivered)'**
+  /// **'Përfunduar (30 ditë)'**
   String get ownerCompleted30Days;
 
   /// No description provided for @ownerCancelled30Days.
   ///
   /// In sq, this message translates to:
-  /// **'Anuluar/kthyer (30 ditë)'**
+  /// **'Anuluar / kthyer (30 ditë)'**
   String get ownerCancelled30Days;
+
+  /// No description provided for @ownerAnalyticsRevenueTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Të ardhurat'**
+  String get ownerAnalyticsRevenueTitle;
+
+  /// No description provided for @ownerAnalyticsOrdersTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Statusi i porosive'**
+  String get ownerAnalyticsOrdersTitle;
+
+  /// No description provided for @ownerAnalyticsOrdersSubtitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'30 ditët e fundit'**
+  String get ownerAnalyticsOrdersSubtitle;
+
+  /// No description provided for @ownerAnalyticsNoChart.
+  ///
+  /// In sq, this message translates to:
+  /// **'Nuk ka të dhëna për grafikun.'**
+  String get ownerAnalyticsNoChart;
+
+  /// No description provided for @ownerAnalyticsPendingShort.
+  ///
+  /// In sq, this message translates to:
+  /// **'Pritje'**
+  String get ownerAnalyticsPendingShort;
+
+  /// No description provided for @ownerAnalyticsProcessingShort.
+  ///
+  /// In sq, this message translates to:
+  /// **'Proces'**
+  String get ownerAnalyticsProcessingShort;
+
+  /// No description provided for @ownerAnalyticsCompletedShort.
+  ///
+  /// In sq, this message translates to:
+  /// **'Përfunduar'**
+  String get ownerAnalyticsCompletedShort;
+
+  /// No description provided for @ownerAnalyticsCancelledShort.
+  ///
+  /// In sq, this message translates to:
+  /// **'Anuluar'**
+  String get ownerAnalyticsCancelledShort;
 
   /// No description provided for @ownerProductsTitle.
   ///

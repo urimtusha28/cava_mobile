@@ -1315,16 +1315,40 @@ class AppLocalizationsSq extends AppLocalizations {
       'Të njëjtat burime si Analytics/Overview admin (statsDaily UTC).';
 
   @override
-  String get ownerTotalOrdersLifetime => 'Porosi totale (lifetime)';
+  String get ownerTotalOrdersLifetime => 'Porosi totale';
 
   @override
-  String get ownerTotalRevenueLifetime => 'Të ardhura totale (lifetime)';
+  String get ownerTotalRevenueLifetime => 'Të ardhura totale';
 
   @override
-  String get ownerCompleted30Days => 'Përfunduar (30 ditë, donut_delivered)';
+  String get ownerCompleted30Days => 'Përfunduar (30 ditë)';
 
   @override
-  String get ownerCancelled30Days => 'Anuluar/kthyer (30 ditë)';
+  String get ownerCancelled30Days => 'Anuluar / kthyer (30 ditë)';
+
+  @override
+  String get ownerAnalyticsRevenueTitle => 'Të ardhurat';
+
+  @override
+  String get ownerAnalyticsOrdersTitle => 'Statusi i porosive';
+
+  @override
+  String get ownerAnalyticsOrdersSubtitle => '30 ditët e fundit';
+
+  @override
+  String get ownerAnalyticsNoChart => 'Nuk ka të dhëna për grafikun.';
+
+  @override
+  String get ownerAnalyticsPendingShort => 'Pritje';
+
+  @override
+  String get ownerAnalyticsProcessingShort => 'Proces';
+
+  @override
+  String get ownerAnalyticsCompletedShort => 'Përfunduar';
+
+  @override
+  String get ownerAnalyticsCancelledShort => 'Anuluar';
 
   @override
   String get ownerProductsTitle => 'Produktet';
