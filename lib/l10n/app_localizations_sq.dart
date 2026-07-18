@@ -1571,4 +1571,82 @@ class AppLocalizationsSq extends AppLocalizations {
 
   @override
   String get tapToLogin => 'Trokit për t\'u kyçur';
+
+  @override
+  String get cardPaymentTitle => 'Pagesa me kartë';
+
+  @override
+  String get cardPaymentInitiating => 'Po hapim faqen e sigurt të pagesës…';
+
+  @override
+  String get cardPaymentAwaitingTitle => 'Përfundo pagesën';
+
+  @override
+  String get cardPaymentAwaitingText =>
+      'Përfundo pagesën në faqen e sigurt të bankës. Kur të kthehesh në aplikacion, statusi i pagesës do të verifikohet automatikisht.';
+
+  @override
+  String get cardPaymentVerifying => 'Duke verifikuar pagesën…';
+
+  @override
+  String get cardPaymentVerifyingText =>
+      'Të lutem prit sa të konfirmojmë pagesën me bankën.';
+
+  @override
+  String get cardPaymentVerifyNow => 'Verifiko pagesën';
+
+  @override
+  String get cardPaymentOpenAgain => 'Hap përsëri faqen e pagesës';
+
+  @override
+  String get cardPaymentPaidTitle => 'Pagesa u krye me sukses';
+
+  @override
+  String get cardPaymentPaidText =>
+      'Pagesa u konfirmua dhe porosia jote u regjistrua.';
+
+  @override
+  String get cardPaymentPendingTitle => 'Pagesa ende e pakonfirmuar';
+
+  @override
+  String get cardPaymentPendingText =>
+      'Pagesa nuk u verifikua ende. Nëse e ke përfunduar pagesën, provo verifikimin përsëri pas pak.';
+
+  @override
+  String get cardPaymentFailedTitle => 'Pagesa dështoi';
+
+  @override
+  String get cardPaymentFailedText =>
+      'Pagesa nuk u pranua nga banka. Porosia mbetet në pritje dhe shporta jote nuk është prekur — mund të provosh përsëri.';
+
+  @override
+  String get cardPaymentCancelledTitle => 'Pagesa u anulua';
+
+  @override
+  String get cardPaymentCancelledText =>
+      'Pagesa u anulua. Porosia mbetet në pritje dhe shporta jote nuk është prekur.';
+
+  @override
+  String get cardPaymentExpiredTitle => 'Sesioni i pagesës skadoi';
+
+  @override
+  String get cardPaymentExpiredText =>
+      'Sesioni i pagesës skadoi pa u përfunduar. Mund ta nisësh pagesën përsëri nga arka.';
+
+  @override
+  String get cardPaymentErrorTitle => 'Diçka shkoi keq';
+
+  @override
+  String get cardPaymentErrorText =>
+      'Diçka shkoi keq gjatë pagesës. Provo përsëri.';
+
+  @override
+  String get cardPaymentLaunchFailed =>
+      'Faqja e pagesës nuk u hap dot. Provo përsëri.';
+
+  @override
+  String get cardPaymentBackToCheckout => 'Kthehu te arka';
+
+  @override
+  String get cardPaymentViewOrders => 'Shiko porositë';
 }

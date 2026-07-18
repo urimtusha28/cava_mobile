@@ -83,4 +83,36 @@ void main() {
     expect(payload['customer']['fullName'], 'Ana Krasniqi');
     expect(payload['customer']['email'], 'ana@cava.test');
   });
+
+  test("maps UI 'card' to CF code 'stripe'; cash/bank pass through", () {
+    expect(PlaceOrderPayloadMapper.normalizePaymentMethod('card'), 'stripe');
+    expect(PlaceOrderPayloadMapper.normalizePaymentMethod('cash'), 'cash');
+    expect(PlaceOrderPayloadMapper.normalizePaymentMethod('bank'), 'bank');
+
+    final userPayload = PlaceOrderPayloadMapper.toUserPayload(
+      user: user,
+      address: address,
+      items: [testCartItem],
+      paymentMethod: 'card',
+      termsAccepted: true,
+    );
+    expect(userPayload['paymentMethod'], 'stripe');
+
+    final guestPayload = PlaceOrderPayloadMapper.toGuestPayload(
+      guest: const GuestCheckoutCustomer(
+        firstName: 'Ana',
+        lastName: 'Krasniqi',
+        email: 'ana@cava.test',
+        phone: '+38344111222',
+        address: 'Rruga A 1',
+        city: 'Prishtinë',
+        country: 'Kosovë',
+        zip: '10000',
+      ),
+      items: [testCartItem],
+      paymentMethod: 'card',
+      termsAccepted: true,
+    );
+    expect(guestPayload['paymentMethod'], 'stripe');
+  });
 }

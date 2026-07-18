@@ -4,6 +4,10 @@ import '../../domain/entities/place_order_result_entity.dart';
 
 enum CheckoutSubmitStatus {
   success,
+
+  /// Card order placed as PENDING — the caller must continue to the Quipu
+  /// hosted payment page. The cart is NOT cleared yet.
+  cardPaymentRequired,
   validationError,
   requestError,
 }
@@ -22,6 +26,15 @@ class CheckoutSubmitResult {
   factory CheckoutSubmitResult.success(PlaceOrderResultEntity order) {
     return CheckoutSubmitResult._(
       status: CheckoutSubmitStatus.success,
+      order: order,
+    );
+  }
+
+  factory CheckoutSubmitResult.cardPaymentRequired(
+    PlaceOrderResultEntity order,
+  ) {
+    return CheckoutSubmitResult._(
+      status: CheckoutSubmitStatus.cardPaymentRequired,
       order: order,
     );
   }

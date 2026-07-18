@@ -4,6 +4,13 @@ import '../../../cart/domain/entities/cart_item_entity.dart';
 import '../../domain/entities/guest_checkout_customer.dart';
 
 abstract final class PlaceOrderPayloadMapper {
+  /// The placeOrder CF accepts only "cash" | "stripe" | "bank". "stripe" is the
+  /// backend's internal code for a card order placed as PENDING and settled by
+  /// the Quipu gateway after redirect + server verification (same as web).
+  static String normalizePaymentMethod(String paymentMethod) {
+    return paymentMethod == 'card' ? 'stripe' : paymentMethod;
+  }
+
   static Map<String, dynamic> toUserPayload({
     required AuthUserEntity user,
     required AddressEntity address,
@@ -29,7 +36,7 @@ abstract final class PlaceOrderPayloadMapper {
         'zip': address.zip?.trim() ?? '',
       },
       'items': _mapItems(items),
-      'paymentMethod': paymentMethod,
+      'paymentMethod': normalizePaymentMethod(paymentMethod),
       'termsAccepted': termsAccepted,
       'source': 'mobile',
     };
@@ -56,7 +63,7 @@ abstract final class PlaceOrderPayloadMapper {
         'zip': guest.zip.trim(),
       },
       'items': _mapItems(items),
-      'paymentMethod': paymentMethod,
+      'paymentMethod': normalizePaymentMethod(paymentMethod),
       'termsAccepted': termsAccepted,
       'source': 'mobile',
     };

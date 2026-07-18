@@ -3107,6 +3107,144 @@ abstract class AppLocalizations {
   /// In sq, this message translates to:
   /// **'Trokit për t\'u kyçur'**
   String get tapToLogin;
+
+  /// No description provided for @cardPaymentTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Pagesa me kartë'**
+  String get cardPaymentTitle;
+
+  /// No description provided for @cardPaymentInitiating.
+  ///
+  /// In sq, this message translates to:
+  /// **'Po hapim faqen e sigurt të pagesës…'**
+  String get cardPaymentInitiating;
+
+  /// No description provided for @cardPaymentAwaitingTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Përfundo pagesën'**
+  String get cardPaymentAwaitingTitle;
+
+  /// No description provided for @cardPaymentAwaitingText.
+  ///
+  /// In sq, this message translates to:
+  /// **'Përfundo pagesën në faqen e sigurt të bankës. Kur të kthehesh në aplikacion, statusi i pagesës do të verifikohet automatikisht.'**
+  String get cardPaymentAwaitingText;
+
+  /// No description provided for @cardPaymentVerifying.
+  ///
+  /// In sq, this message translates to:
+  /// **'Duke verifikuar pagesën…'**
+  String get cardPaymentVerifying;
+
+  /// No description provided for @cardPaymentVerifyingText.
+  ///
+  /// In sq, this message translates to:
+  /// **'Të lutem prit sa të konfirmojmë pagesën me bankën.'**
+  String get cardPaymentVerifyingText;
+
+  /// No description provided for @cardPaymentVerifyNow.
+  ///
+  /// In sq, this message translates to:
+  /// **'Verifiko pagesën'**
+  String get cardPaymentVerifyNow;
+
+  /// No description provided for @cardPaymentOpenAgain.
+  ///
+  /// In sq, this message translates to:
+  /// **'Hap përsëri faqen e pagesës'**
+  String get cardPaymentOpenAgain;
+
+  /// No description provided for @cardPaymentPaidTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Pagesa u krye me sukses'**
+  String get cardPaymentPaidTitle;
+
+  /// No description provided for @cardPaymentPaidText.
+  ///
+  /// In sq, this message translates to:
+  /// **'Pagesa u konfirmua dhe porosia jote u regjistrua.'**
+  String get cardPaymentPaidText;
+
+  /// No description provided for @cardPaymentPendingTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Pagesa ende e pakonfirmuar'**
+  String get cardPaymentPendingTitle;
+
+  /// No description provided for @cardPaymentPendingText.
+  ///
+  /// In sq, this message translates to:
+  /// **'Pagesa nuk u verifikua ende. Nëse e ke përfunduar pagesën, provo verifikimin përsëri pas pak.'**
+  String get cardPaymentPendingText;
+
+  /// No description provided for @cardPaymentFailedTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Pagesa dështoi'**
+  String get cardPaymentFailedTitle;
+
+  /// No description provided for @cardPaymentFailedText.
+  ///
+  /// In sq, this message translates to:
+  /// **'Pagesa nuk u pranua nga banka. Porosia mbetet në pritje dhe shporta jote nuk është prekur — mund të provosh përsëri.'**
+  String get cardPaymentFailedText;
+
+  /// No description provided for @cardPaymentCancelledTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Pagesa u anulua'**
+  String get cardPaymentCancelledTitle;
+
+  /// No description provided for @cardPaymentCancelledText.
+  ///
+  /// In sq, this message translates to:
+  /// **'Pagesa u anulua. Porosia mbetet në pritje dhe shporta jote nuk është prekur.'**
+  String get cardPaymentCancelledText;
+
+  /// No description provided for @cardPaymentExpiredTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Sesioni i pagesës skadoi'**
+  String get cardPaymentExpiredTitle;
+
+  /// No description provided for @cardPaymentExpiredText.
+  ///
+  /// In sq, this message translates to:
+  /// **'Sesioni i pagesës skadoi pa u përfunduar. Mund ta nisësh pagesën përsëri nga arka.'**
+  String get cardPaymentExpiredText;
+
+  /// No description provided for @cardPaymentErrorTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Diçka shkoi keq'**
+  String get cardPaymentErrorTitle;
+
+  /// No description provided for @cardPaymentErrorText.
+  ///
+  /// In sq, this message translates to:
+  /// **'Diçka shkoi keq gjatë pagesës. Provo përsëri.'**
+  String get cardPaymentErrorText;
+
+  /// No description provided for @cardPaymentLaunchFailed.
+  ///
+  /// In sq, this message translates to:
+  /// **'Faqja e pagesës nuk u hap dot. Provo përsëri.'**
+  String get cardPaymentLaunchFailed;
+
+  /// No description provided for @cardPaymentBackToCheckout.
+  ///
+  /// In sq, this message translates to:
+  /// **'Kthehu te arka'**
+  String get cardPaymentBackToCheckout;
+
+  /// No description provided for @cardPaymentViewOrders.
+  ///
+  /// In sq, this message translates to:
+  /// **'Shiko porositë'**
+  String get cardPaymentViewOrders;
 }
 
 class _AppLocalizationsDelegate

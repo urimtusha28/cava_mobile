@@ -9,6 +9,7 @@ import '../../features/categories/presentation/screens/categories_screen.dart';
 import '../../features/products/presentation/screens/product_detail_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
+import '../../features/checkout/presentation/screens/card_payment_screen.dart';
 import '../../features/checkout/presentation/screens/checkout_screen.dart';
 import '../../features/checkout/presentation/screens/order_success_screen.dart';
 import '../../features/checkout/domain/entities/place_order_result_entity.dart';
@@ -227,6 +228,14 @@ final GoRouter appRouter = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       path: AppRoutes.messages,
       builder: (_, _) => const MessagesScreen(),
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: AppRoutes.cardPayment,
+      builder: (context, state) {
+        final result = state.extra as PlaceOrderResultEntity?;
+        return CardPaymentScreen(order: result);
+      },
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,

@@ -36,7 +36,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
   String _paymentLabel(AppLocalizations l10n, String method) {
     return switch (method) {
       'cash' => l10n.paymentMethodCash,
-      'card' => l10n.paymentMethodCard,
+      // "stripe" is the backend's internal code for a Quipu card order.
+      'card' || 'stripe' => l10n.paymentMethodCard,
       'bank' => l10n.paymentMethodBank,
       _ => method,
     };

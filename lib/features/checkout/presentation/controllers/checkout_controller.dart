@@ -144,13 +144,21 @@ class CheckoutController extends BaseController {
       }
 
       final order = result.dataOrNull!;
-      await unwrapFutureResult(_clearCart(), fallback: null);
-      await _cartController.load();
       debugPrint(
         '[Checkout] placeOrder success '
         'orderId=${order.orderId} orderNumber=${order.orderNumber} '
         'total=${order.total}',
       );
+
+      if (paymentMethod == 'card') {
+        // Card order is PENDING until the Quipu payment is verified by the
+        // backend. The cart must stay intact until the payment is confirmed —
+        // CardPaymentController clears it only on verified_paid.
+        return CheckoutSubmitResult.cardPaymentRequired(order);
+      }
+
+      await unwrapFutureResult(_clearCart(), fallback: null);
+      await _cartController.load();
       return CheckoutSubmitResult.success(order);
     } catch (error) {
       debugPrint('[Checkout] placeOrder exception: $error');

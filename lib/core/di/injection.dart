@@ -71,13 +71,21 @@ import '../../features/categories/presentation/controllers/categories_controller
 import '../../features/categories/presentation/controllers/category_products_controller.dart';
 import '../../features/checkout/data/datasources/checkout_data_source.dart';
 import '../../features/checkout/data/datasources/checkout_firebase_datasource.dart';
+import '../../features/checkout/data/datasources/quipu_payment_data_source.dart';
+import '../../features/checkout/data/datasources/quipu_payment_firebase_datasource.dart';
 import '../../features/checkout/data/firebase/firebase_functions_gateway_impl.dart';
 import '../../features/checkout/data/repositories/checkout_repository_impl.dart';
+import '../../features/checkout/data/repositories/quipu_payment_repository_impl.dart';
 import '../../features/checkout/domain/repositories/checkout_repository.dart';
+import '../../features/checkout/domain/repositories/quipu_payment_repository.dart';
+import '../../features/checkout/domain/usecases/initiate_quipu_payment.dart';
 import '../../features/checkout/domain/usecases/place_order.dart';
+import '../../features/checkout/domain/usecases/verify_quipu_payment.dart';
+import '../../features/checkout/presentation/controllers/card_payment_controller.dart';
 import '../../features/checkout/presentation/controllers/order_success_controller.dart';
 import '../../features/checkout/data/local/checkout_selected_address_storage.dart';
 import '../../features/checkout/data/local/guest_checkout_customer_storage.dart';
+import '../../features/checkout/data/local/pending_card_payment_storage.dart';
 import '../../features/checkout/presentation/controllers/checkout_controller.dart';
 import '../../features/home/data/datasources/home_data_source.dart';
 import '../../features/home/data/datasources/home_mock_datasource.dart';
@@ -516,6 +524,28 @@ void _registerCheckout() {
       sl<ProductRepository>(),
     ),
   );
+  _registerQuipuPayment();
+}
+
+void _registerQuipuPayment() {
+  if (sl.isRegistered<QuipuPaymentRepository>()) {
+    return;
+  }
+
+  if (!sl.isRegistered<FirebaseFunctionsGateway>()) {
+    sl.registerLazySingleton<FirebaseFunctionsGateway>(
+      () => FirebaseFunctionsGatewayImpl.createDefault(),
+    );
+  }
+  sl.registerLazySingleton<PendingCardPaymentStorage>(
+    () => PendingCardPaymentStorage(),
+  );
+  sl.registerLazySingleton<QuipuPaymentDataSource>(
+    () => QuipuPaymentFirebaseDataSource(sl<FirebaseFunctionsGateway>()),
+  );
+  sl.registerLazySingleton<QuipuPaymentRepository>(
+    () => QuipuPaymentRepositoryImpl(sl<QuipuPaymentDataSource>()),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -598,6 +628,12 @@ void _registerUseCases() {
   // Checkout
   sl.registerFactory<PlaceOrderUseCase>(
     () => PlaceOrderUseCase(sl<CheckoutRepository>()),
+  );
+  sl.registerFactory<InitiateQuipuPaymentUseCase>(
+    () => InitiateQuipuPaymentUseCase(sl<QuipuPaymentRepository>()),
+  );
+  sl.registerFactory<VerifyQuipuPaymentUseCase>(
+    () => VerifyQuipuPaymentUseCase(sl<QuipuPaymentRepository>()),
   );
 
   // Wishlist
@@ -744,6 +780,15 @@ void _registerControllers() {
       sl<GuestCheckoutCustomerStorage>(),
     ),
   );
+  sl.registerFactory<CardPaymentController>(
+    () => CardPaymentController(
+      sl<InitiateQuipuPaymentUseCase>(),
+      sl<VerifyQuipuPaymentUseCase>(),
+      sl<ClearCartUseCase>(),
+      sl<CartController>(),
+      sl<PendingCardPaymentStorage>(),
+    ),
+  );
   sl.registerFactory<NotificationsController>(
     () => NotificationsController(sl<NotificationsRepository>()),
   );
@@ -808,6 +853,11 @@ Future<void> resetDependencies() async {
   }
   try {
     await GuestCheckoutCustomerStorage().clear();
+  } catch (_) {
+    // SharedPreferences may be unavailable before Flutter binding init.
+  }
+  try {
+    await PendingCardPaymentStorage().clear();
   } catch (_) {
     // SharedPreferences may be unavailable before Flutter binding init.
   }
@@ -1011,6 +1061,7 @@ Future<void> configureTestDependencies({
         sl<ProductRepository>(),
       ),
     );
+    _registerQuipuPayment();
   } else {
     _registerCheckout();
   }

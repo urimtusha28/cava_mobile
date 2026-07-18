@@ -190,6 +190,25 @@ void main() {
     expect(CartStateNotifier.revision.value, 0);
   });
 
+  test('submitOrder with card returns cardPaymentRequired and keeps cart',
+      () async {
+    await checkoutController.load();
+    await checkoutController.selectAddress(checkoutController.addresses.first);
+    final revisionBefore = CartStateNotifier.revision.value;
+
+    final result = await checkoutController.submitOrder(
+      paymentMethod: 'card',
+      termsAccepted: true,
+    );
+
+    expect(result.status, CheckoutSubmitStatus.cardPaymentRequired);
+    expect(result.order?.orderId, 'order-1');
+    // Cart must stay intact until the backend verifies the Quipu payment.
+    expect(CartStateNotifier.revision.value, revisionBefore);
+    // The CF only accepts "stripe" as the card payment method code.
+    expect(checkoutDataSource.lastPayload?['paymentMethod'], 'stripe');
+  });
+
   test('submitOrder does not clear cart on failure', () async {
     await tearDownTestDependencies();
     MockAuth.login();

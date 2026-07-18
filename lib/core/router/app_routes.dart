@@ -7,6 +7,7 @@ abstract final class AppRoutes {
   static const String wishlist = '/wishlist';
   static const String profile = '/profile';
   static const String checkout = '/checkout';
+  static const String cardPayment = '/card-payment';
   static const String orderSuccess = '/order-success';
   static const String orders = '/orders';
   static const String addresses = '/addresses';

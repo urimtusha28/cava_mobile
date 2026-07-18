@@ -1571,4 +1571,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tapToLogin => 'Tap to log in';
+
+  @override
+  String get cardPaymentTitle => 'Card payment';
+
+  @override
+  String get cardPaymentInitiating => 'Opening the secure payment page…';
+
+  @override
+  String get cardPaymentAwaitingTitle => 'Complete your payment';
+
+  @override
+  String get cardPaymentAwaitingText =>
+      'Complete the payment on the secure bank page. When you return to the app, the payment status will be verified automatically.';
+
+  @override
+  String get cardPaymentVerifying => 'Verifying your payment…';
+
+  @override
+  String get cardPaymentVerifyingText =>
+      'Please wait while we confirm your payment with the bank.';
+
+  @override
+  String get cardPaymentVerifyNow => 'Verify payment';
+
+  @override
+  String get cardPaymentOpenAgain => 'Open payment page again';
+
+  @override
+  String get cardPaymentPaidTitle => 'Payment successful';
+
+  @override
+  String get cardPaymentPaidText =>
+      'Your payment was confirmed and your order has been placed.';
+
+  @override
+  String get cardPaymentPendingTitle => 'Payment not confirmed yet';
+
+  @override
+  String get cardPaymentPendingText =>
+      'The payment could not be verified yet. If you completed the payment, try verifying again shortly.';
+
+  @override
+  String get cardPaymentFailedTitle => 'Payment failed';
+
+  @override
+  String get cardPaymentFailedText =>
+      'The payment was not accepted by the bank. The order stays pending and your cart is untouched — you can try again.';
+
+  @override
+  String get cardPaymentCancelledTitle => 'Payment cancelled';
+
+  @override
+  String get cardPaymentCancelledText =>
+      'The payment was cancelled. The order stays pending and your cart is untouched.';
+
+  @override
+  String get cardPaymentExpiredTitle => 'Payment session expired';
+
+  @override
+  String get cardPaymentExpiredText =>
+      'The payment session expired before completion. You can start the payment again from checkout.';
+
+  @override
+  String get cardPaymentErrorTitle => 'Something went wrong';
+
+  @override
+  String get cardPaymentErrorText =>
+      'Something went wrong during the payment. Please try again.';
+
+  @override
+  String get cardPaymentLaunchFailed =>
+      'The payment page could not be opened. Please try again.';
+
+  @override
+  String get cardPaymentBackToCheckout => 'Back to checkout';
+
+  @override
+  String get cardPaymentViewOrders => 'View my orders';
 }

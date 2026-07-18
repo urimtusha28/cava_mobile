@@ -55,6 +55,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     switch (result.status) {
       case CheckoutSubmitStatus.success:
         context.go(AppRoutes.orderSuccess, extra: result.order);
+      case CheckoutSubmitStatus.cardPaymentRequired:
+        context.go(AppRoutes.cardPayment, extra: result.order);
       case CheckoutSubmitStatus.validationError:
       case CheckoutSubmitStatus.requestError:
         _showMessage(result.message ?? AppLocalizations.of(context).orderCreateFailed);
