@@ -53,39 +53,38 @@ void main() {
 
     test('never paid without verifiedPaid, even if gateway says paid', () {
       // Redirect/success text alone must never be treated as final proof.
-      expect(
-        build(gatewayStatus: 'paid').status,
-        CardPaymentStatus.pending,
-      );
+      expect(build(gatewayStatus: 'paid').status, CardPaymentStatus.pending);
     });
 
     test('cancelled statuses map to cancelled', () {
-      expect(build(gatewayStatus: 'cancelled').status,
-          CardPaymentStatus.cancelled);
-      expect(build(gatewayStatus: 'CANCELED_BY_USER').status,
-          CardPaymentStatus.cancelled);
+      expect(
+        build(gatewayStatus: 'cancelled').status,
+        CardPaymentStatus.cancelled,
+      );
+      expect(
+        build(gatewayStatus: 'CANCELED_BY_USER').status,
+        CardPaymentStatus.cancelled,
+      );
     });
 
     test('expired statuses map to expired', () {
-      expect(
-          build(gatewayStatus: 'expired').status, CardPaymentStatus.expired);
-      expect(
-          build(gatewayStatus: 'timeout').status, CardPaymentStatus.expired);
+      expect(build(gatewayStatus: 'expired').status, CardPaymentStatus.expired);
+      expect(build(gatewayStatus: 'timeout').status, CardPaymentStatus.expired);
     });
 
     test('failed statuses map to failed', () {
       expect(build(gatewayStatus: 'failed').status, CardPaymentStatus.failed);
-      expect(
-          build(gatewayStatus: 'declined').status, CardPaymentStatus.failed);
-      expect(
-          build(gatewayStatus: 'rejected').status, CardPaymentStatus.failed);
+      expect(build(gatewayStatus: 'declined').status, CardPaymentStatus.failed);
+      expect(build(gatewayStatus: 'rejected').status, CardPaymentStatus.failed);
     });
 
     test('unknown or missing status stays pending (conservative)', () {
       expect(build(gatewayStatus: null).status, CardPaymentStatus.pending);
       expect(build(gatewayStatus: 'created').status, CardPaymentStatus.pending);
-      expect(build(gatewayStatus: 'weird_new_status').status,
-          CardPaymentStatus.pending);
+      expect(
+        build(gatewayStatus: 'weird_new_status').status,
+        CardPaymentStatus.pending,
+      );
     });
   });
 

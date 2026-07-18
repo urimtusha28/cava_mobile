@@ -9,6 +9,7 @@ import 'package:cava_ecommerce/features/checkout/data/local/pending_card_payment
 import 'package:cava_ecommerce/features/checkout/domain/entities/place_order_result_entity.dart';
 import 'package:cava_ecommerce/features/checkout/domain/entities/quipu_payment_entities.dart';
 import 'package:cava_ecommerce/features/checkout/domain/repositories/quipu_payment_repository.dart';
+import 'package:cava_ecommerce/features/checkout/domain/utils/quipu_hpp_navigation_policy.dart';
 import 'package:cava_ecommerce/features/checkout/domain/usecases/initiate_quipu_payment.dart';
 import 'package:cava_ecommerce/features/checkout/domain/usecases/verify_quipu_payment.dart';
 import 'package:cava_ecommerce/features/checkout/presentation/controllers/card_payment_controller.dart';
@@ -111,19 +112,21 @@ void main() {
     await tearDownTestDependencies();
   });
 
-  test('start issues redirect, persists pending payment, awaits payment',
-      () async {
-    final url = await controller.start(_order);
+  test(
+    'start issues redirect, persists pending payment, awaits payment',
+    () async {
+      final url = await controller.start(_order);
 
-    expect(url, contains('https://hpp.example/pay'));
-    expect(controller.phase, CardPaymentPhase.awaitingPayment);
-    expect(controller.transactionId, 'tx-order-1');
-    expect(quipuRepository.initiateCalls, 1);
+      expect(url, contains('https://hpp.example/pay'));
+      expect(controller.phase, CardPaymentPhase.awaitingPayment);
+      expect(controller.transactionId, 'tx-order-1');
+      expect(quipuRepository.initiateCalls, 1);
 
-    final pending = await storage.read();
-    expect(pending?.orderId, 'order-1');
-    expect(pending?.transactionId, 'tx-order-1');
-  });
+      final pending = await storage.read();
+      expect(pending?.orderId, 'order-1');
+      expect(pending?.transactionId, 'tx-order-1');
+    },
+  );
 
   test('start is idempotent for the same order (double-tap guard)', () async {
     final first = await controller.start(_order);
@@ -147,8 +150,7 @@ void main() {
     expect(await cartItemCount(), 1);
   });
 
-  test('verifyNow with verifiedPaid clears cart and pending storage',
-      () async {
+  test('verifyNow with verifiedPaid clears cart and pending storage', () async {
     await controller.start(_order);
     quipuRepository.verifiedPaid = true;
     quipuRepository.gatewayStatus = 'paid';
@@ -230,6 +232,33 @@ void main() {
 
     await controller.verifyNow();
     expect(quipuRepository.verifyCalls, 1);
+  });
+
+  test('in-app WebView return flow: intercepted return URL matches the stored '
+      'transaction and server verification settles the payment', () async {
+    await controller.start(_order);
+
+    // The backend appends the transaction id to the HPP return URL; the
+    // WebView intercepts that URL instead of loading it.
+    final returnUrl =
+        'https://cava-premium.com/payment/return'
+        '?transactionId=${controller.transactionId}';
+    final decision = QuipuHppNavigationPolicy.decide(returnUrl);
+
+    expect(decision.action, HppNavigationAction.interceptReturn);
+    expect(decision.transactionId, controller.transactionId);
+
+    // Reaching the return URL is NOT success — verification still decides.
+    quipuRepository.verifiedPaid = false;
+    quipuRepository.gatewayStatus = 'created';
+    await controller.verifyNow();
+    expect(controller.phase, CardPaymentPhase.pending);
+    expect(await cartItemCount(), 1);
+
+    quipuRepository.verifiedPaid = true;
+    await controller.verifyNow();
+    expect(controller.phase, CardPaymentPhase.paid);
+    expect(await cartItemCount(), 0);
   });
 
   test('restorePending resumes a persisted in-flight payment', () async {

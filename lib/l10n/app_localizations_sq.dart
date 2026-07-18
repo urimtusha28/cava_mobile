@@ -1649,4 +1649,14 @@ class AppLocalizationsSq extends AppLocalizations {
 
   @override
   String get cardPaymentViewOrders => 'Shiko porositë';
+
+  @override
+  String get cardPaymentWebviewLoadError =>
+      'Faqja e pagesës nuk u ngarkua. Provo përsëri ose hape në shfletues.';
+
+  @override
+  String get cardPaymentRetry => 'Provo përsëri';
+
+  @override
+  String get cardPaymentOpenInBrowser => 'Hape në shfletues';
 }

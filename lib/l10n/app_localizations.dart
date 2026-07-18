@@ -3245,6 +3245,24 @@ abstract class AppLocalizations {
   /// In sq, this message translates to:
   /// **'Shiko porositë'**
   String get cardPaymentViewOrders;
+
+  /// No description provided for @cardPaymentWebviewLoadError.
+  ///
+  /// In sq, this message translates to:
+  /// **'Faqja e pagesës nuk u ngarkua. Provo përsëri ose hape në shfletues.'**
+  String get cardPaymentWebviewLoadError;
+
+  /// No description provided for @cardPaymentRetry.
+  ///
+  /// In sq, this message translates to:
+  /// **'Provo përsëri'**
+  String get cardPaymentRetry;
+
+  /// No description provided for @cardPaymentOpenInBrowser.
+  ///
+  /// In sq, this message translates to:
+  /// **'Hape në shfletues'**
+  String get cardPaymentOpenInBrowser;
 }
 
 class _AppLocalizationsDelegate

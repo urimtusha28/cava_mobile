@@ -1649,4 +1649,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardPaymentViewOrders => 'View my orders';
+
+  @override
+  String get cardPaymentWebviewLoadError =>
+      'The payment page failed to load. Try again or open it in the browser.';
+
+  @override
+  String get cardPaymentRetry => 'Try again';
+
+  @override
+  String get cardPaymentOpenInBrowser => 'Open in browser';
 }

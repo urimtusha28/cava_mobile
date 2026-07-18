@@ -3,6 +3,12 @@
 Data: 2026-07-18
 Projektet: `cava` (website + Firebase Functions backend) dhe `cava_ecommerce` (Flutter).
 
+> **Përditësim (po e njëjta datë):** Hapja e HPP u zhvendos nga browser-i i
+> jashtëm në **WebView full-screen brenda aplikacionit**, me interceptim të
+> return URL-së dhe fallback në browser/aplikacion të jashtëm. Backend-i,
+> controller-i, statuset dhe idempotency mbeten siç përshkruhen këtu. Detajet:
+> shih `QUPU_IN_APP_WEBVIEW_REPORT.md`.
+
 ---
 
 ## 1. Si funksiononte Quipu në website
@@ -188,7 +194,17 @@ rast dyshimi.
   - test i ri 'card'→'stripe' në payload mapper;
   - test i ri që karta kthen `cardPaymentRequired` pa pastruar shportën;
   - të gjitha testet ekzistuese të checkout/cash/bank të pandryshuara.
-- `flutter test` (suite e plotë): REZULTATI_PLOTESOHET
+- `flutter test` (suite e plotë): **439 kaluan, 5 dështuan — të 5 dështimet u
+  verifikuan si para-ekzistuese** (dështojnë identikisht edhe në `git stash` /
+  worktree të pastër të HEAD pa asnjë nga ndryshimet e këtij integrimi):
+  - `test/core/di/injection_test.dart` — "No Firebase App '[DEFAULT]'" nga
+    `FirebaseFirestore.instance` eager në `_registerSupport` (kod i vjetër);
+  - `test/features/cart/domain/usecases/cart_usecases_test.dart` — 2 teste
+    delegimi (AddToCart/UpdateCartQuantity);
+  - `test/features/account/presentation/utils/order_formatters_test.dart` —
+    mospërputhje stringu 'E dorëzuar' vs 'U dorëzua';
+  - `test/widget_test.dart` — timeout 10-minutësh; ngec edhe në HEAD të
+    pastër të izoluar.
 - Backend (`cava/functions`): `npm run build` (tsc) OK dhe `npm test` —
   **122/122 teste kaluan, 21/21 suites** (përfshirë `quipuTransactions.test.ts`).
   Backend-i nuk u ndryshua fare.

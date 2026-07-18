@@ -535,5 +535,8 @@
   "cardPaymentErrorText": "Something went wrong during the payment. Please try again.",
   "cardPaymentLaunchFailed": "The payment page could not be opened. Please try again.",
   "cardPaymentBackToCheckout": "Back to checkout",
-  "cardPaymentViewOrders": "View my orders"
+  "cardPaymentViewOrders": "View my orders",
+  "cardPaymentWebviewLoadError": "The payment page failed to load. Try again or open it in the browser.",
+  "cardPaymentRetry": "Try again",
+  "cardPaymentOpenInBrowser": "Open in browser"
 }

@@ -591,5 +591,8 @@
   "cardPaymentErrorText": "Diçka shkoi keq gjatë pagesës. Provo përsëri.",
   "cardPaymentLaunchFailed": "Faqja e pagesës nuk u hap dot. Provo përsëri.",
   "cardPaymentBackToCheckout": "Kthehu te arka",
-  "cardPaymentViewOrders": "Shiko porositë"
+  "cardPaymentViewOrders": "Shiko porositë",
+  "cardPaymentWebviewLoadError": "Faqja e pagesës nuk u ngarkua. Provo përsëri ose hape në shfletues.",
+  "cardPaymentRetry": "Provo përsëri",
+  "cardPaymentOpenInBrowser": "Hape në shfletues"
 }

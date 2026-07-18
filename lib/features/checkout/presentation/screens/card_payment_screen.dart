@@ -13,13 +13,15 @@ import '../../../../core/widgets/cava_app_bar.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../domain/entities/place_order_result_entity.dart';
 import '../controllers/card_payment_controller.dart';
+import 'quipu_hpp_webview_screen.dart';
 
 /// Quipu HPP handoff + return verification screen.
 ///
-/// The card is entered ONLY on the Quipu hosted payment page (external
-/// browser). This screen initiates the session via the backend, opens the
-/// redirect URL, and on return verifies the real payment status with the
-/// backend — the redirect itself is never treated as proof of payment.
+/// The card is entered ONLY on the Quipu hosted payment page, opened as a
+/// full-screen in-app WebView (with an external-browser fallback). This screen
+/// initiates the session via the backend, opens the redirect URL, and on
+/// return verifies the real payment status with the backend — the redirect
+/// itself is never treated as proof of payment.
 class CardPaymentScreen extends StatefulWidget {
   const CardPaymentScreen({super.key, this.order});
 
@@ -72,15 +74,43 @@ class _CardPaymentScreenState extends State<CardPaymentScreen>
     }
   }
 
+  /// Opens the HPP as a full-screen in-app WebView. The external browser
+  /// remains as fallback (WebView load errors, bank-app schemes).
   Future<void> _openPaymentPage(String url) async {
+    if (!mounted) {
+      return;
+    }
+    final result = await Navigator.of(context).push<HppWebviewResult>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => QuipuHppWebviewScreen(initialUrl: url),
+      ),
+    );
+    if (!mounted) {
+      return;
+    }
+    switch (result) {
+      case HppWebviewReturned():
+        // Return redirect reached — ask the backend for the real status.
+        await _controller.verifyNow();
+      case HppWebviewOpenedExternally():
+        // Handed off to a bank app / browser; verification runs on app
+        // resume (lifecycle observer) or via the manual verify button.
+        break;
+      case HppWebviewDismissed():
+      case null:
+        // User backed out — keep the awaiting state, never auto-cancel.
+        break;
+    }
+  }
+
+  /// External-browser fallback (kept from the original flow).
+  Future<void> _openExternalBrowser(String url) async {
     final uri = Uri.tryParse(url);
     var launched = false;
     if (uri != null) {
       try {
-        launched = await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-        );
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
       } catch (_) {
         launched = false;
       }
@@ -148,8 +178,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen>
           actions: [
             PrimaryButton(
               label: l10n.cardPaymentVerifyNow,
-              onPressed:
-                  _controller.canVerify ? _controller.verifyNow : null,
+              onPressed: _controller.canVerify ? _controller.verifyNow : null,
             ),
             const SizedBox(height: AppSpacing.md),
             _SecondaryAction(
@@ -182,8 +211,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen>
           actions: [
             PrimaryButton(
               label: l10n.cardPaymentVerifyNow,
-              onPressed:
-                  _controller.canVerify ? _controller.verifyNow : null,
+              onPressed: _controller.canVerify ? _controller.verifyNow : null,
             ),
             const SizedBox(height: AppSpacing.md),
             _SecondaryAction(
@@ -245,8 +273,14 @@ class _CardPaymentScreenState extends State<CardPaymentScreen>
             if (_controller.transactionId != null) ...[
               PrimaryButton(
                 label: l10n.cardPaymentVerifyNow,
-                onPressed:
-                    _controller.canVerify ? _controller.verifyNow : null,
+                onPressed: _controller.canVerify ? _controller.verifyNow : null,
+              ),
+              const SizedBox(height: AppSpacing.md),
+            ],
+            if (_controller.redirectUrl != null) ...[
+              _SecondaryAction(
+                label: l10n.cardPaymentOpenInBrowser,
+                onPressed: () => _openExternalBrowser(_controller.redirectUrl!),
               ),
               const SizedBox(height: AppSpacing.md),
             ],
@@ -345,10 +379,7 @@ class _ResultState extends StatelessWidget {
                       l10n.orderSuccessOrderLabel,
                       style: AppTextStyles.caption,
                     ),
-                    Text(
-                      order!.displayOrderNumber,
-                      style: AppTextStyles.body,
-                    ),
+                    Text(order!.displayOrderNumber, style: AppTextStyles.body),
                   ],
                 ),
                 const SizedBox(height: 10),

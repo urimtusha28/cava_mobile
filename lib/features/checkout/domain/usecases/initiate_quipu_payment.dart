@@ -4,10 +4,7 @@ import '../entities/quipu_payment_entities.dart';
 import '../repositories/quipu_payment_repository.dart';
 
 class InitiateQuipuPaymentParams {
-  const InitiateQuipuPaymentParams({
-    required this.cavaOrderId,
-    this.language,
-  });
+  const InitiateQuipuPaymentParams({required this.cavaOrderId, this.language});
 
   final String cavaOrderId;
   final String? language;

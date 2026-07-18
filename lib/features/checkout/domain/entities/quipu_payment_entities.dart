@@ -103,12 +103,12 @@ class PendingCardPayment {
   final int? createdAtMillis;
 
   Map<String, dynamic> toMap() => {
-        'orderId': orderId,
-        'transactionId': transactionId,
-        if (orderNumber != null) 'orderNumber': orderNumber,
-        if (total != null) 'total': total,
-        if (createdAtMillis != null) 'createdAtMillis': createdAtMillis,
-      };
+    'orderId': orderId,
+    'transactionId': transactionId,
+    if (orderNumber != null) 'orderNumber': orderNumber,
+    if (total != null) 'total': total,
+    if (createdAtMillis != null) 'createdAtMillis': createdAtMillis,
+  };
 
   static PendingCardPayment? fromMap(Map<String, dynamic> map) {
     final orderId = (map['orderId'] ?? '').toString();
@@ -125,8 +125,7 @@ class PendingCardPayment {
       total: rawTotal is num
           ? rawTotal.toDouble()
           : double.tryParse('$rawTotal'),
-      createdAtMillis:
-          rawCreatedAt is num ? rawCreatedAt.toInt() : null,
+      createdAtMillis: rawCreatedAt is num ? rawCreatedAt.toInt() : null,
     );
   }
 }
