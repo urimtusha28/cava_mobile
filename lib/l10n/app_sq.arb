@@ -228,6 +228,27 @@
   "paymentMethodCash": "Para në dorë",
   "paymentMethodCard": "Kartë",
   "paymentMethodBank": "Transfer bankar",
+  "confirm": "Konfirmo",
+  "orderFulfillmentStatusTitle": "Statusi i përmbushjes",
+  "orderStatusSelectorLabel": "Ndrysho statusin",
+  "orderStatusChangeTitle": "Ndrysho statusin",
+  "orderStatusChangeSuccess": "Statusi i porosisë u përditësua.",
+  "orderFulfillmentReceived": "Porosia u pranua",
+  "orderFulfillmentConfirmed": "U konfirmua",
+  "orderFulfillmentPrepared": "U përgatit",
+  "orderFulfillmentShipped": "U dërgua te postieri",
+  "orderFulfillmentInTransit": "Në transport",
+  "orderFulfillmentDelivered": "U dorëzua",
+  "orderFulfillmentReturned": "Kthyer / Return",
+  "orderFulfillmentCanceled": "Anuluar",
+  "orderStatusChangeConfirm": "Ndrysho statusin e {orderNumber} nga \"{fromStatus}\" në \"{toStatus}\"?",
+  "@orderStatusChangeConfirm": {
+    "placeholders": {
+      "orderNumber": {},
+      "fromStatus": {},
+      "toStatus": {}
+    }
+  },
   "backToHome": "Kthehu në Kreu",
   "authWelcome": "Mirë se vini",
   "authResetPasswordTitle": "Rikthe fjalëkalimin",

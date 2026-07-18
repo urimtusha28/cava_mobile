@@ -641,6 +641,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentMethodBank => 'Bank transfer';
 
   @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get orderFulfillmentStatusTitle => 'Fulfillment status';
+
+  @override
+  String get orderStatusSelectorLabel => 'Change status';
+
+  @override
+  String get orderStatusChangeTitle => 'Change status';
+
+  @override
+  String get orderStatusChangeSuccess => 'Order status updated.';
+
+  @override
+  String get orderFulfillmentReceived => 'Order received';
+
+  @override
+  String get orderFulfillmentConfirmed => 'Confirmed';
+
+  @override
+  String get orderFulfillmentPrepared => 'Prepared';
+
+  @override
+  String get orderFulfillmentShipped => 'Handed to courier';
+
+  @override
+  String get orderFulfillmentInTransit => 'In transit';
+
+  @override
+  String get orderFulfillmentDelivered => 'Delivered';
+
+  @override
+  String get orderFulfillmentReturned => 'Returned';
+
+  @override
+  String get orderFulfillmentCanceled => 'Canceled';
+
+  @override
+  String orderStatusChangeConfirm(
+    Object orderNumber,
+    Object fromStatus,
+    Object toStatus,
+  ) {
+    return 'Change the status of $orderNumber from \"$fromStatus\" to \"$toStatus\"?';
+  }
+
+  @override
   String get backToHome => 'Back to Home';
 
   @override

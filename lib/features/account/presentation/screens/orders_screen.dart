@@ -9,6 +9,7 @@ import '../../../../core/state/auth_state_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
+import '../../domain/entities/order_entity.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/orders_controller.dart';
 import '../utils/order_formatters.dart';
@@ -61,6 +62,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
+  void _replaceOrder(OrderEntity updatedOrder) {
+    final index = _controller.orders.indexWhere((o) => o.id == updatedOrder.id);
+    if (index < 0) {
+      return;
+    }
+    setState(() {
+      _controller.orders = List<OrderEntity>.from(_controller.orders)
+        ..[index] = updatedOrder;
+    });
+  }
+
   Widget _buildBody(bool isLoggedIn, AppLocalizations l10n) {
     if (_controller.isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -89,6 +101,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             onTap: () => showOrderDetailBottomSheet(
               context: context,
               order: order,
+              onOrderUpdated: _replaceOrder,
             ),
             borderRadius: BorderRadius.circular(AppRadius.lg),
             child: Container(
@@ -119,7 +132,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    formatPaymentStatus(order.paymentStatus, l10n),
+                    formatPaymentSummary(
+                      method: order.paymentMethod,
+                      paymentStatus: order.paymentStatus,
+                      l10n: l10n,
+                    ),
                     style: AppTextStyles.bodySmall,
                   ),
                   const SizedBox(height: 4),

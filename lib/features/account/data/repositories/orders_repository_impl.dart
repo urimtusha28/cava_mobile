@@ -1,4 +1,5 @@
 import '../../domain/entities/order_entity.dart';
+import '../../domain/entities/order_fulfillment_status.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/repositories/orders_repository.dart';
 import '../datasources/orders_data_source.dart';
@@ -29,5 +30,24 @@ class OrdersRepositoryImpl implements OrdersRepository {
 
     final order = await _dataSource.getOrderById(userId, orderId);
     return order?.toEntity();
+  }
+
+  @override
+  Future<OrderEntity?> getOrderByIdForAdmin(String orderId) async {
+    final order = await _dataSource.getOrderByIdForAdmin(orderId);
+    return order?.toEntity();
+  }
+
+  @override
+  Future<void> updateOrderFulfillmentStatus(
+    String orderId,
+    FulfillmentStatusDetail newStatus, {
+    String? adminUid,
+  }) {
+    return _dataSource.updateOrderFulfillmentStatus(
+      orderId,
+      newStatus,
+      adminUid: adminUid,
+    );
   }
 }

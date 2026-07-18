@@ -28,11 +28,13 @@ import '../../features/account/domain/usecases/forgot_password.dart';
 import '../../features/account/domain/usecases/get_current_user.dart';
 import '../../features/account/domain/usecases/get_my_orders.dart';
 import '../../features/account/domain/usecases/get_order_by_id.dart';
+import '../../features/account/domain/usecases/get_order_by_id_for_admin.dart';
 import '../../features/account/domain/usecases/is_logged_in.dart';
 import '../../features/account/domain/usecases/login.dart';
 import '../../features/account/domain/usecases/logout.dart';
 import '../../features/account/domain/usecases/register.dart';
 import '../../features/account/domain/usecases/resolve_app_role.dart';
+import '../../features/account/domain/usecases/update_order_fulfillment_status.dart';
 import '../../features/account/presentation/controllers/addresses_controller.dart';
 import '../../features/account/presentation/controllers/auth_controller.dart';
 import '../../features/account/data/datasources/user_profile_data_source.dart';
@@ -636,6 +638,12 @@ void _registerUseCases() {
   );
   sl.registerFactory<GetOrderByIdUseCase>(
     () => GetOrderByIdUseCase(sl<OrdersRepository>()),
+  );
+  sl.registerFactory<GetOrderByIdForAdminUseCase>(
+    () => GetOrderByIdForAdminUseCase(sl<OrdersRepository>()),
+  );
+  sl.registerFactory<UpdateOrderFulfillmentStatusUseCase>(
+    () => UpdateOrderFulfillmentStatusUseCase(sl<OrdersRepository>()),
   );
   sl.registerFactory<GetAddressesUseCase>(
     () => GetAddressesUseCase(sl<AddressesRepository>()),

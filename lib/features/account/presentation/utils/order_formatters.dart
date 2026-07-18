@@ -1,5 +1,7 @@
 import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
+import 'order_fulfillment_status_l10n.dart';
+
 String formatOrderDate(DateTime? date) {
   if (date == null) {
     return '';
@@ -16,24 +18,51 @@ String formatOrderTotal(double total) {
 
 String formatOrderStatus(String status, AppLocalizations l10n) {
   switch (status.toLowerCase().trim()) {
+    case 'received':
+    case 'confirmed':
+    case 'prepared':
+    case 'shipped':
+    case 'in_transit':
+    case 'delivered':
+    case 'completed':
+    case 'returned':
+    case 'canceled':
+    case 'cancelled':
+      return OrderFulfillmentStatusL10n.labelOfRaw(l10n, status);
     case 'open':
       return l10n.orderStatusOpen;
     case 'pending':
       return l10n.orderStatusPending;
     case 'processing':
       return l10n.orderStatusProcessing;
-    case 'shipped':
-    case 'in_transit':
-      return l10n.orderStatusShipped;
-    case 'delivered':
-    case 'completed':
-      return l10n.orderStatusDelivered;
-    case 'cancelled':
-    case 'canceled':
-      return l10n.orderStatusCancelled;
     default:
       return formatUnknownLabel(status, l10n);
   }
+}
+
+String formatPaymentMethod(String? method, AppLocalizations l10n) {
+  switch (method?.trim().toLowerCase()) {
+    case 'cash':
+      return l10n.paymentMethodCash;
+    case 'card':
+    case 'stripe':
+      return l10n.paymentMethodCard;
+    case 'bank':
+      return l10n.paymentMethodBank;
+    case null:
+    case '':
+      return l10n.emDash;
+    default:
+      return formatUnknownLabel(method!, l10n);
+  }
+}
+
+String formatPaymentSummary({
+  required String? method,
+  required String paymentStatus,
+  required AppLocalizations l10n,
+}) {
+  return '${formatPaymentMethod(method, l10n)} · ${formatPaymentStatus(paymentStatus, l10n)}';
 }
 
 String formatPaymentStatus(String status, AppLocalizations l10n) {

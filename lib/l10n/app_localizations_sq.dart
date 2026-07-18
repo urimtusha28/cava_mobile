@@ -642,6 +642,54 @@ class AppLocalizationsSq extends AppLocalizations {
   String get paymentMethodBank => 'Transfer bankar';
 
   @override
+  String get confirm => 'Konfirmo';
+
+  @override
+  String get orderFulfillmentStatusTitle => 'Statusi i përmbushjes';
+
+  @override
+  String get orderStatusSelectorLabel => 'Ndrysho statusin';
+
+  @override
+  String get orderStatusChangeTitle => 'Ndrysho statusin';
+
+  @override
+  String get orderStatusChangeSuccess => 'Statusi i porosisë u përditësua.';
+
+  @override
+  String get orderFulfillmentReceived => 'Porosia u pranua';
+
+  @override
+  String get orderFulfillmentConfirmed => 'U konfirmua';
+
+  @override
+  String get orderFulfillmentPrepared => 'U përgatit';
+
+  @override
+  String get orderFulfillmentShipped => 'U dërgua te postieri';
+
+  @override
+  String get orderFulfillmentInTransit => 'Në transport';
+
+  @override
+  String get orderFulfillmentDelivered => 'U dorëzua';
+
+  @override
+  String get orderFulfillmentReturned => 'Kthyer / Return';
+
+  @override
+  String get orderFulfillmentCanceled => 'Anuluar';
+
+  @override
+  String orderStatusChangeConfirm(
+    Object orderNumber,
+    Object fromStatus,
+    Object toStatus,
+  ) {
+    return 'Ndrysho statusin e $orderNumber nga \"$fromStatus\" në \"$toStatus\"?';
+  }
+
+  @override
   String get backToHome => 'Kthehu në Kreu';
 
   @override

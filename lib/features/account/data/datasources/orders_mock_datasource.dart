@@ -1,4 +1,5 @@
 import '../models/order_model.dart';
+import '../../domain/entities/order_fulfillment_status.dart';
 import 'orders_data_source.dart';
 
 class OrdersMockDataSource implements OrdersDataSource {
@@ -10,4 +11,14 @@ class OrdersMockDataSource implements OrdersDataSource {
   @override
   Future<OrderModel?> getOrderById(String userId, String orderId) async =>
       null;
+
+  @override
+  Future<OrderModel?> getOrderByIdForAdmin(String orderId) async => null;
+
+  @override
+  Future<void> updateOrderFulfillmentStatus(
+    String orderId,
+    FulfillmentStatusDetail newStatus, {
+    String? adminUid,
+  }) async {}
 }

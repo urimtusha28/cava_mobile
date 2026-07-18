@@ -8,6 +8,8 @@ class OrderModel {
     required this.id,
     this.orderNumber,
     required this.status,
+    this.fulfillmentStatus,
+    this.paymentMethod,
     required this.paymentStatus,
     required this.total,
     required this.itemCount,
@@ -20,6 +22,8 @@ class OrderModel {
   final String id;
   final String? orderNumber;
   final String status;
+  final String? fulfillmentStatus;
+  final String? paymentMethod;
   final String paymentStatus;
   final double total;
   final int itemCount;
@@ -33,6 +37,8 @@ class OrderModel {
       id: id,
       orderNumber: orderNumber,
       status: status,
+      fulfillmentStatus: fulfillmentStatus,
+      paymentMethod: paymentMethod,
       paymentStatus: paymentStatus,
       total: total,
       itemCount: itemCount,

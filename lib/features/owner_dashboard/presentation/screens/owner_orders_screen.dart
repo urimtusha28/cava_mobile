@@ -7,6 +7,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
+import '../../../account/domain/entities/order_entity.dart';
+import '../../../account/presentation/utils/order_formatters.dart';
+import '../../../account/presentation/widgets/order_detail_bottom_sheet.dart';
 import '../controllers/owner_dashboard_controller.dart';
 import '../utils/owner_order_status_l10n.dart';
 
@@ -20,6 +23,7 @@ class OwnerOrdersScreen extends StatefulWidget {
 class _OwnerOrdersScreenState extends State<OwnerOrdersScreen> {
   late final OwnerDashboardController _controller;
   late final Future<void> _loadFuture;
+  final Map<String, OrderEntity> _orderOverrides = {};
 
   @override
   void initState() {
@@ -75,37 +79,70 @@ class _OwnerOrdersScreenState extends State<OwnerOrdersScreen> {
                 separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
                 itemBuilder: (context, index) {
                   final o = orders[index];
-                  return Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceMuted,
+                  final override = _orderOverrides[o.id];
+                  final displayStatus = override?.fulfillmentStatus ?? override?.status ?? o.statusLabel;
+                  final paymentMethod = override?.paymentMethod ?? o.paymentMethod;
+                  final paymentStatus = override?.paymentStatus ?? o.paymentStatus;
+
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
                       borderRadius: BorderRadius.circular(AppRadius.md),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('#${o.orderNumber}', style: AppTextStyles.body),
-                              Text(
-                                '${o.customerName} · ${OwnerOrderStatusL10n.labelOf(l10n, o.statusLabel)}',
-                                style: AppTextStyles.bodySmall,
-                              ),
-                              Text(
-                                '${o.paymentMethod} · ${o.paymentStatus}',
-                                style: AppTextStyles.bodySmall,
-                              ),
-                            ],
-                          ),
+                      onTap: () => showOrderDetailBottomSheet(
+                        context: context,
+                        order: OrderEntity(
+                          id: o.id,
+                          orderNumber: o.orderNumber,
+                          status: override?.status ?? o.statusLabel,
+                          fulfillmentStatus: override?.fulfillmentStatus ?? o.statusLabel,
+                          paymentMethod: paymentMethod,
+                          paymentStatus: paymentStatus,
+                          total: override?.total ?? o.total,
+                          itemCount: override?.itemCount ?? 0,
+                          customer: override?.customer,
+                          createdAt: override?.createdAt ?? o.createdAt,
+                          items: override?.items ?? const [],
+                          totals: override?.totals,
                         ),
-                        Text(
-                          Formatters.currency(o.total),
-                          style: AppTextStyles.h3.copyWith(
-                            color: AppColors.burgundy,
-                          ),
+                        onOrderUpdated: _replaceOrder,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceMuted,
+                          borderRadius: BorderRadius.circular(AppRadius.md),
                         ),
-                      ],
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('#${o.orderNumber}', style: AppTextStyles.body),
+                                  Text(
+                                    '${o.customerName} · ${OwnerOrderStatusL10n.labelOf(l10n, displayStatus)}',
+                                    style: AppTextStyles.bodySmall,
+                                  ),
+                                  Text(
+                                    formatPaymentSummary(
+                                      method: paymentMethod,
+                                      paymentStatus: paymentStatus,
+                                      l10n: l10n,
+                                    ),
+                                    style: AppTextStyles.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              Formatters.currency(override?.total ?? o.total),
+                              style: AppTextStyles.h3.copyWith(
+                                color: AppColors.burgundy,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   );
                 },
@@ -115,5 +152,11 @@ class _OwnerOrdersScreenState extends State<OwnerOrdersScreen> {
         },
       ),
     );
+  }
+
+  void _replaceOrder(OrderEntity updatedOrder) {
+    setState(() {
+      _orderOverrides[updatedOrder.id] = updatedOrder;
+    });
   }
 }

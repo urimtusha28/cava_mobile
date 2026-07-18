@@ -38,6 +38,8 @@ abstract final class OrderMapper {
         id: id,
         orderNumber: orderNumber,
         status: data['status'] as String? ?? 'unknown',
+        fulfillmentStatus: data['fulfillmentStatus'] as String?,
+        paymentMethod: data['paymentMethod'] as String?,
         paymentStatus: data['paymentStatus'] as String? ?? '',
         total: total,
         itemCount: itemCount,
@@ -164,6 +166,7 @@ abstract final class OrderMapper {
       final map = Map<String, dynamic>.from(customer);
       final entity = OrderCustomerEntity(
         name: _readString(map, ['name', 'fullName', 'full_name']),
+        email: _readString(map, ['email', 'emailAddress']),
         phone: _readString(map, ['phone', 'phoneNumber', 'mobile']),
         address: _readString(map, ['address', 'fullAddress', 'street']),
       );
@@ -186,6 +189,7 @@ abstract final class OrderMapper {
 
       final entity = OrderCustomerEntity(
         name: _readString(map, ['fullName', 'name', 'recipientName']),
+        email: _readString(map, ['email', 'emailAddress']),
         phone: _readString(map, ['phone', 'phoneNumber']),
         address: addressParts.isEmpty ? null : addressParts.join(', '),
       );

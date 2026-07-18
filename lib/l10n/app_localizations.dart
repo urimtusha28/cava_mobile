@@ -1340,6 +1340,94 @@ abstract class AppLocalizations {
   /// **'Transfer bankar'**
   String get paymentMethodBank;
 
+  /// No description provided for @confirm.
+  ///
+  /// In sq, this message translates to:
+  /// **'Konfirmo'**
+  String get confirm;
+
+  /// No description provided for @orderFulfillmentStatusTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Statusi i përmbushjes'**
+  String get orderFulfillmentStatusTitle;
+
+  /// No description provided for @orderStatusSelectorLabel.
+  ///
+  /// In sq, this message translates to:
+  /// **'Ndrysho statusin'**
+  String get orderStatusSelectorLabel;
+
+  /// No description provided for @orderStatusChangeTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Ndrysho statusin'**
+  String get orderStatusChangeTitle;
+
+  /// No description provided for @orderStatusChangeSuccess.
+  ///
+  /// In sq, this message translates to:
+  /// **'Statusi i porosisë u përditësua.'**
+  String get orderStatusChangeSuccess;
+
+  /// No description provided for @orderFulfillmentReceived.
+  ///
+  /// In sq, this message translates to:
+  /// **'Porosia u pranua'**
+  String get orderFulfillmentReceived;
+
+  /// No description provided for @orderFulfillmentConfirmed.
+  ///
+  /// In sq, this message translates to:
+  /// **'U konfirmua'**
+  String get orderFulfillmentConfirmed;
+
+  /// No description provided for @orderFulfillmentPrepared.
+  ///
+  /// In sq, this message translates to:
+  /// **'U përgatit'**
+  String get orderFulfillmentPrepared;
+
+  /// No description provided for @orderFulfillmentShipped.
+  ///
+  /// In sq, this message translates to:
+  /// **'U dërgua te postieri'**
+  String get orderFulfillmentShipped;
+
+  /// No description provided for @orderFulfillmentInTransit.
+  ///
+  /// In sq, this message translates to:
+  /// **'Në transport'**
+  String get orderFulfillmentInTransit;
+
+  /// No description provided for @orderFulfillmentDelivered.
+  ///
+  /// In sq, this message translates to:
+  /// **'U dorëzua'**
+  String get orderFulfillmentDelivered;
+
+  /// No description provided for @orderFulfillmentReturned.
+  ///
+  /// In sq, this message translates to:
+  /// **'Kthyer / Return'**
+  String get orderFulfillmentReturned;
+
+  /// No description provided for @orderFulfillmentCanceled.
+  ///
+  /// In sq, this message translates to:
+  /// **'Anuluar'**
+  String get orderFulfillmentCanceled;
+
+  /// No description provided for @orderStatusChangeConfirm.
+  ///
+  /// In sq, this message translates to:
+  /// **'Ndrysho statusin e {orderNumber} nga \"{fromStatus}\" në \"{toStatus}\"?'**
+  String orderStatusChangeConfirm(
+    Object orderNumber,
+    Object fromStatus,
+    Object toStatus,
+  );
+
   /// No description provided for @backToHome.
   ///
   /// In sq, this message translates to:

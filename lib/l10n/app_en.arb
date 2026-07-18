@@ -207,6 +207,27 @@
   "paymentMethodCash": "Cash",
   "paymentMethodCard": "Card",
   "paymentMethodBank": "Bank transfer",
+  "confirm": "Confirm",
+  "orderFulfillmentStatusTitle": "Fulfillment status",
+  "orderStatusSelectorLabel": "Change status",
+  "orderStatusChangeTitle": "Change status",
+  "orderStatusChangeSuccess": "Order status updated.",
+  "orderFulfillmentReceived": "Order received",
+  "orderFulfillmentConfirmed": "Confirmed",
+  "orderFulfillmentPrepared": "Prepared",
+  "orderFulfillmentShipped": "Handed to courier",
+  "orderFulfillmentInTransit": "In transit",
+  "orderFulfillmentDelivered": "Delivered",
+  "orderFulfillmentReturned": "Returned",
+  "orderFulfillmentCanceled": "Canceled",
+  "orderStatusChangeConfirm": "Change the status of {orderNumber} from \"{fromStatus}\" to \"{toStatus}\"?",
+  "@orderStatusChangeConfirm": {
+    "placeholders": {
+      "orderNumber": {},
+      "fromStatus": {},
+      "toStatus": {}
+    }
+  },
   "backToHome": "Back to Home",
   "authWelcome": "Welcome",
   "authResetPasswordTitle": "Reset password",
