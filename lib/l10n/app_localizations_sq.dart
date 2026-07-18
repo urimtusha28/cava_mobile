@@ -1179,6 +1179,17 @@ class AppLocalizationsSq extends AppLocalizations {
   String get ownerSalesToday => 'Shitjet Sot';
 
   @override
+  String get ownerTodayOrders => 'Porositë e sotme';
+
+  @override
+  String get ownerNoTodayOrders => 'Nuk ka porosi sot.';
+
+  @override
+  String ownerTodayOrdersCount(int count) {
+    return '$count porosi sot';
+  }
+
+  @override
   String get ownerSales7Days => 'Shitjet 7 ditë';
 
   @override
@@ -1203,14 +1214,34 @@ class AppLocalizationsSq extends AppLocalizations {
   String get ownerOrdersCancelled => 'Porosi të Anuluara';
 
   @override
-  String get ownerSalesChart => 'Grafiku i shitjeve';
+  String get ownerSalesChart => 'Shitjet · 7 ditë';
 
   @override
-  String get ownerSalesChartSubtitle =>
-      '7 ditët e fundit (UTC, statsDaily.revenue)';
+  String get ownerSalesChartSubtitle => 'Të ardhurat ditore';
+
+  @override
+  String get ownerOrderPipeline => 'Statusi i porosive';
+
+  @override
+  String get ownerOrderPipelineSubtitle => '30 ditët e fundit';
+
+  @override
+  String get ownerPeriodOverview => 'Përmbledhje periudhash';
 
   @override
   String get ownerRecentOrders => 'Porositë e fundit';
+
+  @override
+  String get ownerLifetimeOrders => 'Porosi gjithsej';
+
+  @override
+  String get ownerLifetimeShort => 'Lifetime';
+
+  @override
+  String get ownerDays7Short => '7 ditë';
+
+  @override
+  String get ownerDays30Short => '30 ditë';
 
   @override
   String get ownerNoOrders => 'Nuk ka porosi.';

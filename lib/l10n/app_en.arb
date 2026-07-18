@@ -382,6 +382,14 @@
   "ownerSummary": "Overview",
   "ownerSummarySource": "Source: statsDaily / stats (same as admin Overview)",
   "ownerSalesToday": "Sales Today",
+  "ownerTodayOrders": "Today's orders",
+  "ownerNoTodayOrders": "No orders today.",
+  "ownerTodayOrdersCount": "{count} orders today",
+  "@ownerTodayOrdersCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
   "ownerSales7Days": "Sales 7 days",
   "ownerSales30Days": "Sales 30 days",
   "ownerTotalRevenue": "Total Revenue",
@@ -390,9 +398,16 @@
   "ownerOrdersProcessing": "Processing Orders",
   "ownerOrdersCompleted": "Completed Orders",
   "ownerOrdersCancelled": "Cancelled Orders",
-  "ownerSalesChart": "Sales chart",
-  "ownerSalesChartSubtitle": "Last 7 days (UTC, statsDaily.revenue)",
+  "ownerSalesChart": "Sales · 7 days",
+  "ownerSalesChartSubtitle": "Daily revenue",
+  "ownerOrderPipeline": "Order status",
+  "ownerOrderPipelineSubtitle": "Last 30 days",
+  "ownerPeriodOverview": "Period overview",
   "ownerRecentOrders": "Recent orders",
+  "ownerLifetimeOrders": "Orders total",
+  "ownerLifetimeShort": "Lifetime",
+  "ownerDays7Short": "7 days",
+  "ownerDays30Short": "30 days",
   "ownerNoOrders": "No orders.",
   "ownerTopSelling": "Top selling products",
   "ownerTopSellingUnavailable": "Not available in the website admin dashboard — no top-selling aggregation.",

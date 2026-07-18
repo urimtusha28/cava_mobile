@@ -2352,6 +2352,24 @@ abstract class AppLocalizations {
   /// **'Shitjet Sot'**
   String get ownerSalesToday;
 
+  /// No description provided for @ownerTodayOrders.
+  ///
+  /// In sq, this message translates to:
+  /// **'Porositë e sotme'**
+  String get ownerTodayOrders;
+
+  /// No description provided for @ownerNoTodayOrders.
+  ///
+  /// In sq, this message translates to:
+  /// **'Nuk ka porosi sot.'**
+  String get ownerNoTodayOrders;
+
+  /// No description provided for @ownerTodayOrdersCount.
+  ///
+  /// In sq, this message translates to:
+  /// **'{count} porosi sot'**
+  String ownerTodayOrdersCount(int count);
+
   /// No description provided for @ownerSales7Days.
   ///
   /// In sq, this message translates to:
@@ -2403,20 +2421,62 @@ abstract class AppLocalizations {
   /// No description provided for @ownerSalesChart.
   ///
   /// In sq, this message translates to:
-  /// **'Grafiku i shitjeve'**
+  /// **'Shitjet · 7 ditë'**
   String get ownerSalesChart;
 
   /// No description provided for @ownerSalesChartSubtitle.
   ///
   /// In sq, this message translates to:
-  /// **'7 ditët e fundit (UTC, statsDaily.revenue)'**
+  /// **'Të ardhurat ditore'**
   String get ownerSalesChartSubtitle;
+
+  /// No description provided for @ownerOrderPipeline.
+  ///
+  /// In sq, this message translates to:
+  /// **'Statusi i porosive'**
+  String get ownerOrderPipeline;
+
+  /// No description provided for @ownerOrderPipelineSubtitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'30 ditët e fundit'**
+  String get ownerOrderPipelineSubtitle;
+
+  /// No description provided for @ownerPeriodOverview.
+  ///
+  /// In sq, this message translates to:
+  /// **'Përmbledhje periudhash'**
+  String get ownerPeriodOverview;
 
   /// No description provided for @ownerRecentOrders.
   ///
   /// In sq, this message translates to:
   /// **'Porositë e fundit'**
   String get ownerRecentOrders;
+
+  /// No description provided for @ownerLifetimeOrders.
+  ///
+  /// In sq, this message translates to:
+  /// **'Porosi gjithsej'**
+  String get ownerLifetimeOrders;
+
+  /// No description provided for @ownerLifetimeShort.
+  ///
+  /// In sq, this message translates to:
+  /// **'Lifetime'**
+  String get ownerLifetimeShort;
+
+  /// No description provided for @ownerDays7Short.
+  ///
+  /// In sq, this message translates to:
+  /// **'7 ditë'**
+  String get ownerDays7Short;
+
+  /// No description provided for @ownerDays30Short.
+  ///
+  /// In sq, this message translates to:
+  /// **'30 ditë'**
+  String get ownerDays30Short;
 
   /// No description provided for @ownerNoOrders.
   ///

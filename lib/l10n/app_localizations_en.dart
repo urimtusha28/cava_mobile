@@ -1180,6 +1180,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ownerSalesToday => 'Sales Today';
 
   @override
+  String get ownerTodayOrders => 'Today\'s orders';
+
+  @override
+  String get ownerNoTodayOrders => 'No orders today.';
+
+  @override
+  String ownerTodayOrdersCount(int count) {
+    return '$count orders today';
+  }
+
+  @override
   String get ownerSales7Days => 'Sales 7 days';
 
   @override
@@ -1204,13 +1215,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ownerOrdersCancelled => 'Cancelled Orders';
 
   @override
-  String get ownerSalesChart => 'Sales chart';
+  String get ownerSalesChart => 'Sales · 7 days';
 
   @override
-  String get ownerSalesChartSubtitle => 'Last 7 days (UTC, statsDaily.revenue)';
+  String get ownerSalesChartSubtitle => 'Daily revenue';
+
+  @override
+  String get ownerOrderPipeline => 'Order status';
+
+  @override
+  String get ownerOrderPipelineSubtitle => 'Last 30 days';
+
+  @override
+  String get ownerPeriodOverview => 'Period overview';
 
   @override
   String get ownerRecentOrders => 'Recent orders';
+
+  @override
+  String get ownerLifetimeOrders => 'Orders total';
+
+  @override
+  String get ownerLifetimeShort => 'Lifetime';
+
+  @override
+  String get ownerDays7Short => '7 days';
+
+  @override
+  String get ownerDays30Short => '30 days';
 
   @override
   String get ownerNoOrders => 'No orders.';

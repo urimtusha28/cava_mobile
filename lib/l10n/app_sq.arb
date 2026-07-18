@@ -424,6 +424,14 @@
   "ownerSummary": "Përmbledhje",
   "ownerSummarySource": "Burimi: statsDaily / stats (si Overview admin)",
   "ownerSalesToday": "Shitjet Sot",
+  "ownerTodayOrders": "Porositë e sotme",
+  "ownerNoTodayOrders": "Nuk ka porosi sot.",
+  "ownerTodayOrdersCount": "{count} porosi sot",
+  "@ownerTodayOrdersCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
   "ownerSales7Days": "Shitjet 7 ditë",
   "ownerSales30Days": "Shitjet 30 ditë",
   "ownerTotalRevenue": "Totali i të Ardhurave",
@@ -432,9 +440,16 @@
   "ownerOrdersProcessing": "Porosi në Proces",
   "ownerOrdersCompleted": "Porosi të Përfunduara",
   "ownerOrdersCancelled": "Porosi të Anuluara",
-  "ownerSalesChart": "Grafiku i shitjeve",
-  "ownerSalesChartSubtitle": "7 ditët e fundit (UTC, statsDaily.revenue)",
+  "ownerSalesChart": "Shitjet · 7 ditë",
+  "ownerSalesChartSubtitle": "Të ardhurat ditore",
+  "ownerOrderPipeline": "Statusi i porosive",
+  "ownerOrderPipelineSubtitle": "30 ditët e fundit",
+  "ownerPeriodOverview": "Përmbledhje periudhash",
   "ownerRecentOrders": "Porositë e fundit",
+  "ownerLifetimeOrders": "Porosi gjithsej",
+  "ownerLifetimeShort": "Lifetime",
+  "ownerDays7Short": "7 ditë",
+  "ownerDays30Short": "30 ditë",
   "ownerNoOrders": "Nuk ka porosi.",
   "ownerTopSelling": "Produktet më të shitura",
   "ownerTopSellingUnavailable": "Nuk ofrohet në dashboard-in admin të website-it — pa agregim top-selling.",

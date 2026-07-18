@@ -7,8 +7,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
+import '../../../account/presentation/utils/order_formatters.dart';
 import '../../domain/entities/owner_dashboard_entities.dart';
 import '../controllers/owner_dashboard_controller.dart';
+import '../utils/owner_dashboard_today.dart';
 import '../utils/owner_order_status_l10n.dart';
 
 class OwnerDashboardScreen extends StatefulWidget {
@@ -136,11 +138,13 @@ class _DashboardContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final s = snapshot.summary;
+    final todayOrders = filterTodaysOrders(snapshot.recentOrders);
+
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.screen,
-        AppSpacing.sm,
+        AppSpacing.md,
         AppSpacing.screen,
         AppSpacing.xxxl,
       ),
@@ -153,169 +157,241 @@ class _DashboardContent extends StatelessWidget {
               backgroundColor: AppColors.surfaceMuted,
             ),
           ),
-        Text(l10n.ownerSummary, style: AppTextStyles.h2),
+
+        // —— Hero: shitjet sot (pa container) ——
+        Text(
+          l10n.ownerSalesToday.toUpperCase(),
+          style: AppTextStyles.bodySmall.copyWith(
+            letterSpacing: 1.2,
+            color: AppColors.textMuted,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          l10n.ownerSummarySource,
+          Formatters.currency(s.salesToday),
+          style: AppTextStyles.h1.copyWith(
+            fontSize: 40,
+            height: 1.1,
+            letterSpacing: -1.0,
+            color: AppColors.burgundy,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          l10n.ownerTodayOrdersCount(todayOrders.length),
           style: AppTextStyles.bodySmall,
         ),
+
+        const SizedBox(height: AppSpacing.xxl),
+        _SectionTitle(l10n.ownerTodayOrders),
+        const SizedBox(height: AppSpacing.sm),
+        if (todayOrders.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+            child: Text(
+              l10n.ownerNoTodayOrders,
+              style: AppTextStyles.bodySmall,
+            ),
+          )
+        else
+          _TodayOrdersList(orders: todayOrders),
+
+        const SizedBox(height: AppSpacing.xxl),
+        _SectionTitle(l10n.ownerSalesChart),
+        const SizedBox(height: AppSpacing.xs),
+        Text(l10n.ownerSalesChartSubtitle, style: AppTextStyles.bodySmall),
+        const SizedBox(height: AppSpacing.lg),
+        _SalesChart(points: snapshot.chartLast7Days),
+
+        const SizedBox(height: AppSpacing.xxl),
+        _SectionTitle(l10n.ownerPeriodOverview),
         const SizedBox(height: AppSpacing.md),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: AppSpacing.md,
-          crossAxisSpacing: AppSpacing.md,
-          childAspectRatio: 1.35,
-          children: [
-            _StatCard(
-              label: l10n.ownerSalesToday,
-              value: Formatters.currency(s.salesToday),
+        _PeriodStrip(
+          items: [
+            (
+              l10n.ownerDays7Short,
+              Formatters.currency(s.salesLast7Days),
             ),
-            _StatCard(
-              label: l10n.ownerSales7Days,
-              value: Formatters.currency(s.salesLast7Days),
+            (
+              l10n.ownerDays30Short,
+              Formatters.currency(s.salesLast30Days),
             ),
-            _StatCard(
-              label: l10n.ownerSales30Days,
-              value: Formatters.currency(s.salesLast30Days),
-            ),
-            _StatCard(
-              label: l10n.ownerTotalRevenue,
-              value: Formatters.currency(s.totalRevenue),
-            ),
-            _StatCard(
-              label: l10n.ownerOrdersCount,
-              value: '${s.totalOrders}',
-            ),
-            _StatCard(
-              label: l10n.ownerOrdersPending,
-              value: '${s.pendingOrders}',
-            ),
-            _StatCard(
-              label: l10n.ownerOrdersProcessing,
-              value: '${s.processingOrders}',
-            ),
-            _StatCard(
-              label: l10n.ownerOrdersCompleted,
-              value: '${s.completedOrders}',
-            ),
-            _StatCard(
-              label: l10n.ownerOrdersCancelled,
-              value: '${s.cancelledOrders}',
+            (
+              l10n.ownerLifetimeShort,
+              Formatters.currency(s.totalRevenue),
             ),
           ],
         ),
+        const SizedBox(height: AppSpacing.md),
+        _InlineStatRow(
+          label: l10n.ownerLifetimeOrders,
+          value: '${s.totalOrders}',
+        ),
+
         const SizedBox(height: AppSpacing.xxl),
-        Text(l10n.ownerSalesChart, style: AppTextStyles.h3),
-        const SizedBox(height: AppSpacing.sm),
+        _SectionTitle(l10n.ownerOrderPipeline),
+        const SizedBox(height: AppSpacing.xs),
         Text(
-          l10n.ownerSalesChartSubtitle,
+          l10n.ownerOrderPipelineSubtitle,
           style: AppTextStyles.bodySmall,
         ),
         const SizedBox(height: AppSpacing.md),
-        _SalesChart(points: snapshot.chartLast7Days),
-        const SizedBox(height: AppSpacing.xxl),
-        Text(l10n.ownerRecentOrders, style: AppTextStyles.h3),
-        const SizedBox(height: AppSpacing.md),
-        if (snapshot.recentOrders.isEmpty)
-          Text(l10n.ownerNoOrders, style: AppTextStyles.bodySmall)
-        else
-          ...snapshot.recentOrders.take(8).map(
-            (o) => _ListTileCard(
-              title: '#${o.orderNumber}',
-              subtitle:
-                  '${o.customerName} · ${OwnerOrderStatusL10n.labelOf(l10n, o.statusLabel)}',
-              trailing: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    Formatters.currency(o.total),
-                    style: AppTextStyles.body,
-                  ),
-                  Text(o.paymentMethod, style: AppTextStyles.bodySmall),
-                ],
-              ),
-            ),
-          ),
-        const SizedBox(height: AppSpacing.xxl),
-        Text(l10n.ownerTopSelling, style: AppTextStyles.h3),
-        const SizedBox(height: AppSpacing.sm),
-        Text(
-          l10n.ownerTopSellingUnavailable,
-          style: AppTextStyles.bodySmall,
+        _OrderPipelineBars(
+          pending: s.pendingOrders,
+          processing: s.processingOrders,
+          completed: s.completedOrders,
+          cancelled: s.cancelledOrders,
+          pendingLabel: l10n.ownerOrdersPending,
+          processingLabel: l10n.ownerOrdersProcessing,
+          completedLabel: l10n.ownerOrdersCompleted,
+          cancelledLabel: l10n.ownerOrdersCancelled,
         ),
+
         const SizedBox(height: AppSpacing.xxl),
-        Text(l10n.ownerLowStockProducts, style: AppTextStyles.h3),
-        const SizedBox(height: AppSpacing.sm),
-        Text(
-          l10n.ownerLowStockThreshold(s.lowStockCount),
-          style: AppTextStyles.bodySmall,
-        ),
+        _SectionTitle(l10n.ownerCustomers),
         const SizedBox(height: AppSpacing.md),
-        if (snapshot.lowStockProducts.isEmpty)
-          Text(
-            s.lowStockCount == 0
-                ? l10n.ownerNoLowStock
-                : l10n.ownerLowStockListFailed,
-            style: AppTextStyles.bodySmall,
-          )
-        else
-          ...snapshot.lowStockProducts.map(
-            (p) => _ListTileCard(
-              title: p.name,
-              subtitle: l10n.ownerThresholdMax(p.thresholdMax),
-              trailing: Text(
-                '${p.stock}',
-                style: AppTextStyles.h3.copyWith(color: AppColors.burgundy),
-              ),
-            ),
-          ),
-        const SizedBox(height: AppSpacing.xxl),
-        Text(l10n.ownerCustomers, style: AppTextStyles.h3),
-        const SizedBox(height: AppSpacing.sm),
-        _ListTileCard(
-          title: l10n.ownerUniqueBuyersLabel,
-          subtitle: l10n.ownerCustomersSubtitle,
-          trailing: Text(
-            '${snapshot.newCustomers.count}',
-            style: AppTextStyles.h3.copyWith(color: AppColors.burgundy),
-          ),
+        _InlineStatRow(
+          label: l10n.ownerUniqueBuyersLabel,
+          value: '${snapshot.newCustomers.count}',
         ),
       ],
     );
   }
 }
 
-class _StatCard extends StatelessWidget {
-  const _StatCard({required this.label, required this.value});
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(text, style: AppTextStyles.h3);
+  }
+}
+
+class _TodayOrdersList extends StatelessWidget {
+  const _TodayOrdersList({required this.orders});
+
+  final List<OwnerRecentOrder> orders;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      children: [
+        for (var i = 0; i < orders.length; i++) ...[
+          if (i > 0)
+            const Divider(height: 1, thickness: 1, color: AppColors.border),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '#${orders[i].orderNumber}',
+                        style: AppTextStyles.body.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${orders[i].customerName} · ${OwnerOrderStatusL10n.labelOf(l10n, orders[i].statusLabel)}',
+                        style: AppTextStyles.bodySmall,
+                      ),
+                      Text(
+                        formatPaymentSummary(
+                          method: orders[i].paymentMethod,
+                          paymentStatus: orders[i].paymentStatus,
+                          l10n: l10n,
+                        ),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  Formatters.currency(orders[i].total),
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.burgundy,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _PeriodStrip extends StatelessWidget {
+  const _PeriodStrip({required this.items});
+
+  final List<(String, String)> items;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        for (var i = 0; i < items.length; i++) ...[
+          if (i > 0)
+            Container(
+              width: 1,
+              height: 40,
+              margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              color: AppColors.border,
+            ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  items[i].$1,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textMuted,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  items[i].$2,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.h3.copyWith(color: AppColors.burgundy),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _InlineStatRow extends StatelessWidget {
+  const _InlineStatRow({required this.label, required this.value});
 
   final String label;
   final String value;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceMuted,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: Row(
         children: [
-          Text(
-            label,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.bodySmall,
-          ),
-          const Spacer(),
+          Expanded(child: Text(label, style: AppTextStyles.bodySmall)),
           Text(
             value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.h3.copyWith(color: AppColors.burgundy),
           ),
         ],
@@ -324,44 +400,74 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-class _ListTileCard extends StatelessWidget {
-  const _ListTileCard({
-    required this.title,
-    required this.subtitle,
-    this.trailing,
+class _OrderPipelineBars extends StatelessWidget {
+  const _OrderPipelineBars({
+    required this.pending,
+    required this.processing,
+    required this.completed,
+    required this.cancelled,
+    required this.pendingLabel,
+    required this.processingLabel,
+    required this.completedLabel,
+    required this.cancelledLabel,
   });
 
-  final String title;
-  final String subtitle;
-  final Widget? trailing;
+  final int pending;
+  final int processing;
+  final int completed;
+  final int cancelled;
+  final String pendingLabel;
+  final String processingLabel;
+  final String completedLabel;
+  final String cancelledLabel;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.md,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceMuted,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    final total = pending + processing + completed + cancelled;
+    final safeTotal = total <= 0 ? 1 : total;
+
+    Widget row(String label, int count, Color color) {
+      final fraction = count / safeTotal;
+      return Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Text(title, style: AppTextStyles.body),
-                const SizedBox(height: 2),
-                Text(subtitle, style: AppTextStyles.bodySmall),
+                Expanded(
+                  child: Text(label, style: AppTextStyles.bodySmall),
+                ),
+                Text(
+                  '$count',
+                  style: AppTextStyles.body.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
-          ),
-          ?trailing,
-        ],
-      ),
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.pill),
+              child: LinearProgressIndicator(
+                value: fraction.clamp(0.0, 1.0),
+                minHeight: 6,
+                backgroundColor: AppColors.surfaceMuted,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        row(pendingLabel, pending, AppColors.burgundy.withValues(alpha: 0.45)),
+        row(processingLabel, processing, AppColors.burgundy.withValues(alpha: 0.7)),
+        row(completedLabel, completed, AppColors.burgundy),
+        row(cancelledLabel, cancelled, AppColors.textMuted),
+      ],
     );
   }
 }
@@ -375,14 +481,11 @@ class _SalesChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     if (points.isEmpty) {
-      return Container(
-        height: 180,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: AppColors.surfaceMuted,
-          borderRadius: BorderRadius.circular(AppRadius.md),
+      return SizedBox(
+        height: 160,
+        child: Center(
+          child: Text(l10n.ownerChartNoData, style: AppTextStyles.bodySmall),
         ),
-        child: Text(l10n.ownerChartNoData, style: AppTextStyles.bodySmall),
       );
     }
 
@@ -391,18 +494,8 @@ class _SalesChart extends StatelessWidget {
         .fold<double>(0, (a, b) => a > b ? a : b);
     final safeMax = maxRevenue <= 0 ? 1.0 : maxRevenue;
 
-    return Container(
-      height: 180,
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.lg,
-        AppSpacing.md,
-        AppSpacing.md,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceMuted,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
+    return SizedBox(
+      height: 200,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -412,17 +505,34 @@ class _SalesChart extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  if (points[i].revenue > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        points[i].revenue >= 10
+                            ? points[i].revenue.toStringAsFixed(0)
+                            : points[i].revenue.toStringAsFixed(1),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          fontSize: 10,
+                          color: AppColors.textMuted,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.clip,
+                      ),
+                    ),
                   Expanded(
                     child: Align(
                       alignment: Alignment.bottomCenter,
                       child: FractionallySizedBox(
                         heightFactor:
-                            (points[i].revenue / safeMax).clamp(0.08, 1.0),
-                        widthFactor: 1,
+                            (points[i].revenue / safeMax).clamp(0.04, 1.0),
+                        widthFactor: 0.7,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                            color: AppColors.burgundy.withValues(alpha: 0.85),
-                            borderRadius: BorderRadius.circular(AppRadius.sm),
+                            color: i == points.length - 1
+                                ? AppColors.burgundy
+                                : AppColors.burgundy.withValues(alpha: 0.35),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                         ),
                       ),
@@ -433,7 +543,14 @@ class _SalesChart extends StatelessWidget {
                     points[i].dateKey.length >= 10
                         ? points[i].dateKey.substring(8, 10)
                         : points[i].dateKey,
-                    style: AppTextStyles.bodySmall,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: i == points.length - 1
+                          ? AppColors.burgundy
+                          : AppColors.textMuted,
+                      fontWeight: i == points.length - 1
+                          ? FontWeight.w600
+                          : FontWeight.w400,
+                    ),
                   ),
                 ],
               ),
