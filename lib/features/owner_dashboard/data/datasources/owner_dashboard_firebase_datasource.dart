@@ -11,14 +11,16 @@ import 'owner_dashboard_data_source.dart';
 /// - `statsDaily/{YYYY-MM-DD}` via rolling UTC keys
 /// - `stats/summary`
 /// - `stats/productsSummary`
-/// - recent `orders` (createdAt desc, limit 8)
+/// - recent `orders` (createdAt desc; overview UI takes first 8)
 /// - low-stock product list (stock 1..9, limit 10)
 class OwnerDashboardFirebaseDataSource implements OwnerDashboardDataSource {
   OwnerDashboardFirebaseDataSource(this._firestore);
 
   final FirebaseFirestore _firestore;
 
-  static const _recentOrdersLimit = 8;
+  /// Higher limit so the dedicated Orders screen can group by month/day.
+  /// Overview still shows only the first 8 via `.take(8)`.
+  static const _recentOrdersLimit = 80;
   static const _lowStockListLimit = 10;
 
   @override

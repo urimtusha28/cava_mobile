@@ -1259,7 +1259,19 @@ class AppLocalizationsSq extends AppLocalizations {
   String get ownerOrdersTitle => 'Porositë';
 
   @override
+  String get ownerOrdersTabStore => 'Porositë';
+
+  @override
+  String get ownerOrdersTabCourier => 'Postieri';
+
+  @override
   String get ownerNoRecentOrders => 'Nuk ka porosi të fundit.';
+
+  @override
+  String get ownerNoStoreOrders => 'Nuk ka porosi në dyqan.';
+
+  @override
+  String get ownerNoCourierOrders => 'Nuk ka porosi te postieri.';
 
   @override
   String get ownerAnalyticsTitle => 'Analitika';

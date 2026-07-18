@@ -2496,11 +2496,35 @@ abstract class AppLocalizations {
   /// **'Porositë'**
   String get ownerOrdersTitle;
 
+  /// No description provided for @ownerOrdersTabStore.
+  ///
+  /// In sq, this message translates to:
+  /// **'Porositë'**
+  String get ownerOrdersTabStore;
+
+  /// No description provided for @ownerOrdersTabCourier.
+  ///
+  /// In sq, this message translates to:
+  /// **'Postieri'**
+  String get ownerOrdersTabCourier;
+
   /// No description provided for @ownerNoRecentOrders.
   ///
   /// In sq, this message translates to:
   /// **'Nuk ka porosi të fundit.'**
   String get ownerNoRecentOrders;
+
+  /// No description provided for @ownerNoStoreOrders.
+  ///
+  /// In sq, this message translates to:
+  /// **'Nuk ka porosi në dyqan.'**
+  String get ownerNoStoreOrders;
+
+  /// No description provided for @ownerNoCourierOrders.
+  ///
+  /// In sq, this message translates to:
+  /// **'Nuk ka porosi te postieri.'**
+  String get ownerNoCourierOrders;
 
   /// No description provided for @ownerAnalyticsTitle.
   ///

@@ -1259,7 +1259,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ownerOrdersTitle => 'Orders';
 
   @override
+  String get ownerOrdersTabStore => 'Orders';
+
+  @override
+  String get ownerOrdersTabCourier => 'Courier';
+
+  @override
   String get ownerNoRecentOrders => 'No recent orders.';
+
+  @override
+  String get ownerNoStoreOrders => 'No store orders.';
+
+  @override
+  String get ownerNoCourierOrders => 'No courier orders.';
 
   @override
   String get ownerAnalyticsTitle => 'Analytics';

@@ -221,7 +221,7 @@ class _DashboardContent extends StatelessWidget {
         if (snapshot.recentOrders.isEmpty)
           Text(l10n.ownerNoOrders, style: AppTextStyles.bodySmall)
         else
-          ...snapshot.recentOrders.map(
+          ...snapshot.recentOrders.take(8).map(
             (o) => _ListTileCard(
               title: '#${o.orderNumber}',
               subtitle:
