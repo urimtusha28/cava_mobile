@@ -1,22 +1,69 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../constants/app_assets.dart';
+import '../di/injection.dart';
+import '../firebase/firebase_config.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../constants/app_radius.dart';
 import '../constants/app_spacing.dart';
+import '../../features/owner_dashboard/domain/entities/owner_settings_entities.dart';
+import '../../features/owner_dashboard/domain/repositories/owner_settings_repository.dart';
 
-class VisitStoreBanner extends StatelessWidget {
+class VisitStoreBanner extends StatefulWidget {
   const VisitStoreBanner({super.key});
 
-  static const mapsUrl =
+  static const defaultMapsUrl =
       'https://www.google.com/maps/search/?api=1&query=The%20Village%20Shopping%20Fun%201%20Ahmet%20Kaciku%20Ferizaj%2070000';
+
+  /// Kept for tests that reference the constant name.
+  static const mapsUrl = defaultMapsUrl;
+
+  @override
+  State<VisitStoreBanner> createState() => _VisitStoreBannerState();
+}
+
+class _VisitStoreBannerState extends State<VisitStoreBanner> {
+  HomepageSettings _settings = HomepageSettings.empty;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    if (!FirebaseConfig.enabled) {
+      return;
+    }
+    try {
+      configureDependencies();
+      if (!sl.isRegistered<OwnerSettingsRepository>()) {
+        return;
+      }
+      final result = await sl<OwnerSettingsRepository>().getHomepageSettings();
+      if (!mounted) return;
+      setState(() {
+        _settings = result.dataOrNull ?? HomepageSettings.empty;
+      });
+    } catch (_) {}
+  }
+
+  String get _mapsUrl {
+    final url = _settings.mapsUrl?.trim();
+    if (url != null && url.isNotEmpty) return url;
+    return VisitStoreBanner.defaultMapsUrl;
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final address = _settings.storeAddress?.trim().isNotEmpty == true
+        ? _settings.storeAddress!.trim()
+        : l10n.visitStoreAddress;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
@@ -38,7 +85,9 @@ class VisitStoreBanner extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    const _StoreLocationPreview(),
+                    _StoreLocationPreview(
+                      imageUrl: _settings.storeBannerImageUrl,
+                    ),
                     Positioned(
                       left: AppSpacing.md,
                       bottom: AppSpacing.md,
@@ -94,7 +143,7 @@ class VisitStoreBanner extends StatelessWidget {
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: Text(
-                            l10n.visitStoreAddress,
+                            address,
                             style: AppTextStyles.bodySmall,
                           ),
                         ),
@@ -157,14 +206,17 @@ class VisitStoreBanner extends StatelessWidget {
     );
 
     if (shouldOpen == true && context.mounted) {
-      await openStoreInMaps(context);
+      await openStoreInMaps(context, mapsUrl: _mapsUrl);
     }
   }
 }
 
 /// Opens the store location in Google Maps (app or browser).
-Future<void> openStoreInMaps(BuildContext context) async {
-  final uri = Uri.parse(VisitStoreBanner.mapsUrl);
+Future<void> openStoreInMaps(
+  BuildContext context, {
+  String mapsUrl = VisitStoreBanner.defaultMapsUrl,
+}) async {
+  final uri = Uri.parse(mapsUrl);
 
   try {
     final launched = await launchUrl(
@@ -199,10 +251,32 @@ void _showMapsErrorSnackBar(BuildContext context) {
 }
 
 class _StoreLocationPreview extends StatelessWidget {
-  const _StoreLocationPreview();
+  const _StoreLocationPreview({
+    required this.imageUrl,
+  });
+
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
+    final url = imageUrl?.trim();
+    if (url != null && url.isNotEmpty) {
+      return CachedNetworkImage(
+        imageUrl: url,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        placeholder: (_, _) => Container(color: AppColors.surfaceMuted),
+        errorWidget: (_, _, _) => Image.asset(
+          AppAssets.storeLocation,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (_, _, _) => const _MapIllustrationFallback(),
+        ),
+      );
+    }
+
     return Image.asset(
       AppAssets.storeLocation,
       fit: BoxFit.cover,

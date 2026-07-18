@@ -30,6 +30,9 @@ import '../../features/owner_dashboard/presentation/screens/owner_orders_screen.
 import '../../features/owner_dashboard/presentation/screens/owner_analytics_screen.dart';
 import '../../features/owner_dashboard/presentation/screens/owner_products_screen.dart';
 import '../../features/owner_dashboard/presentation/screens/owner_profile_screen.dart';
+import '../../features/owner_dashboard/presentation/screens/owner_users_screen.dart';
+import '../../features/owner_dashboard/presentation/screens/owner_store_banner_screen.dart';
+import '../../features/owner_dashboard/presentation/screens/owner_legal_docs_screen.dart';
 import '../../features/support/domain/entities/support_conversation.dart';
 import '../../features/support/presentation/screens/owner_support_screen.dart';
 import '../../features/support/presentation/screens/owner_support_chat_screen.dart';
@@ -184,6 +187,21 @@ final GoRouter appRouter = GoRouter(
           ),
         ),
       ],
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: AppRoutes.ownerSettingsUsers,
+      builder: (_, _) => const OwnerUsersScreen(),
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: AppRoutes.ownerSettingsStoreBanner,
+      builder: (_, _) => const OwnerStoreBannerScreen(),
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: AppRoutes.ownerSettingsLegal,
+      builder: (_, _) => const OwnerLegalDocsScreen(),
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,

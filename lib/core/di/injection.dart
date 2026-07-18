@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 
 import '../firebase/firebase_config.dart';
@@ -112,10 +113,15 @@ import '../../features/wishlist/domain/usecases/toggle_wishlist.dart';
 import '../../features/wishlist/presentation/controllers/wishlist_controller.dart';
 import '../../features/owner_dashboard/data/datasources/owner_dashboard_data_source.dart';
 import '../../features/owner_dashboard/data/datasources/owner_dashboard_firebase_datasource.dart';
+import '../../features/owner_dashboard/data/datasources/owner_settings_data_source.dart';
+import '../../features/owner_dashboard/data/datasources/owner_settings_firebase_datasource.dart';
 import '../../features/owner_dashboard/data/repositories/owner_dashboard_repository_impl.dart';
+import '../../features/owner_dashboard/data/repositories/owner_settings_repository_impl.dart';
 import '../../features/owner_dashboard/domain/repositories/owner_dashboard_repository.dart';
+import '../../features/owner_dashboard/domain/repositories/owner_settings_repository.dart';
 import '../../features/owner_dashboard/domain/usecases/get_owner_dashboard_snapshot.dart';
 import '../../features/owner_dashboard/presentation/controllers/owner_dashboard_controller.dart';
+import '../../features/owner_dashboard/presentation/controllers/owner_settings_controller.dart';
 import '../../features/notifications/data/datasources/notifications_firebase_datasource.dart';
 import '../../features/notifications/data/repositories/notifications_repository_impl.dart';
 import '../../features/notifications/domain/repositories/notifications_repository.dart';
@@ -409,6 +415,21 @@ void _registerOwnerDashboard() {
   sl.registerLazySingleton<OwnerDashboardRepository>(
     () => OwnerDashboardRepositoryImpl(sl<OwnerDashboardDataSource>()),
   );
+
+  if (!sl.isRegistered<OwnerSettingsRepository>()) {
+    sl.registerLazySingleton<OwnerSettingsDataSource>(() {
+      if (FirebaseConfig.enabled) {
+        return OwnerSettingsFirebaseDataSource(
+          FirebaseFirestore.instance,
+          FirebaseStorage.instance,
+        );
+      }
+      throw StateError('Owner settings requires Firebase.');
+    });
+    sl.registerLazySingleton<OwnerSettingsRepository>(
+      () => OwnerSettingsRepositoryImpl(sl<OwnerSettingsDataSource>()),
+    );
+  }
 }
 
 void _registerNotifications({FirebaseFirestore? firestoreOverride}) {
@@ -696,6 +717,9 @@ void _registerControllers() {
   );
   sl.registerFactory<OwnerDashboardController>(
     () => OwnerDashboardController(sl<GetOwnerDashboardSnapshotUseCase>()),
+  );
+  sl.registerFactory<OwnerSettingsController>(
+    () => OwnerSettingsController(sl<OwnerSettingsRepository>()),
   );
   sl.registerFactory<ProfileController>(
     () => ProfileController(sl(), sl(), sl(), sl()),

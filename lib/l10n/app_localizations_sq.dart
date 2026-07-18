@@ -1386,6 +1386,104 @@ class AppLocalizationsSq extends AppLocalizations {
   String get ownerFallbackName => 'Pronari';
 
   @override
+  String get ownerSettingsSection => 'Cilësimet e app';
+
+  @override
+  String get ownerSettingsUsers => 'Përdoruesit e regjistruar';
+
+  @override
+  String get ownerSettingsUsersSubtitle => 'Shiko llogaritë e klientëve';
+
+  @override
+  String get ownerSettingsStoreBanner => 'Foto «Na vizitoni fizikisht»';
+
+  @override
+  String get ownerSettingsStoreBannerSubtitle =>
+      'Ndrysho imazhin në faqen kryesore';
+
+  @override
+  String get ownerSettingsLegal => 'Dokumente legale';
+
+  @override
+  String get ownerSettingsLegalSubtitle => 'Ngarko PDF për Kushte & Privatësi';
+
+  @override
+  String get ownerSettingsStoreContact => 'Kontakt & adresa dyqani';
+
+  @override
+  String get ownerSettingsStoreContactSubtitle => 'Email, telefon, Maps';
+
+  @override
+  String get ownerUsersTitle => 'Përdoruesit';
+
+  @override
+  String get ownerNoUsers => 'Nuk ka përdorues të regjistruar.';
+
+  @override
+  String get ownerUsersLoadFailed => 'Përdoruesit nuk u ngarkuan.';
+
+  @override
+  String get ownerStoreBannerTitle => 'Banner i dyqanit';
+
+  @override
+  String get ownerStoreBannerHint =>
+      'Kjo foto shfaqet në «Na vizitoni fizikisht» në Home.';
+
+  @override
+  String get ownerUploadPhoto => 'Ngarko foto';
+
+  @override
+  String get ownerChangePhoto => 'Ndrysho foton';
+
+  @override
+  String get ownerSaveContact => 'Ruaj kontaktin';
+
+  @override
+  String get ownerStoreAddressLabel => 'Adresa e dyqanit';
+
+  @override
+  String get ownerMapsUrlLabel => 'URL e Google Maps';
+
+  @override
+  String get ownerContactEmailLabel => 'Email kontakt';
+
+  @override
+  String get ownerContactPhoneLabel => 'Telefon kontakt';
+
+  @override
+  String get ownerUploadSuccess => 'U ruajt me sukses.';
+
+  @override
+  String get ownerUploadFailed => 'Ngarkimi dështoi.';
+
+  @override
+  String get ownerLegalDocsTitle => 'Dokumente legale';
+
+  @override
+  String get ownerLegalTermsPdf => 'Kushtet e përdorimit (PDF)';
+
+  @override
+  String get ownerLegalPrivacyPdf => 'Politika e privatësisë (PDF)';
+
+  @override
+  String get ownerUploadPdf => 'Ngarko PDF';
+
+  @override
+  String get ownerReplacePdf => 'Zëvendëso PDF';
+
+  @override
+  String get ownerOpenPdf => 'Hap dokumentin PDF';
+
+  @override
+  String get ownerPdfUploaded => 'PDF i ngarkuar';
+
+  @override
+  String get ownerPdfMissing => 'Nuk ka PDF të ngarkuar ende.';
+
+  @override
+  String get ownerNoPdfSelected => 'Nuk u zgjodh asnjë skedar PDF.';
+
+  @override
   String get ownerFulfillmentReceived => 'Pranuar';
 
   @override

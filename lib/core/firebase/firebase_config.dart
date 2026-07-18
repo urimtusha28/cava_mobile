@@ -55,5 +55,10 @@ abstract final class FirebaseConfig {
   static const String productImagesPath = 'products';
   static const String categoryImagesPath = 'categories';
   static const String bannerImagesPath = 'banners';
+  static const String storeVisitBannerFile = 'store_visit';
+  static const String legalDocumentsPath = 'legal';
+  static const String legalTermsFile = 'terms.pdf';
+  static const String legalPrivacyFile = 'privacy.pdf';
+  static const String legalSettingsDoc = 'legal';
   static const String userAvatarsPath = 'users/avatars';
 }

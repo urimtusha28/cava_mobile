@@ -2742,6 +2742,198 @@ abstract class AppLocalizations {
   /// **'Pronari'**
   String get ownerFallbackName;
 
+  /// No description provided for @ownerSettingsSection.
+  ///
+  /// In sq, this message translates to:
+  /// **'Cilësimet e app'**
+  String get ownerSettingsSection;
+
+  /// No description provided for @ownerSettingsUsers.
+  ///
+  /// In sq, this message translates to:
+  /// **'Përdoruesit e regjistruar'**
+  String get ownerSettingsUsers;
+
+  /// No description provided for @ownerSettingsUsersSubtitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Shiko llogaritë e klientëve'**
+  String get ownerSettingsUsersSubtitle;
+
+  /// No description provided for @ownerSettingsStoreBanner.
+  ///
+  /// In sq, this message translates to:
+  /// **'Foto «Na vizitoni fizikisht»'**
+  String get ownerSettingsStoreBanner;
+
+  /// No description provided for @ownerSettingsStoreBannerSubtitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Ndrysho imazhin në faqen kryesore'**
+  String get ownerSettingsStoreBannerSubtitle;
+
+  /// No description provided for @ownerSettingsLegal.
+  ///
+  /// In sq, this message translates to:
+  /// **'Dokumente legale'**
+  String get ownerSettingsLegal;
+
+  /// No description provided for @ownerSettingsLegalSubtitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Ngarko PDF për Kushte & Privatësi'**
+  String get ownerSettingsLegalSubtitle;
+
+  /// No description provided for @ownerSettingsStoreContact.
+  ///
+  /// In sq, this message translates to:
+  /// **'Kontakt & adresa dyqani'**
+  String get ownerSettingsStoreContact;
+
+  /// No description provided for @ownerSettingsStoreContactSubtitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Email, telefon, Maps'**
+  String get ownerSettingsStoreContactSubtitle;
+
+  /// No description provided for @ownerUsersTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Përdoruesit'**
+  String get ownerUsersTitle;
+
+  /// No description provided for @ownerNoUsers.
+  ///
+  /// In sq, this message translates to:
+  /// **'Nuk ka përdorues të regjistruar.'**
+  String get ownerNoUsers;
+
+  /// No description provided for @ownerUsersLoadFailed.
+  ///
+  /// In sq, this message translates to:
+  /// **'Përdoruesit nuk u ngarkuan.'**
+  String get ownerUsersLoadFailed;
+
+  /// No description provided for @ownerStoreBannerTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Banner i dyqanit'**
+  String get ownerStoreBannerTitle;
+
+  /// No description provided for @ownerStoreBannerHint.
+  ///
+  /// In sq, this message translates to:
+  /// **'Kjo foto shfaqet në «Na vizitoni fizikisht» në Home.'**
+  String get ownerStoreBannerHint;
+
+  /// No description provided for @ownerUploadPhoto.
+  ///
+  /// In sq, this message translates to:
+  /// **'Ngarko foto'**
+  String get ownerUploadPhoto;
+
+  /// No description provided for @ownerChangePhoto.
+  ///
+  /// In sq, this message translates to:
+  /// **'Ndrysho foton'**
+  String get ownerChangePhoto;
+
+  /// No description provided for @ownerSaveContact.
+  ///
+  /// In sq, this message translates to:
+  /// **'Ruaj kontaktin'**
+  String get ownerSaveContact;
+
+  /// No description provided for @ownerStoreAddressLabel.
+  ///
+  /// In sq, this message translates to:
+  /// **'Adresa e dyqanit'**
+  String get ownerStoreAddressLabel;
+
+  /// No description provided for @ownerMapsUrlLabel.
+  ///
+  /// In sq, this message translates to:
+  /// **'URL e Google Maps'**
+  String get ownerMapsUrlLabel;
+
+  /// No description provided for @ownerContactEmailLabel.
+  ///
+  /// In sq, this message translates to:
+  /// **'Email kontakt'**
+  String get ownerContactEmailLabel;
+
+  /// No description provided for @ownerContactPhoneLabel.
+  ///
+  /// In sq, this message translates to:
+  /// **'Telefon kontakt'**
+  String get ownerContactPhoneLabel;
+
+  /// No description provided for @ownerUploadSuccess.
+  ///
+  /// In sq, this message translates to:
+  /// **'U ruajt me sukses.'**
+  String get ownerUploadSuccess;
+
+  /// No description provided for @ownerUploadFailed.
+  ///
+  /// In sq, this message translates to:
+  /// **'Ngarkimi dështoi.'**
+  String get ownerUploadFailed;
+
+  /// No description provided for @ownerLegalDocsTitle.
+  ///
+  /// In sq, this message translates to:
+  /// **'Dokumente legale'**
+  String get ownerLegalDocsTitle;
+
+  /// No description provided for @ownerLegalTermsPdf.
+  ///
+  /// In sq, this message translates to:
+  /// **'Kushtet e përdorimit (PDF)'**
+  String get ownerLegalTermsPdf;
+
+  /// No description provided for @ownerLegalPrivacyPdf.
+  ///
+  /// In sq, this message translates to:
+  /// **'Politika e privatësisë (PDF)'**
+  String get ownerLegalPrivacyPdf;
+
+  /// No description provided for @ownerUploadPdf.
+  ///
+  /// In sq, this message translates to:
+  /// **'Ngarko PDF'**
+  String get ownerUploadPdf;
+
+  /// No description provided for @ownerReplacePdf.
+  ///
+  /// In sq, this message translates to:
+  /// **'Zëvendëso PDF'**
+  String get ownerReplacePdf;
+
+  /// No description provided for @ownerOpenPdf.
+  ///
+  /// In sq, this message translates to:
+  /// **'Hap dokumentin PDF'**
+  String get ownerOpenPdf;
+
+  /// No description provided for @ownerPdfUploaded.
+  ///
+  /// In sq, this message translates to:
+  /// **'PDF i ngarkuar'**
+  String get ownerPdfUploaded;
+
+  /// No description provided for @ownerPdfMissing.
+  ///
+  /// In sq, this message translates to:
+  /// **'Nuk ka PDF të ngarkuar ende.'**
+  String get ownerPdfMissing;
+
+  /// No description provided for @ownerNoPdfSelected.
+  ///
+  /// In sq, this message translates to:
+  /// **'Nuk u zgjodh asnjë skedar PDF.'**
+  String get ownerNoPdfSelected;
+
   /// No description provided for @ownerFulfillmentReceived.
   ///
   /// In sq, this message translates to:

@@ -95,6 +95,27 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.xxl),
+              Text(l10n.ownerSettingsSection, style: AppTextStyles.h3),
+              const SizedBox(height: AppSpacing.md),
+              _SettingsTile(
+                icon: Icons.people_outline,
+                title: l10n.ownerSettingsUsers,
+                subtitle: l10n.ownerSettingsUsersSubtitle,
+                onTap: () => context.push(AppRoutes.ownerSettingsUsers),
+              ),
+              _SettingsTile(
+                icon: Icons.image_outlined,
+                title: l10n.ownerSettingsStoreBanner,
+                subtitle: l10n.ownerSettingsStoreBannerSubtitle,
+                onTap: () => context.push(AppRoutes.ownerSettingsStoreBanner),
+              ),
+              _SettingsTile(
+                icon: Icons.picture_as_pdf_outlined,
+                title: l10n.ownerSettingsLegal,
+                subtitle: l10n.ownerSettingsLegalSubtitle,
+                onTap: () => context.push(AppRoutes.ownerSettingsLegal),
+              ),
+              const SizedBox(height: AppSpacing.xxl),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -129,6 +150,57 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  const _SettingsTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Material(
+        color: AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Row(
+              children: [
+                Icon(icon, color: AppColors.burgundy, size: 22),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: AppTextStyles.body),
+                      Text(subtitle, style: AppTextStyles.bodySmall),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.chevron_right,
+                  color: AppColors.textMuted,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -26,6 +26,9 @@ abstract final class AppRoutes {
   static const String ownerProducts = '/owner/products';
   static const String ownerSupport = '/owner/support';
   static const String ownerProfile = '/owner/profile';
+  static const String ownerSettingsUsers = '/owner/settings/users';
+  static const String ownerSettingsStoreBanner = '/owner/settings/store-banner';
+  static const String ownerSettingsLegal = '/owner/settings/legal';
 
   static String category(String id) => '/category/$id';
   static String product(String id) => '/product/$id';

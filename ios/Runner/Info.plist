@@ -68,5 +68,9 @@
 			<string>UIInterfaceOrientationLandscapeLeft</string>
 			<string>UIInterfaceOrientationLandscapeRight</string>
 		</array>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Cava Premium needs photo access to update the store banner image.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Cava Premium needs camera access to capture a store banner image.</string>
 	</dict>
 </plist>

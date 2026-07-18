@@ -1387,6 +1387,104 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ownerFallbackName => 'Owner';
 
   @override
+  String get ownerSettingsSection => 'App settings';
+
+  @override
+  String get ownerSettingsUsers => 'Registered users';
+
+  @override
+  String get ownerSettingsUsersSubtitle => 'View customer accounts';
+
+  @override
+  String get ownerSettingsStoreBanner => '“Visit us in store” photo';
+
+  @override
+  String get ownerSettingsStoreBannerSubtitle =>
+      'Change the image on the home page';
+
+  @override
+  String get ownerSettingsLegal => 'Legal documents';
+
+  @override
+  String get ownerSettingsLegalSubtitle => 'Upload Terms & Privacy PDFs';
+
+  @override
+  String get ownerSettingsStoreContact => 'Store contact & address';
+
+  @override
+  String get ownerSettingsStoreContactSubtitle => 'Email, phone, Maps';
+
+  @override
+  String get ownerUsersTitle => 'Users';
+
+  @override
+  String get ownerNoUsers => 'No registered users.';
+
+  @override
+  String get ownerUsersLoadFailed => 'Users could not be loaded.';
+
+  @override
+  String get ownerStoreBannerTitle => 'Store banner';
+
+  @override
+  String get ownerStoreBannerHint =>
+      'This photo appears in “Visit us in store” on Home.';
+
+  @override
+  String get ownerUploadPhoto => 'Upload photo';
+
+  @override
+  String get ownerChangePhoto => 'Change photo';
+
+  @override
+  String get ownerSaveContact => 'Save contact';
+
+  @override
+  String get ownerStoreAddressLabel => 'Store address';
+
+  @override
+  String get ownerMapsUrlLabel => 'Google Maps URL';
+
+  @override
+  String get ownerContactEmailLabel => 'Contact email';
+
+  @override
+  String get ownerContactPhoneLabel => 'Contact phone';
+
+  @override
+  String get ownerUploadSuccess => 'Saved successfully.';
+
+  @override
+  String get ownerUploadFailed => 'Upload failed.';
+
+  @override
+  String get ownerLegalDocsTitle => 'Legal documents';
+
+  @override
+  String get ownerLegalTermsPdf => 'Terms of use (PDF)';
+
+  @override
+  String get ownerLegalPrivacyPdf => 'Privacy policy (PDF)';
+
+  @override
+  String get ownerUploadPdf => 'Upload PDF';
+
+  @override
+  String get ownerReplacePdf => 'Replace PDF';
+
+  @override
+  String get ownerOpenPdf => 'Open PDF document';
+
+  @override
+  String get ownerPdfUploaded => 'PDF uploaded';
+
+  @override
+  String get ownerPdfMissing => 'No PDF uploaded yet.';
+
+  @override
+  String get ownerNoPdfSelected => 'No PDF file was selected.';
+
+  @override
   String get ownerFulfillmentReceived => 'Received';
 
   @override
