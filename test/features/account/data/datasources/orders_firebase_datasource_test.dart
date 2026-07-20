@@ -1,16 +1,36 @@
 import 'package:cava_ecommerce/core/firebase/firebase_config.dart';
+import 'package:cava_ecommerce/core/firebase/firebase_functions_gateway.dart';
 import 'package:cava_ecommerce/features/account/data/datasources/orders_firebase_datasource.dart';
+import 'package:cava_ecommerce/features/account/domain/entities/order_fulfillment_status.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+class _FakeFunctionsGateway implements FirebaseFunctionsGateway {
+  final List<Map<String, dynamic>> calls = [];
+
+  @override
+  Future<Map<String, dynamic>> call(
+    String functionName,
+    Map<String, dynamic> data,
+  ) async {
+    calls.add({'name': functionName, ...data});
+    return {'changed': true};
+  }
+}
+
 void main() {
   late FakeFirebaseFirestore firestore;
   late OrdersFirebaseDataSource dataSource;
+  late _FakeFunctionsGateway gateway;
 
   setUp(() {
     firestore = FakeFirebaseFirestore();
-    dataSource = OrdersFirebaseDataSource(firestore);
+    gateway = _FakeFunctionsGateway();
+    dataSource = OrdersFirebaseDataSource(
+      firestore,
+      functionsGateway: gateway,
+    );
   });
 
   test('getMyOrders returns only current user orders sorted desc', () async {
@@ -48,4 +68,19 @@ void main() {
     expect(orders.first.orderNumber, '#CP-2');
     expect(orders.last.orderNumber, '#CP-1');
   });
+
+  test(
+    'updateOrderFulfillmentStatus calls shared callable (no direct stock write)',
+    () async {
+      await dataSource.updateOrderFulfillmentStatus(
+        'order-9',
+        FulfillmentStatusDetail.canceled,
+        adminUid: 'admin-1',
+      );
+      expect(gateway.calls, hasLength(1));
+      expect(gateway.calls.single['name'], 'updateOrderFulfillmentStatus');
+      expect(gateway.calls.single['orderId'], 'order-9');
+      expect(gateway.calls.single['newStatus'], 'canceled');
+    },
+  );
 }

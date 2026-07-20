@@ -383,7 +383,15 @@ void _registerOrders() {
 
 OrdersDataSource _createOrdersDataSource() {
   if (FirebaseConfig.enabled && FirebaseConfig.useFirestoreOrders) {
-    return OrdersFirebaseDataSource(FirebaseFirestore.instance);
+    if (!sl.isRegistered<FirebaseFunctionsGateway>()) {
+      sl.registerLazySingleton<FirebaseFunctionsGateway>(
+        () => FirebaseFunctionsGatewayImpl.createDefault(),
+      );
+    }
+    return OrdersFirebaseDataSource(
+      FirebaseFirestore.instance,
+      functionsGateway: sl<FirebaseFunctionsGateway>(),
+    );
   }
   return const OrdersMockDataSource();
 }
