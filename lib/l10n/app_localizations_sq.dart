@@ -1648,6 +1648,9 @@ class AppLocalizationsSq extends AppLocalizations {
   String get cardPaymentBackToCheckout => 'Kthehu te arka';
 
   @override
+  String get cardPaymentBackToShopping => 'Kthehu tek blerjet';
+
+  @override
   String get cardPaymentViewOrders => 'Shiko porositë';
 
   @override

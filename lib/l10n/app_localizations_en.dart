@@ -1648,6 +1648,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cardPaymentBackToCheckout => 'Back to checkout';
 
   @override
+  String get cardPaymentBackToShopping => 'Back to shopping';
+
+  @override
   String get cardPaymentViewOrders => 'View my orders';
 
   @override

@@ -210,13 +210,8 @@ class _CardPaymentScreenState extends State<CardPaymentScreen>
           order: _controller.order,
           actions: [
             PrimaryButton(
-              label: l10n.cardPaymentVerifyNow,
-              onPressed: _controller.canVerify ? _controller.verifyNow : null,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _SecondaryAction(
-              label: l10n.cardPaymentOpenAgain,
-              onPressed: _controller.canReopenPaymentPage ? _reopen : null,
+              label: l10n.cardPaymentBackToShopping,
+              onPressed: () => context.go(AppRoutes.home),
             ),
           ],
         );

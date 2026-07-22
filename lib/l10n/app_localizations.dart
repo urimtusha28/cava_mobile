@@ -3240,6 +3240,12 @@ abstract class AppLocalizations {
   /// **'Kthehu te arka'**
   String get cardPaymentBackToCheckout;
 
+  /// No description provided for @cardPaymentBackToShopping.
+  ///
+  /// In sq, this message translates to:
+  /// **'Kthehu tek blerjet'**
+  String get cardPaymentBackToShopping;
+
   /// No description provided for @cardPaymentViewOrders.
   ///
   /// In sq, this message translates to:
