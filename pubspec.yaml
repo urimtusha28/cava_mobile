@@ -69,7 +69,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/images/launch_icon_cava.png
+  image_path: assets/icons/cava_logo_li.jpg
   # Safety net: if any alpha remains, fill with black (same as baked-in C/corners), never white.
   remove_alpha_ios: true
   background_color_ios: "#000000"
