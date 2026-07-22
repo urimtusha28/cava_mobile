@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
@@ -73,17 +76,44 @@ class ProductGridCard extends StatelessWidget {
                   top: Radius.circular(AppRadius.lg - 1),
                 ),
               ),
-              child: ProductImageView(
-                imageUrl: product.imageUrl,
-                width: double.infinity,
-                height: _imageHeight,
+              child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(AppRadius.lg - 1),
                 ),
-                placeholder: Icon(
-                  _iconFor(product.categoryId),
-                  size: 48,
-                  color: color.withValues(alpha: 0.35),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (product.inStock)
+                      _productImage(color)
+                    else
+                      ImageFiltered(
+                        imageFilter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                        child: _productImage(color),
+                      ),
+                    if (!product.inStock) ...[
+                      Container(color: Colors.black.withValues(alpha: 0.28)),
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context).outOfStockBadge,
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.caption.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ),
@@ -118,24 +148,33 @@ class ProductGridCard extends StatelessWidget {
     );
   }
 
+  Widget _productImage(Color color) {
+    return ProductImageView(
+      imageUrl: product.imageUrl,
+      width: double.infinity,
+      height: _imageHeight,
+      placeholder: Icon(
+        _iconFor(product.categoryId),
+        size: 48,
+        color: color.withValues(alpha: 0.35),
+      ),
+    );
+  }
+
   Widget _buildContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           product.name,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.textPrimary,
-          ),
+          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textPrimary),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 4),
         Text(
           product.type,
-          style: AppTextStyles.caption.copyWith(
-            color: AppColors.textSecondary,
-          ),
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
