@@ -31,7 +31,20 @@ class _CartScreenState extends State<CartScreen> {
     super.initState();
     _controller = createCartController();
     _loadFuture = _controller.load();
+    // The shell keeps this screen's State alive while another tab/route is on
+    // top, so initState only runs once — without this, adding to the cart
+    // elsewhere (e.g. the product grid) and coming back here would still show
+    // the stale list even though the bottom-nav badge is already up to date.
+    CartStateNotifier.revision.addListener(_onCartChanged);
   }
+
+  @override
+  void dispose() {
+    CartStateNotifier.revision.removeListener(_onCartChanged);
+    super.dispose();
+  }
+
+  void _onCartChanged() => _controller.load();
 
   Future<void> _updateQuantity(int index, int quantity) async {
     final error = await _controller.updateQuantity(index, quantity);
@@ -69,98 +82,102 @@ class _CartScreenState extends State<CartScreen> {
                 final items = _controller.items;
 
                 return Scaffold(
-          backgroundColor: AppColors.background,
-          body: SafeArea(
-            child: items.isEmpty
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CheckoutScreenHeader(
-                        scriptTitle: l10n.cartScriptTitle,
-                        boldTitle: l10n.cartBoldTitle,
-                        showBack: true,
-                        onBack: () => context.go(AppRoutes.home),
-                      ),
-                      Expanded(
-                        child: _CartEmptyState(
-                          message: l10n.cartEmpty,
-                          buttonLabel: l10n.viewProducts,
-                          onViewProducts: () =>
-                              context.push(AppRoutes.category('all')),
-                        ),
-                      ),
-                    ],
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CheckoutScreenHeader(
-                        scriptTitle: l10n.cartScriptTitle,
-                        boldTitle: l10n.cartBoldTitle,
-                        showBack: true,
-                        onBack: () => context.go(AppRoutes.home),
-                      ),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: ListView.builder(
-                                padding: const EdgeInsets.fromLTRB(
-                                  AppSpacing.screen,
-                                  0,
-                                  AppSpacing.screen,
-                                  AppSpacing.md,
+                  backgroundColor: AppColors.background,
+                  body: SafeArea(
+                    child: items.isEmpty
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CheckoutScreenHeader(
+                                scriptTitle: l10n.cartScriptTitle,
+                                boldTitle: l10n.cartBoldTitle,
+                                showBack: true,
+                                onBack: () => context.go(AppRoutes.home),
+                              ),
+                              Expanded(
+                                child: _CartEmptyState(
+                                  message: l10n.cartEmpty,
+                                  buttonLabel: l10n.viewProducts,
+                                  onViewProducts: () =>
+                                      context.push(AppRoutes.category('all')),
                                 ),
-                                itemCount: items.length,
-                                itemBuilder: (context, i) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(
-                                      bottom: AppSpacing.md,
-                                    ),
-                                    child: _CartItemCard(
-                                      item: items[i],
-                                      onDecrease: items[i].quantity > 1
-                                          ? () {
-                                              _updateQuantity(
-                                                i,
-                                                items[i].quantity - 1,
-                                              );
-                                            }
-                                          : null,
-                                      onIncrease: items[i].quantity <
-                                              items[i].product.stock
-                                          ? () {
-                                              _updateQuantity(
-                                                i,
-                                                items[i].quantity + 1,
-                                              );
-                                            }
-                                          : null,
-                                      onRemove: () => _removeItem(i),
-                                    ),
-                                  );
-                                },
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                AppSpacing.screen,
-                                0,
-                                AppSpacing.screen,
-                                AppSpacing.md,
+                            ],
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CheckoutScreenHeader(
+                                scriptTitle: l10n.cartScriptTitle,
+                                boldTitle: l10n.cartBoldTitle,
+                                showBack: true,
+                                onBack: () => context.go(AppRoutes.home),
                               ),
-                              child: _OrderSummaryCard(controller: _controller),
-                            ),
-                          ],
-                        ),
-                      ),
-                      _CartFooter(
-                        total: _controller.total,
-                        onContinue: () => context.push(AppRoutes.checkout),
-                      ),
-                    ],
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      child: ListView.builder(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          AppSpacing.screen,
+                                          0,
+                                          AppSpacing.screen,
+                                          AppSpacing.md,
+                                        ),
+                                        itemCount: items.length,
+                                        itemBuilder: (context, i) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: AppSpacing.md,
+                                            ),
+                                            child: _CartItemCard(
+                                              item: items[i],
+                                              onDecrease: items[i].quantity > 1
+                                                  ? () {
+                                                      _updateQuantity(
+                                                        i,
+                                                        items[i].quantity - 1,
+                                                      );
+                                                    }
+                                                  : null,
+                                              onIncrease:
+                                                  items[i].quantity <
+                                                      items[i].product.stock
+                                                  ? () {
+                                                      _updateQuantity(
+                                                        i,
+                                                        items[i].quantity + 1,
+                                                      );
+                                                    }
+                                                  : null,
+                                              onRemove: () => _removeItem(i),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        AppSpacing.screen,
+                                        0,
+                                        AppSpacing.screen,
+                                        AppSpacing.md,
+                                      ),
+                                      child: _OrderSummaryCard(
+                                        controller: _controller,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              _CartFooter(
+                                total: _controller.total,
+                                onContinue: () =>
+                                    context.push(AppRoutes.checkout),
+                              ),
+                            ],
+                          ),
                   ),
-          ),
                 );
               },
             );
@@ -252,74 +269,81 @@ class _CartItemCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-          Container(
-            width: 56,
-            height: 72,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: ProductImageView(
-              imageUrl: product.imageUrl,
+            Container(
               width: 56,
               height: 72,
-              fit: BoxFit.cover,
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              placeholder: Center(child: placeholder),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: ProductImageView(
+                imageUrl: product.imageUrl,
+                width: 56,
+                height: 72,
+                fit: BoxFit.cover,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                placeholder: Center(child: placeholder),
+              ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(product.brand, style: AppTextStyles.caption),
+                  const SizedBox(height: 2),
+                  Text(
+                    product.name,
+                    style: AppTextStyles.body,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    Formatters.currency(product.price),
+                    style: AppTextStyles.price.copyWith(fontSize: 15),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(product.brand, style: AppTextStyles.caption),
-                const SizedBox(height: 2),
-                Text(
-                  product.name,
-                  style: AppTextStyles.body,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                GestureDetector(
+                  onTap: onRemove,
+                  child: const Icon(
+                    Icons.close,
+                    size: 18,
+                    color: AppColors.textMuted,
+                  ),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  Formatters.currency(product.price),
-                  style: AppTextStyles.price.copyWith(fontSize: 15),
+                Container(
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceMuted,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _QtyButton(icon: Icons.chevron_left, onTap: onDecrease),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Text(
+                          '${item.quantity}',
+                          style: AppTextStyles.body,
+                        ),
+                      ),
+                      _QtyButton(icon: Icons.chevron_right, onTap: onIncrease),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              GestureDetector(
-                onTap: onRemove,
-                child: const Icon(Icons.close, size: 18, color: AppColors.textMuted),
-              ),
-              Container(
-                height: 36,
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceMuted,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _QtyButton(icon: Icons.chevron_left, onTap: onDecrease),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
-                      child: Text('${item.quantity}', style: AppTextStyles.body),
-                    ),
-                    _QtyButton(icon: Icons.chevron_right, onTap: onIncrease),
-                  ],
-                ),
-              ),
-            ],
-          ),
           ],
         ),
       ),
@@ -365,7 +389,9 @@ class _OrderSummaryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.textPrimary.withValues(alpha: 0.25)),
+        border: Border.all(
+          color: AppColors.textPrimary.withValues(alpha: 0.25),
+        ),
       ),
       child: Column(
         children: [
@@ -375,10 +401,16 @@ class _OrderSummaryCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           _SummaryRow(l10n.cartVat, Formatters.currency(controller.vat)),
           const SizedBox(height: AppSpacing.sm),
-          _SummaryRow(l10n.cartShipping, Formatters.currency(controller.shipping)),
+          _SummaryRow(
+            l10n.cartShipping,
+            Formatters.currency(controller.shipping),
+          ),
           if (controller.discount > 0) ...[
             const SizedBox(height: AppSpacing.sm),
-            _SummaryRow(l10n.cartDiscount, Formatters.currency(controller.discount)),
+            _SummaryRow(
+              l10n.cartDiscount,
+              Formatters.currency(controller.discount),
+            ),
           ],
           const Padding(
             padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
@@ -434,7 +466,9 @@ class _CartFooter extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: AppColors.background,
-        border: Border(top: BorderSide(color: AppColors.border.withValues(alpha: 0.6))),
+        border: Border(
+          top: BorderSide(color: AppColors.border.withValues(alpha: 0.6)),
+        ),
       ),
       child: Row(
         children: [
@@ -451,10 +485,7 @@ class _CartFooter extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          FooterActionButton(
-            label: l10n.cartContinue,
-            onTap: onContinue,
-          ),
+          FooterActionButton(label: l10n.cartContinue, onTap: onContinue),
         ],
       ),
     );

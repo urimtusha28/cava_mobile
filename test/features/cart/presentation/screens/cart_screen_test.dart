@@ -4,6 +4,8 @@ import 'package:cava_ecommerce/features/cart/domain/usecases/add_to_cart.dart';
 import 'package:cava_ecommerce/features/cart/presentation/screens/cart_screen.dart';
 import 'package:cava_ecommerce/features/products/data/mock/mock_products.dart';
 import 'package:cava_ecommerce/features/products/presentation/controllers/product_detail_controller.dart';
+import 'package:cava_ecommerce/l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../helpers/test_app.dart';
@@ -18,7 +20,9 @@ void main() {
     await tearDownTestDependencies();
   });
 
-  testWidgets('does not show discount row when discount is zero', (tester) async {
+  testWidgets('does not show discount row when discount is zero', (
+    tester,
+  ) async {
     final controller = sl<ProductDetailController>();
     await controller.load('wine-001');
     await sl<AddToCartUseCase>()(
@@ -50,4 +54,28 @@ void main() {
     expect(imageView.width, 56);
     expect(imageView.height, 72);
   });
+
+  testWidgets(
+    'refreshes when the cart changes elsewhere while the screen stays '
+    'mounted (e.g. behind a pushed product grid route)',
+    (tester) async {
+      await pumpTestApp(tester, home: const CartScreen());
+      await tester.pumpAndSettle();
+
+      final l10n = lookupAppLocalizations(const Locale('sq'));
+      expect(find.text(l10n.cartEmpty), findsOneWidget);
+
+      // Simulate an add-to-cart happening on another screen (product grid)
+      // that is pushed above this one — the CartScreen State stays alive and
+      // must pick up the change instead of showing the stale empty list.
+      final product = MockProducts.products.first;
+      await sl<AddToCartUseCase>()(
+        AddToCartParams(product: product, quantity: 1),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.cartEmpty), findsNothing);
+      expect(find.text(product.name), findsOneWidget);
+    },
+  );
 }
