@@ -31,7 +31,20 @@ class _WishlistScreenState extends State<WishlistScreen> {
     super.initState();
     _controller = createWishlistController();
     _loadFuture = _controller.load();
+    // The shell keeps this screen's State alive while another tab/route is on
+    // top, so initState only runs once — without this, toggling the wishlist
+    // elsewhere (e.g. the product grid) and coming back here would still show
+    // the stale list even though the bottom-nav badge is already up to date.
+    WishlistStateNotifier.revision.addListener(_onWishlistChanged);
   }
+
+  @override
+  void dispose() {
+    WishlistStateNotifier.revision.removeListener(_onWishlistChanged);
+    super.dispose();
+  }
+
+  void _onWishlistChanged() => _controller.load();
 
   void _removeProduct(String productId) => _controller.remove(productId);
 
