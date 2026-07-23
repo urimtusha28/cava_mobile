@@ -55,8 +55,7 @@ class ProductCard extends StatelessWidget {
                   imageUrl: product.imageUrl,
                   borderRadius: BorderRadius.circular(AppRadius.md),
                   placeholder: Center(
-                    child: Icon(
-                      _iconFor(product.categoryId),
+                    child: ProductImagePlaceholder(
                       size: 64,
                       color: color.withValues(alpha: 0.45),
                     ),
@@ -110,22 +109,5 @@ class ProductCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  IconData _iconFor(String categoryId) {
-    switch (categoryId) {
-      case 'wines':
-        return Icons.wine_bar_outlined;
-      case 'spirits':
-        return Icons.liquor_outlined;
-      case 'liqueurs':
-        return Icons.local_bar_outlined;
-      case 'tobacco':
-        return Icons.smoking_rooms_outlined;
-      case 'accessories':
-        return Icons.card_giftcard_outlined;
-      default:
-        return Icons.shopping_bag_outlined;
-    }
   }
 }

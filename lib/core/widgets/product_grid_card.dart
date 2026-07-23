@@ -153,8 +153,7 @@ class ProductGridCard extends StatelessWidget {
       imageUrl: product.imageUrl,
       width: double.infinity,
       height: _imageHeight,
-      placeholder: Icon(
-        _iconFor(product.categoryId),
+      placeholder: ProductImagePlaceholder(
         size: 48,
         color: color.withValues(alpha: 0.35),
       ),
@@ -206,22 +205,5 @@ class ProductGridCard extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  IconData _iconFor(String categoryId) {
-    switch (categoryId) {
-      case 'wines':
-        return Icons.wine_bar_outlined;
-      case 'spirits':
-        return Icons.liquor_outlined;
-      case 'liqueurs':
-        return Icons.local_bar_outlined;
-      case 'tobacco':
-        return Icons.smoking_rooms_outlined;
-      case 'accessories':
-        return Icons.card_giftcard_outlined;
-      default:
-        return Icons.shopping_bag_outlined;
-    }
   }
 }

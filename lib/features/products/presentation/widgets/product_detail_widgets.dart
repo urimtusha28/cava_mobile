@@ -24,8 +24,7 @@ class ProductHeroImage extends StatelessWidget {
         ? product.detailImageUrl
         : product.imageUrl;
     final placeholder = Center(
-      child: Icon(
-        Icons.wine_bar_outlined,
+      child: ProductImagePlaceholder(
         size: 120,
         color: color.withValues(alpha: 0.35),
       ),

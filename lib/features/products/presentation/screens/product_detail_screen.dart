@@ -260,8 +260,7 @@ class _ProductImage extends StatelessWidget {
         : product.imageUrl;
     final imageHeight = MediaQuery.sizeOf(context).height * _imageHeightRatio;
     final placeholder = Center(
-      child: Icon(
-        Icons.wine_bar_outlined,
+      child: ProductImagePlaceholder(
         size: 110,
         color: color.withValues(alpha: 0.35),
       ),

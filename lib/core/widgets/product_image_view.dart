@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../constants/app_assets.dart';
+
 /// Network product image with identical placeholder/error fallback.
 ///
 /// Uses [CachedNetworkImage] (memory + disk cache). Real images use
@@ -47,5 +49,29 @@ class ProductImageView extends StatelessWidget {
     }
 
     return image;
+  }
+}
+
+/// Shared fallback when a product has no (or a broken) image URL.
+class ProductImagePlaceholder extends StatelessWidget {
+  const ProductImagePlaceholder({
+    super.key,
+    this.size = 48,
+    this.color,
+  });
+
+  final double size;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      AppAssets.productPlaceholder,
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      color: color,
+      colorBlendMode: color != null ? BlendMode.srcIn : null,
+    );
   }
 }

@@ -22,6 +22,7 @@ abstract final class AppAssets {
   static const String mail = 'assets/icons/mail.png';
   static const String phone = 'assets/icons/telefon.png';
   static const String supportHours = 'assets/icons/orari_support.png';
+  static const String productPlaceholder = 'assets/icons/wine.png';
 
   static const String storeLocation = 'assets/images/store_location.jpg';
 }

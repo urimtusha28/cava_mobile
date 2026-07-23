@@ -252,10 +252,9 @@ class _CartItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = item.product;
     final color = Color(product.placeholderColor ?? 0xFF6B1D2A);
-    final placeholder = Icon(
-      Icons.wine_bar_outlined,
-      color: color.withValues(alpha: 0.45),
+    final placeholder = ProductImagePlaceholder(
       size: 32,
+      color: color.withValues(alpha: 0.45),
     );
 
     return Container(

@@ -56,8 +56,8 @@ class _OrderDetailItemRowState extends State<OrderDetailItemRow> {
       width: _imageSize,
       height: _imageSize,
       color: AppColors.surfaceMuted,
-      child: Icon(
-        Icons.wine_bar_outlined,
+      alignment: Alignment.center,
+      child: ProductImagePlaceholder(
         size: 24,
         color: AppColors.burgundy.withValues(alpha: 0.35),
       ),
