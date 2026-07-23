@@ -104,6 +104,19 @@ flutter:
     - assets/icons/profile.png
     - assets/icons/ringing.png
     - assets/icons/chat.png
+    - assets/icons/filter.png
+    - assets/icons/edito_profilin.png
+    - assets/icons/porosite_e_mia.png
+    - assets/icons/adresat.png
+    - assets/icons/ndihme_kontakt.png
+    - assets/icons/rreth_cava.png
+    - assets/icons/gjuha.png
+    - assets/icons/kushtet_e_perdorimit.png
+    - assets/icons/dil.png
+    - assets/icons/support.png
+    - assets/icons/mail.png
+    - assets/icons/telefon.png
+    - assets/icons/orari_support.png
     - assets/icons/cava2.png
     - assets/images/store_location.jpg
 

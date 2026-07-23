@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants/app_assets.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
@@ -16,15 +17,22 @@ class ProductFilterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color =
+        activeCount > 0 ? AppColors.burgundy : AppColors.textPrimary;
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
         IconButton(
           onPressed: onPressed,
           tooltip: 'Filtro & Sorto',
-          icon: Icon(
-            Icons.tune,
-            color: activeCount > 0 ? AppColors.burgundy : AppColors.textPrimary,
+          icon: Image.asset(
+            AppAssets.filter,
+            width: 24,
+            height: 24,
+            fit: BoxFit.contain,
+            color: color,
+            colorBlendMode: BlendMode.srcIn,
           ),
         ),
         if (activeCount > 0)

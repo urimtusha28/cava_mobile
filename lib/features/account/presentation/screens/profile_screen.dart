@@ -8,6 +8,7 @@ import '../../../../core/state/auth_state_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cava_app_bar.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/router/app_routes.dart';
@@ -118,37 +119,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: AppSpacing.xxl),
                       if (loggedIn)
                         _Tile(
-                          icon: Icons.edit_outlined,
+                          iconAsset: AppAssets.editProfile,
                           title: l10n.editProfile,
                           onTap: _onEditProfile,
                         ),
                       _Tile(
-                        icon: Icons.shopping_bag_outlined,
+                        iconAsset: AppAssets.myOrders,
                         title: l10n.myOrders,
                         onTap: () => context.push(AppRoutes.orders),
                       ),
                       _Tile(
-                        icon: Icons.location_on_outlined,
+                        iconAsset: AppAssets.addresses,
                         title: l10n.addresses,
                         onTap: () => context.push(AppRoutes.addresses),
                       ),
                       _Tile(
-                        icon: Icons.help_outline,
+                        iconAsset: AppAssets.helpContact,
                         title: l10n.helpAndContact,
                         onTap: () => context.push(AppRoutes.help),
                       ),
                       _Tile(
-                        icon: Icons.info_outline,
+                        iconAsset: AppAssets.aboutCava,
                         title: l10n.aboutCava,
                         onTap: () => context.push(AppRoutes.about),
                       ),
                       _Tile(
-                        icon: Icons.language_outlined,
+                        iconAsset: AppAssets.language,
                         title: l10n.language,
                         onTap: () => context.push(AppRoutes.language),
                       ),
                       _Tile(
-                        icon: Icons.description_outlined,
+                        iconAsset: AppAssets.termsOfUse,
                         title: l10n.termsOfUse,
                         onTap: () => context.push(AppRoutes.terms),
                       ),
@@ -159,7 +160,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       if (loggedIn)
                         _Tile(
-                          icon: Icons.logout,
+                          iconAsset: AppAssets.logout,
                           title: l10n.logout,
                           onTap: () => _controller.logout(),
                         ),
@@ -259,12 +260,14 @@ class _ProfileHeader extends StatelessWidget {
 
 class _Tile extends StatelessWidget {
   const _Tile({
-    required this.icon,
+    this.icon,
+    this.iconAsset,
     required this.title,
     required this.onTap,
-  });
+  }) : assert(icon != null || iconAsset != null);
 
-  final IconData icon;
+  final IconData? icon;
+  final String? iconAsset;
   final String title;
   final VoidCallback onTap;
 
@@ -280,7 +283,17 @@ class _Tile extends StatelessWidget {
           color: AppColors.surfaceMuted,
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
-        child: Icon(icon, color: AppColors.burgundy, size: 22),
+        alignment: Alignment.center,
+        child: iconAsset != null
+            ? Image.asset(
+                iconAsset!,
+                width: 22,
+                height: 22,
+                fit: BoxFit.contain,
+                color: AppColors.burgundy,
+                colorBlendMode: BlendMode.srcIn,
+              )
+            : Icon(icon, color: AppColors.burgundy, size: 22),
       ),
       title: Text(title, style: AppTextStyles.body),
       trailing: const Icon(Icons.chevron_right, color: AppColors.textMuted),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cava_ecommerce/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../constants/app_assets.dart';
 import '../constants/app_radius.dart';
 import '../constants/app_spacing.dart';
 import '../di/injection.dart';
@@ -24,7 +25,7 @@ Future<void> showSupportBottomSheet(BuildContext context) {
     context: context,
     title: l10n.supportTitle,
     subtitle: l10n.supportSubtitle,
-    headerIcon: Icons.support_agent_rounded,
+    headerIconAsset: AppAssets.support,
     child: _SupportSheetBody(controller: controller),
   ).whenComplete(controller.dispose);
 }
@@ -151,7 +152,7 @@ class _SupportSheetBodyState extends State<_SupportSheetBody> {
               children: [
                 Expanded(
                   child: _QuickContactChip(
-                    icon: Icons.email_outlined,
+                    iconAsset: AppAssets.mail,
                     label: l10n.email,
                     onTap: _launchEmail,
                   ),
@@ -159,7 +160,7 @@ class _SupportSheetBodyState extends State<_SupportSheetBody> {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: _QuickContactChip(
-                    icon: Icons.phone_outlined,
+                    iconAsset: AppAssets.phone,
                     label: l10n.phone,
                     onTap: _launchPhone,
                   ),
@@ -222,14 +223,17 @@ class _SupportSheetBodyState extends State<_SupportSheetBody> {
                               color: Colors.white,
                             ),
                           )
-                        : Text(l10n.supportSendQuestion, style: AppTextStyles.button),
+                        : Text(
+                            l10n.supportSendQuestion,
+                            style: AppTextStyles.button,
+                          ),
                   ),
                 ),
               ),
             ),
             const SizedBox(height: AppSpacing.md),
             SheetActionCard(
-              icon: Icons.schedule_outlined,
+              iconAsset: AppAssets.supportHours,
               title: l10n.supportHoursTitle,
               subtitle: l10n.supportHoursValue,
             ),
@@ -276,12 +280,12 @@ class _MessageBubble extends StatelessWidget {
 
 class _QuickContactChip extends StatelessWidget {
   const _QuickContactChip({
-    required this.icon,
+    required this.iconAsset,
     required this.label,
     required this.onTap,
   });
 
-  final IconData icon;
+  final String iconAsset;
   final String label;
   final VoidCallback onTap;
 
@@ -305,7 +309,14 @@ class _QuickContactChip extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 20, color: AppColors.burgundy),
+              Image.asset(
+                iconAsset,
+                width: 20,
+                height: 20,
+                fit: BoxFit.contain,
+                color: AppColors.burgundy,
+                colorBlendMode: BlendMode.srcIn,
+              ),
               const SizedBox(width: AppSpacing.sm),
               Text(label, style: AppTextStyles.bodySmall),
             ],

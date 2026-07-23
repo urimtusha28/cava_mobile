@@ -9,9 +9,12 @@ Future<void> showAppBottomSheet({
   required BuildContext context,
   required String title,
   required String subtitle,
-  required IconData headerIcon,
+  IconData? headerIcon,
+  String? headerIconAsset,
   required Widget child,
 }) {
+  assert(headerIcon != null || headerIconAsset != null);
+
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -64,11 +67,28 @@ Future<void> showAppBottomSheet({
                           height: 48,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [AppColors.burgundyDark, AppColors.burgundy],
+                              colors: [
+                                AppColors.burgundyDark,
+                                AppColors.burgundy,
+                              ],
                             ),
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: Icon(headerIcon, color: Colors.white, size: 24),
+                          alignment: Alignment.center,
+                          child: headerIconAsset != null
+                              ? Image.asset(
+                                  headerIconAsset,
+                                  width: 24,
+                                  height: 24,
+                                  fit: BoxFit.contain,
+                                  color: Colors.white,
+                                  colorBlendMode: BlendMode.srcIn,
+                                )
+                              : Icon(
+                                  headerIcon,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
                         ),
                         const SizedBox(width: AppSpacing.md),
                         Expanded(
@@ -114,15 +134,17 @@ Future<void> showAppBottomSheet({
 class SheetActionCard extends StatelessWidget {
   const SheetActionCard({
     super.key,
-    required this.icon,
+    this.icon,
+    this.iconAsset,
     required this.title,
     required this.subtitle,
     this.trailing,
     this.onTap,
     this.highlighted = false,
-  });
+  }) : assert(icon != null || iconAsset != null);
 
-  final IconData icon;
+  final IconData? icon;
+  final String? iconAsset;
   final String title;
   final String subtitle;
   final Widget? trailing;
@@ -132,7 +154,9 @@ class SheetActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: highlighted ? AppColors.burgundy.withValues(alpha: 0.06) : AppColors.surface,
+      color: highlighted
+          ? AppColors.burgundy.withValues(alpha: 0.06)
+          : AppColors.surface,
       borderRadius: BorderRadius.circular(AppRadius.lg),
       child: InkWell(
         onTap: onTap,
@@ -142,7 +166,9 @@ class SheetActionCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppRadius.lg),
             border: Border.all(
-              color: highlighted ? AppColors.burgundy.withValues(alpha: 0.2) : AppColors.border,
+              color: highlighted
+                  ? AppColors.burgundy.withValues(alpha: 0.2)
+                  : AppColors.border,
             ),
           ),
           child: Row(
@@ -155,7 +181,17 @@ class SheetActionCard extends StatelessWidget {
                   color: AppColors.surfaceMuted,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: AppColors.burgundy, size: 22),
+                alignment: Alignment.center,
+                child: iconAsset != null
+                    ? Image.asset(
+                        iconAsset!,
+                        width: 22,
+                        height: 22,
+                        fit: BoxFit.contain,
+                        color: AppColors.burgundy,
+                        colorBlendMode: BlendMode.srcIn,
+                      )
+                    : Icon(icon, color: AppColors.burgundy, size: 22),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
