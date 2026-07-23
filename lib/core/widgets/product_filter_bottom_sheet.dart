@@ -14,14 +14,20 @@ Future<ProductFilterState?> showProductFilterSheet({
   required ProductFilterState initial,
   required ProductFilterOptions options,
 }) {
+  // The filter button sits next to the search field, so it can still have
+  // focus (and the keyboard up) when tapped. A lingering keyboard inset
+  // pushes the whole sheet up, leaving a large gap below it — dismiss first
+  // so the sheet always opens flush with the bottom.
+  FocusScope.of(context).unfocus();
   return showModalBottomSheet<ProductFilterState>(
     context: context,
+    // Cover the shell (including the floating bottom nav). Opening on the
+    // shell navigator lets the nav sit on top of the action buttons.
+    useRootNavigator: true,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (context) => ProductFilterBottomSheet(
-      initial: initial,
-      options: options,
-    ),
+    builder: (context) =>
+        ProductFilterBottomSheet(initial: initial, options: options),
   );
 }
 
@@ -72,7 +78,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final bottom = MediaQuery.viewInsetsOf(context).bottom;
-    final maxHeight = MediaQuery.sizeOf(context).height * 0.88;
+    final maxHeight = MediaQuery.sizeOf(context).height * 0.7;
 
     return Padding(
       padding: EdgeInsets.only(bottom: bottom),
@@ -166,7 +172,8 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                         RangeSlider(
                           values: _priceRange,
                           min: widget.options.minPrice,
-                          max: widget.options.maxPrice <= widget.options.minPrice
+                          max:
+                              widget.options.maxPrice <= widget.options.minPrice
                               ? widget.options.minPrice + 1
                               : widget.options.maxPrice,
                           activeColor: AppColors.burgundy,
@@ -252,8 +259,10 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                             selected: _draft.subcategories,
                             onToggle: (v) => setState(() {
                               _draft = _draft.copyWith(
-                                subcategories:
-                                    _toggleSet(_draft.subcategories, v),
+                                subcategories: _toggleSet(
+                                  _draft.subcategories,
+                                  v,
+                                ),
                               );
                             }),
                           ),
@@ -281,7 +290,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                     AppSpacing.screen,
                     AppSpacing.sm,
                     AppSpacing.screen,
-                    AppSpacing.md,
+                    AppSpacing.sm,
                   ),
                   child: Row(
                     children: [
@@ -302,8 +311,7 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                             side: const BorderSide(color: AppColors.border),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.md),
+                              borderRadius: BorderRadius.circular(AppRadius.md),
                             ),
                           ),
                           child: Text(l10n.clear),
@@ -313,14 +321,12 @@ class _ProductFilterBottomSheetState extends State<ProductFilterBottomSheet> {
                       Expanded(
                         flex: 2,
                         child: FilledButton(
-                          onPressed: () =>
-                              Navigator.of(context).pop(_draft),
+                          onPressed: () => Navigator.of(context).pop(_draft),
                           style: FilledButton.styleFrom(
                             backgroundColor: AppColors.burgundy,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.md),
+                              borderRadius: BorderRadius.circular(AppRadius.md),
                             ),
                           ),
                           child: Text(l10n.apply),

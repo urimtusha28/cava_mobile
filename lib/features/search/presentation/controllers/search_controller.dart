@@ -27,20 +27,38 @@ class SearchController extends BaseController {
   ProductFilterState filter = ProductFilterState.empty;
 
   Timer? _debounceTimer;
+  Future<void>? _loadProductsFuture;
 
   /// Unfiltered search matches — used to build filter facet options.
   List<ProductEntity> get rawSearchResults =>
       List<ProductEntity>.unmodifiable(_rawResults);
 
+  /// Facet source for the filter sheet: current search hits, or the full
+  /// catalog when the query is empty / too short.
+  List<ProductEntity> get productsForFilterOptions {
+    if (_rawResults.isNotEmpty) {
+      return List<ProductEntity>.unmodifiable(_rawResults);
+    }
+    return List<ProductEntity>.unmodifiable(_allProducts);
+  }
+
   Future<void> loadInitial() async {
     await _loadRecentSearches();
   }
 
+  /// Loads the catalog if needed so the filter sheet can open even before
+  /// the user has typed a search query.
+  Future<void> ensureProductsLoaded() => _ensureProductsLoaded();
+
   Future<void> _ensureProductsLoaded() async {
-    if (hasLoadedProducts || isSearching) {
+    if (hasLoadedProducts) {
       return;
     }
+    _loadProductsFuture ??= _fetchProducts();
+    await _loadProductsFuture;
+  }
 
+  Future<void> _fetchProducts() async {
     isSearching = true;
     notifyListeners();
 

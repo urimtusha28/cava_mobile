@@ -57,16 +57,18 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _openFilters() async {
-    final source = _controller.rawSearchResults;
-    if (source.isEmpty) return;
+    await _controller.ensureProductsLoaded();
+    if (!mounted) return;
 
-    final options = ProductFilterOptions.fromProducts(source);
+    final options = ProductFilterOptions.fromProducts(
+      _controller.productsForFilterOptions,
+    );
     final result = await showProductFilterSheet(
       context: context,
       initial: _controller.filter,
       options: options,
     );
-    if (result != null) {
+    if (result != null && mounted) {
       _controller.applyFilter(result);
     }
   }

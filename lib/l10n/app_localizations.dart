@@ -1827,7 +1827,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpPhoneValue.
   ///
   /// In sq, this message translates to:
-  /// **'+355 69 000 0000'**
+  /// **'+383 48 443 222'**
   String get helpPhoneValue;
 
   /// No description provided for @helpHoursValue.

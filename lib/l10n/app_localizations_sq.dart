@@ -893,7 +893,7 @@ class AppLocalizationsSq extends AppLocalizations {
   String get helpEmailValue => 'info@cava-premium.com';
 
   @override
-  String get helpPhoneValue => '+355 69 000 0000';
+  String get helpPhoneValue => '+383 48 443 222';
 
   @override
   String get helpHoursValue => 'E Hënë – E Shtunë, 09:00 – 20:00';
